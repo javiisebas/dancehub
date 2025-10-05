@@ -1,0 +1,15 @@
+import { IsNotEmpty, IsString, IsOptional, IsNumber, IsBoolean, IsDate, MinLength, MaxLength, Min,
+Max, IsInt } from 'class-validator'; export class Create{{pascalCase name}}Request {
+{{#if fields}}
+    {{#each fields}}
+        {{#each this.validators}}
+            {{{this}}}
+        {{/each}}
+        {{camelCase this.name}}{{#unless this.required}}?{{/unless}}:
+        {{this.tsType}};
+
+    {{/each}}
+{{else}}
+    // TODO: Add your fields here // Example: // @IsString() // @IsNotEmpty() // fieldName: string;
+{{/if}}
+}

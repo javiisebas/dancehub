@@ -1,0 +1,16 @@
+import { Injectable } from '@nestjs/common';
+
+export class {{pascalCase name}}Query {
+    constructor(public readonly data: any) {}
+}
+
+@Injectable()
+export class {{pascalCase name}}Handler {
+    constructor() {}
+
+    async execute({ data }: {{pascalCase name}}Query): Promise<any> {
+        // TODO: Implement query logic here
+        // Add necessary dependencies via constructor if needed
+        return null;
+    }
+}

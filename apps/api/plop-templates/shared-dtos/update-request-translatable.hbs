@@ -1,0 +1,12 @@
+import { Type } from 'class-transformer'; import { ArrayMinSize, IsArray, IsOptional, IsString,
+Matches, MaxLength, MinLength, ValidateNested, } from 'class-validator'; import {
+{{pascalCase name}}TranslationDto } from './{{kebabCase name}}-translation.dto'; export class Update{{pascalCase
+    name
+}}Request { @IsString({ message: 'Slug must be a string' }) @IsOptional() @MinLength(2, { message:
+'Slug must be at least 2 characters long' }) @MaxLength(255, { message: 'Slug cannot exceed 255
+characters' }) @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: 'Slug must be lowercase,
+alphanumeric and can contain hyphens', }) slug?: string; @IsArray({ message: 'Translations must be
+an array' }) @ValidateNested({ each: true }) @ArrayMinSize(1, { message: 'At least one translation
+is required' }) @Type(() =>
+{{pascalCase name}}TranslationDto) @IsOptional() translations?:
+{{pascalCase name}}TranslationDto[]; }

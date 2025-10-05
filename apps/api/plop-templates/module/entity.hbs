@@ -1,0 +1,54 @@
+import { BaseEntity } from '@api/common/abstract/domain'; export class
+{{pascalCase name}}
+extends BaseEntity { constructor( id: string,
+{{#if fields}}
+    {{#each fields}}
+        public
+        {{camelCase this.name}}:
+        {{this.tsType}}{{#unless this.required}} | null{{/unless}},
+    {{/each}}
+{{else}}
+    // TODO: Add your properties here
+{{/if}}
+createdAt: Date, updatedAt: Date, ) { super(id, createdAt, updatedAt); }
+
+{{#if fields}}
+    {{#each fields}}
+        update{{pascalCase this.name}}({{camelCase this.name}}:
+        {{this.tsType}}{{#unless this.required}} | null{{/unless}}): void { this.{{camelCase
+            this.name
+        }}
+        =
+        {{#if (eq this.tsType 'string')}}{{camelCase this.name}}{{#if this.required}}.trim(){{else}}
+                ?
+                {{camelCase this.name}}.trim() : null{{/if}}{{else}}{{camelCase this.name}}{{/if}};
+        }
+
+    {{/each}}
+{{else}}
+    // TODO: Add your update methods here
+
+{{/if}}
+static create( id: string,
+{{#if fields}}
+    {{#each fields}}
+        {{camelCase this.name}}:
+        {{this.tsType}}{{#unless this.required}} | null{{/unless}},
+    {{/each}}
+{{else}}
+    // TODO: Add your parameters here
+{{/if}}
+):
+{{pascalCase name}}
+{ const now = new Date(); return new
+{{pascalCase name}}( id,
+{{#if fields}}
+    {{#each fields}}
+        {{#if (eq this.tsType 'string')}}{{camelCase this.name}}{{#if this.required}}.trim(){{else}}
+                ?
+                {{camelCase this.name}}.trim() : null{{/if}}{{else}}{{camelCase this.name}}{{/if}},
+    {{/each}}
+{{else}}
+    // TODO: Add your arguments here
+{{/if}}
+now, now, ); } }

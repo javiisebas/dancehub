@@ -1,0 +1,15 @@
+# Cursor Rules
+
+## Strict Prohibitions
+
+-   DO NOT create README.md files
+-   DO NOT create summary files
+-   DO NOT create any .md files
+-   DO NOT create automatic documentation
+-   DO NOT generate explanatory text files
+
+## Behavior
+
+-   No external documentation
+-   Code comments only when absolutely necessary
+-   Direct, elegant, scalable and profesional responses

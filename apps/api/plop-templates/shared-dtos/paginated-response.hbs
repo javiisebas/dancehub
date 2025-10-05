@@ -1,0 +1,9 @@
+import { Expose, Type } from 'class-transformer';
+import { PaginatedResponse } from '../../common';
+import { {{pascalCase name}}Response } from './{{kebabCase name}}.response';
+
+export class {{pascalCase name}}PaginatedResponse extends PaginatedResponse<{{pascalCase name}}Response> {
+    @Expose()
+    @Type(() => {{pascalCase name}}Response)
+    declare data: {{pascalCase name}}Response[];
+}

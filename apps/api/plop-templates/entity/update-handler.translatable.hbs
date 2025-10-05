@@ -1,0 +1,38 @@
+import { UpdateCommand } from '@api/common/abstract/application/commands.abstract';
+import { Inject, Injectable } from '@nestjs/common';
+import { Update{{pascalCase name}}Request } from '@repo/shared';
+import { randomUUID } from 'crypto';
+import { {{pascalCase name}}Translation } from '../../domain/entities/{{kebabCase name}}-translation.entity';
+import {
+    {{constantCase name}}_REPOSITORY,
+    I{{pascalCase name}}Repository,
+} from '../../domain/repositories/i-{{kebabCase name}}.repository';
+
+export class Update{{pascalCase name}}Command extends UpdateCommand<Update{{pascalCase name}}Request> {}
+
+@Injectable()
+export class Update{{pascalCase name}}Handler {
+    constructor(
+        @Inject({{constantCase name}}_REPOSITORY) private readonly repository: I{{pascalCase name}}Repository,
+    ) {}
+
+    async execute({ id, data }: Update{{pascalCase name}}Command) {
+        const {{camelCase name}} = await this.repository.findById(id);
+
+        if (data.slug) {
+            {{camelCase name}}.updateSlug(data.slug);
+        }
+
+        const updated{{pascalCase name}} = await this.repository.update({{camelCase name}}.id, {{camelCase name}});
+
+        if (data.translations) {
+            const translations = data.translations.map((t) =>
+                {{pascalCase name}}Translation.create(randomUUID(), t.locale, t.name, t.description),
+            );
+
+            await this.repository.saveTranslations(updated{{pascalCase name}}.id, translations);
+        }
+
+        return this.repository.findByIdWithTranslations(updated{{pascalCase name}}.id);
+    }
+}

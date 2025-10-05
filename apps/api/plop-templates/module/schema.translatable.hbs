@@ -1,0 +1,9 @@
+import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'; export const
+{{camelCase (pluralize name)}}
+= pgTable('{{snakeCase (pluralize name)}}', { id: uuid('id').primaryKey().defaultRandom(), slug:
+varchar('slug', { length: 255 }).notNull().unique(), createdAt:
+timestamp('created_at').notNull().defaultNow(), updatedAt:
+timestamp('updated_at').notNull().defaultNow(), }); export type
+{{pascalCase name}}Schema = typeof
+{{camelCase (pluralize name)}}.$inferSelect; export type New{{pascalCase name}}Schema = typeof
+{{camelCase (pluralize name)}}.$inferInsert;

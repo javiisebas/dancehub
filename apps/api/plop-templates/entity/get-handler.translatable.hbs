@@ -1,0 +1,29 @@
+import { BaseGetTranslatableHandler } from '@api/common/abstract/application';
+import { Inject, Injectable } from '@nestjs/common';
+import { {{pascalCase name}}Translation } from '../../domain/entities/{{kebabCase name}}-translation.entity';
+import { {{pascalCase name}} } from '../../domain/entities/{{kebabCase name}}.entity';
+import {
+    {{constantCase name}}_REPOSITORY,
+    I{{pascalCase name}}Repository,
+} from '../../domain/repositories/i-{{kebabCase name}}.repository';
+
+export class Get{{pascalCase name}}Query {
+    constructor(
+        public readonly id: string,
+        public readonly locale?: string,
+    ) {}
+}
+
+@Injectable()
+export class Get{{pascalCase name}}Handler extends BaseGetTranslatableHandler<
+    {{pascalCase name}},
+    {{pascalCase name}}Translation
+> {
+    constructor(@Inject({{constantCase name}}_REPOSITORY) repository: I{{pascalCase name}}Repository) {
+        super(repository);
+    }
+
+    async executeQuery({ id, locale }: Get{{pascalCase name}}Query) {
+        return this.execute(id, locale);
+    }
+}

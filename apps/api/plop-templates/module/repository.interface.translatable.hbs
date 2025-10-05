@@ -1,0 +1,12 @@
+import { IBaseTranslatableRepository } from '@api/modules/core/database/base/base-translatable.repository.interface';
+import { {{pascalCase name}}Field } from '@repo/shared';
+import { {{pascalCase name}}Translation } from '../entities/{{kebabCase name}}-translation.entity';
+import { {{pascalCase name}} } from '../entities/{{kebabCase name}}.entity';
+
+export const {{constantCase name}}_REPOSITORY = Symbol('{{constantCase name}}_REPOSITORY');
+
+export interface I{{pascalCase name}}Repository
+    extends IBaseTranslatableRepository<{{pascalCase name}}, {{pascalCase name}}Translation, {{pascalCase name}}Field> {
+    findBySlug(slug: string): Promise<{{pascalCase name}} | null>;
+    slugExists(slug: string): Promise<boolean>;
+}

@@ -1,0 +1,15 @@
+import { Injectable } from '@nestjs/common';
+
+export class {{pascalCase name}}Command {
+    constructor(public readonly data: any) {}
+}
+
+@Injectable()
+export class {{pascalCase name}}Handler {
+    constructor() {}
+
+    async execute({ data }: {{pascalCase name}}Command): Promise<void> {
+        // TODO: Implement command logic here
+        // Add necessary dependencies via constructor if needed
+    }
+}

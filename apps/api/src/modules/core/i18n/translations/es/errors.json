@@ -1,0 +1,58 @@
+{
+    "auth": {
+        "emailExists": "El correo electrónico ya existe",
+        "emailNotFound": "Correo electrónico no encontrado",
+        "emailRequired": "El correo electrónico es obligatorio",
+        "existingUser": "Ya existe un usuario con este correo electrónico",
+        "invalidCredentials": "Credenciales inválidas",
+        "invalidEmail": "Correo electrónico inválido",
+        "invalidPassword": "Contraseña inválida",
+        "invalidRefreshToken": "Token de refresco inválido",
+        "invalidToken": "Token inválido",
+        "passwordLength": "La contraseña debe tener al menos 8 caracteres",
+        "passwordMismatch": "Las contraseñas no coinciden",
+        "passwordOldAndNewMatch": "La nueva contraseña no puede ser igual a la antigua",
+        "passwordSocialReset": "No puedes cambiar la contraseña mientras usas un proveedor social",
+        "passwordTokenExpired": "El token de restablecimiento de contraseña ha expirado",
+        "registrationFailed": "Registro fallido",
+        "userAlreadyDifferentProvider": "El usuario ya existe con un proveedor diferente",
+        "userNotCreated": "Usuario no creado",
+        "userNotFound": "Usuario no encontrado",
+        "userUnauthorized": "Usuario no autorizado para realizar esta acción",
+        "confirmationTokenExpired": "Token de confirmación expirado"
+    },
+
+    "database": {
+        "uniqueConstraintViolation": "Violación de la restricción de unicidad: '{detail}'",
+        "foreignKeyViolation": "Referencia a un registro no existente: {detail}",
+        "checkConstraintViolation": "Valor no cumple con la restricción: {detail}",
+        "notNullViolation": "Campo requerido no puede estar vacío: {detail}",
+        "error": "Error en la base de datos: {detail}"
+    },
+
+    "common": {
+        "forbidden": "Prohibido",
+        "notFound": "No encontrado",
+        "required": "Requerido",
+        "unauthorized": "No autorizado",
+        "validation": "Error de validación",
+        "unauthorizedForTheAction": "No tienes permisos para realizar esta acción",
+        "invalidFilter": "Campo de filtro inválido: '{field}'",
+        "invalidOperator": "Operador de filtro inválido: '{operator}'",
+        "invalidConditionType": "Tipo de condición inválido: '{type}'",
+        "invalidSort": "Campo de ordenación inválido: '{field}'",
+        "failedPagination": "Error al recuperar recursos paginados: {error}",
+        "traductionAlreadyExists": "La traducción para el locale '{locale}' ya existe",
+        "translationFieldRequired": "El campo de traducción '{field}' es obligatorio para el locale '{locale}'",
+        "noTranslationsProvided": "No se han proporcionado traducciones",
+        "crudUnsupportedOperation": "Operación no soportada '{operation}' para el servicio CRUD",
+        "resourceNotFound": "Recurso con id '{id}' no encontrado",
+        "uniqueConstraintViolation": "Violación de la restricción de unicidad: '{constraint}'"
+    },
+
+    "cache": {
+        "keyNotFound": "Clave de caché '{keyName}' no encontrada en el dominio '{domain}'",
+        "invalidKeyFormat": "Formato de clave de caché inválido: {detail}",
+        "operationFailed": "Operación de caché '{operation}' fallida: {detail}"
+    }
+}

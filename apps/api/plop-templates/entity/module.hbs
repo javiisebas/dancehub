@@ -1,0 +1,25 @@
+import { Module } from '@nestjs/common'; import { Create{{pascalCase name}}Handler } from
+'./application/commands/create-{{kebabCase name}}.handler'; import { Delete{{pascalCase
+    name
+}}Handler } from './application/commands/delete-{{kebabCase name}}.handler'; import { Update{{pascalCase
+    name
+}}Handler } from './application/commands/update-{{kebabCase name}}.handler'; import { Get{{pascalCase
+    name
+}}Handler } from './application/queries/get-{{kebabCase name}}.handler'; import { GetPaginated{{pascalCase
+    (pluralize name)
+}}Handler } from './application/queries/get-paginated-{{pluralize (kebabCase name)}}.handler';
+import {
+{{constantCase name}}_REPOSITORY } from './domain/repositories/i-{{kebabCase name}}.repository';
+import {
+{{pascalCase name}}Controller } from './infrastructure/controllers/{{kebabCase name}}.controller';
+import {
+{{pascalCase name}}RepositoryImpl } from './infrastructure/repositories/{{kebabCase
+    name
+}}.repository'; @Module({ controllers: [{{pascalCase name}}Controller], providers: [ { provide:
+{{constantCase name}}_REPOSITORY, useClass:
+{{pascalCase name}}RepositoryImpl, }, Create{{pascalCase name}}Handler, Update{{pascalCase
+    name
+}}Handler, Delete{{pascalCase name}}Handler, Get{{pascalCase name}}Handler, GetPaginated{{pascalCase
+    (pluralize name)
+}}Handler, ], exports: [{{constantCase name}}_REPOSITORY], }) export class
+{{pascalCase name}}Module {}

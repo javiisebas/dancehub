@@ -1,0 +1,93 @@
+import { TranslatableCacheService } from '@api/modules/core/cache';
+import { BaseTranslatableCachedRepository } from '@api/modules/core/database/base/base-translatable-cached.repository';
+import { DatabaseService } from '@api/modules/core/database/services/database.service';
+import { UnitOfWorkService } from '@api/modules/core/database/unit-of-work/unit-of-work.service';
+import { LogService } from '@api/modules/core/logger/services/logger.service';
+import { Injectable } from '@nestjs/common';
+import { {{pascalCase name}}Field, FilterOperator } from '@repo/shared';
+import { PgColumn } from 'drizzle-orm/pg-core';
+import { {{pascalCase name}}Translation } from '../../domain/entities/{{kebabCase name}}-translation.entity';
+import { {{pascalCase name}} } from '../../domain/entities/{{kebabCase name}}.entity';
+import { I{{pascalCase name}}Repository } from '../../domain/repositories/i-{{kebabCase name}}.repository';
+import { {{camelCase (pluralize name)}}, {{camelCase name}}Translations } from '../schemas';
+
+@Injectable()
+export class {{pascalCase name}}RepositoryImpl
+    extends BaseTranslatableCachedRepository<
+        {{pascalCase name}},
+        {{pascalCase name}}Translation,
+        typeof {{camelCase (pluralize name)}},
+        typeof {{camelCase name}}Translations,
+        {{pascalCase name}}Field
+    >
+    implements I{{pascalCase name}}Repository
+{
+    protected table = {{camelCase (pluralize name)}};
+    protected translationTable = {{camelCase name}}Translations;
+    protected entityName = '{{pascalCase name}}';
+    protected cacheEntityName = '{{kebabCase name}}';
+
+    constructor(
+        databaseService: DatabaseService,
+        unitOfWorkService: UnitOfWorkService,
+        logger: LogService,
+        translatableCache: TranslatableCacheService,
+    ) {
+        super(databaseService, unitOfWorkService, logger, translatableCache);
+    }
+
+    protected toDomain(schema: typeof {{camelCase (pluralize name)}}.$inferSelect): {{pascalCase name}} {
+        return new {{pascalCase name}}(schema.id, schema.slug, schema.createdAt, schema.updatedAt);
+    }
+
+    protected toSchema(entity: {{pascalCase name}}): Partial<typeof {{camelCase (pluralize name)}}.$inferInsert> {
+        return {
+            slug: entity.slug,
+        };
+    }
+
+    protected translationToDomain(
+        schema: typeof {{camelCase name}}Translations.$inferSelect,
+    ): {{pascalCase name}}Translation {
+        return new {{pascalCase name}}Translation(
+            schema.id,
+            schema.locale,
+            schema.name,
+            schema.description,
+            schema.createdAt,
+            schema.updatedAt,
+        );
+    }
+
+    protected translationToSchema(
+        translation: {{pascalCase name}}Translation,
+        entityId: string,
+    ): Partial<typeof {{camelCase name}}Translations.$inferInsert> {
+        return {
+            {{camelCase name}}Id: entityId,
+            locale: translation.locale,
+            name: translation.name,
+            description: translation.description || undefined,
+        } as Partial<typeof {{camelCase name}}Translations.$inferInsert>;
+    }
+
+    protected getTranslationEntityIdColumn(): PgColumn {
+        return {{camelCase name}}Translations.{{camelCase name}}Id;
+    }
+
+    async findBySlug(slug: string): Promise<{{pascalCase name}} | null> {
+        return this.findOne({
+            field: 'slug',
+            operator: FilterOperator.EQ,
+            value: slug,
+        });
+    }
+
+    async slugExists(slug: string): Promise<boolean> {
+        return this.exists({
+            field: 'slug',
+            operator: FilterOperator.EQ,
+            value: slug,
+        });
+    }
+}

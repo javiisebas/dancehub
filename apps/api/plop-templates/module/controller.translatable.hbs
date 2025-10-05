@@ -1,0 +1,85 @@
+import { CurrentLocale } from '@api/common/decorators/current-locale.decorator';
+import { IncludeAllTranslations } from '@api/common/decorators/include-all-translations.decorator';
+import { Serialize } from '@api/common/decorators/serialize.decorator';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+    Create{{pascalCase name}}Request,
+    {{pascalCase name}}PaginatedResponse,
+    {{pascalCase name}}Response,
+    Paginated{{pascalCase name}}Request,
+    Update{{pascalCase name}}Request,
+} from '@repo/shared';
+import {
+    Create{{pascalCase name}}Command,
+    Create{{pascalCase name}}Handler,
+} from '../../application/commands/create-{{kebabCase name}}.handler';
+import {
+    Delete{{pascalCase name}}Command,
+    Delete{{pascalCase name}}Handler,
+} from '../../application/commands/delete-{{kebabCase name}}.handler';
+import {
+    Update{{pascalCase name}}Command,
+    Update{{pascalCase name}}Handler,
+} from '../../application/commands/update-{{kebabCase name}}.handler';
+import {
+    Get{{pascalCase name}}Handler,
+    Get{{pascalCase name}}Query,
+} from '../../application/queries/get-{{kebabCase name}}.handler';
+import {
+    GetPaginated{{pascalCase (pluralize name)}}Handler,
+    GetPaginated{{pascalCase (pluralize name)}}Query,
+} from '../../application/queries/get-paginated-{{pluralize (kebabCase name)}}.handler';
+
+@Controller('{{pluralize (kebabCase name)}}')
+export class {{pascalCase name}}Controller {
+    constructor(
+        private readonly create{{pascalCase name}}Handler: Create{{pascalCase name}}Handler,
+        private readonly delete{{pascalCase name}}Handler: Delete{{pascalCase name}}Handler,
+        private readonly get{{pascalCase name}}Handler: Get{{pascalCase name}}Handler,
+        private readonly getPaginated{{pascalCase (pluralize name)}}Handler: GetPaginated{{pascalCase (pluralize name)}}Handler,
+        private readonly update{{pascalCase name}}Handler: Update{{pascalCase name}}Handler,
+    ) {}
+
+    @Post()
+    @Serialize({{pascalCase name}}Response)
+    async create(@Body() dto: Create{{pascalCase name}}Request) {
+        const command = new Create{{pascalCase name}}Command(dto);
+        return this.create{{pascalCase name}}Handler.execute(command);
+    }
+
+    @Get()
+    @Serialize({{pascalCase name}}PaginatedResponse)
+    async paginate(@Query() dto: Paginated{{pascalCase name}}Request) {
+        const query = new GetPaginated{{pascalCase (pluralize name)}}Query(dto);
+        return this.getPaginated{{pascalCase (pluralize name)}}Handler.executeQuery(query);
+    }
+
+    @Get(':id/all-translations')
+    @IncludeAllTranslations()
+    @Serialize({{pascalCase name}}Response)
+    async findByIdWithAllTranslations(@Param('id') id: string) {
+        const query = new Get{{pascalCase name}}Query(id);
+        return this.get{{pascalCase name}}Handler.executeQuery(query);
+    }
+
+    @Get(':id')
+    @Serialize({{pascalCase name}}Response)
+    async findById(@Param('id') id: string, @CurrentLocale() locale: string) {
+        const query = new Get{{pascalCase name}}Query(id, locale);
+        return this.get{{pascalCase name}}Handler.executeQuery(query);
+    }
+
+    @Patch(':id')
+    @Serialize({{pascalCase name}}Response)
+    async update(@Param('id') id: string, @Body() dto: Update{{pascalCase name}}Request) {
+        const command = new Update{{pascalCase name}}Command(id, dto);
+        return this.update{{pascalCase name}}Handler.execute(command);
+    }
+
+    @Delete(':id')
+    @HttpCode(204)
+    async delete(@Param('id') id: string): Promise<void> {
+        const command = new Delete{{pascalCase name}}Command(id);
+        await this.delete{{pascalCase name}}Handler.executeCommand(command);
+    }
+}

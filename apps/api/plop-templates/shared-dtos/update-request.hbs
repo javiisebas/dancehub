@@ -1,0 +1,18 @@
+import { IsOptional, IsString, IsNotEmpty, IsNumber, IsBoolean, IsDate, MinLength, MaxLength, Min,
+Max, IsInt } from 'class-validator'; export class Update{{pascalCase name}}Request {
+{{#if fields}}
+    {{#each fields}}
+        @IsOptional()
+        {{#each this.validators}}
+            {{#unless (eq this.type 'IsOptional')}}
+                {{{this}}}
+            {{/unless}}
+        {{/each}}
+        {{camelCase this.name}}?:
+        {{this.tsType}};
+
+    {{/each}}
+{{else}}
+    // TODO: Add your fields here // Example: // @IsOptional() // @IsString() // fieldName?: string;
+{{/if}}
+}

@@ -1,0 +1,30 @@
+import { Type } from 'class-transformer';
+import {
+    ArrayMinSize,
+    IsArray,
+    IsOptional,
+    IsString,
+    Matches,
+    MaxLength,
+    MinLength,
+    ValidateNested,
+} from 'class-validator';
+import { DanceStyleTranslationDto } from './dance-style-translation.dto';
+
+export class UpdateDanceStyleRequest {
+    @IsOptional()
+    @IsString({ message: 'Slug must be a string' })
+    @MinLength(2, { message: 'Slug must be at least 2 characters long' })
+    @MaxLength(255, { message: 'Slug cannot exceed 255 characters' })
+    @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+        message: 'Slug must be lowercase, alphanumeric and can contain hyphens',
+    })
+    slug?: string;
+
+    @IsOptional()
+    @IsArray({ message: 'Translations must be an array' })
+    @ValidateNested({ each: true })
+    @ArrayMinSize(1, { message: 'At least one translation is required' })
+    @Type(() => DanceStyleTranslationDto)
+    translations?: DanceStyleTranslationDto[];
+}

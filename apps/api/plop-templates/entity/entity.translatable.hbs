@@ -1,0 +1,21 @@
+import { BaseTranslatableEntity } from '@api/common/abstract/domain';
+
+export class {{pascalCase name}} extends BaseTranslatableEntity {
+    constructor(
+        id: string,
+        public slug: string,
+        createdAt: Date,
+        updatedAt: Date,
+    ) {
+        super(id, createdAt, updatedAt);
+    }
+
+    updateSlug(slug: string): void {
+        this.slug = slug.toLowerCase().trim();
+    }
+
+    static create(id: string, slug: string): {{pascalCase name}} {
+        const now = new Date();
+        return new {{pascalCase name}}(id, slug.toLowerCase().trim(), now, now);
+    }
+}

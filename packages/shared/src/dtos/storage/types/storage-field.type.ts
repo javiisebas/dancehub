@@ -1,0 +1,16 @@
+export type StorageField =
+    | 'id'
+    | 'filename'
+    | 'originalName'
+    | 'mimeType'
+    | 'extension'
+    | 'size'
+    | 'path'
+    | 'provider'
+    | 'providerId'
+    | 'visibility'
+    | 'status'
+    | 'userId'
+    | 'metadata'
+    | 'createdAt'
+    | 'updatedAt';

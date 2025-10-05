@@ -1,0 +1,15 @@
+import { Expose } from 'class-transformer'; export class
+{{pascalCase name}}Response { @Expose() id: string;
+
+{{#if fields}}
+    {{#each fields}}
+        @Expose()
+        {{camelCase this.name}}{{#unless this.required}}?{{/unless}}:
+        {{this.tsType}};
+
+    {{/each}}
+{{else}}
+    // TODO: Add your fields here // Example: // @Expose() // fieldName: string;
+
+{{/if}}
+@Expose() createdAt: Date; @Expose() updatedAt: Date; }

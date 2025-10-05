@@ -1,0 +1,92 @@
+{
+    "auth": {
+        "emailExists": "Email already exists",
+        "emailNotFound": "Email not found",
+        "emailRequired": "Email is required",
+        "existingUser": "User with this email already exists",
+        "invalidCredentials": "Invalid credentials",
+        "invalidEmail": "Invalid email",
+        "invalidPassword": "Invalid password",
+        "invalidRefreshToken": "Invalid refresh token",
+        "invalidToken": "Invalid token",
+        "passwordLength": "Password must be at least 8 characters long",
+        "passwordMismatch": "Passwords do not match",
+        "passwordOldAndNewMatch": "New password cannot be same as old",
+        "passwordSocialReset": "You can't change password while using social provider",
+        "passwordTokenExpired": "Reset password token expired",
+        "registrationFailed": "Registration failed",
+        "userAlreadyDifferentProvider": "User already exists with different provider",
+        "userNotCreated": "User not created",
+        "userNotFound": "User not found",
+        "userUnauthorized": "User unauthorized to perform this action",
+        "confirmationTokenExpired": "Confirmation token expired",
+        "accountAlreadyVerified": "Account is already verified",
+        "accountNotVerified": "Account is not verified",
+        "permissionDenied": "You do not have permission to perform this action",
+        "invalidScopeSourceType": "Invalid scope source type: '{type}'"
+    },
+
+    "database": {
+        "uniqueConstraintViolation": "Unique constraint violation: '{detail}'",
+        "foreignKeyViolation": "Referenced record does not exist: {detail}",
+        "checkConstraintViolation": "Value does not satisfy the constraint: {detail}",
+        "notNullViolation": "Required field cannot be empty: {detail}",
+        "error": "Database error occurred: {detail}"
+    },
+
+    "common": {
+        "forbidden": "Forbidden",
+        "notFound": "Not Found",
+        "notFoundDetail": "Not found: {detail}",
+        "alreadyExists": "Already exists",
+        "alreadyExistsDetail": "Already exists: {detail}",
+        "required": "Required",
+        "requiredDetail": "Required: {detail}",
+        "invalidRequestDetail": "Invalid request: {detail}",
+        "unauthorized": "Unauthorized",
+        "validation": "Validation error",
+        "unauthorizedForTheAction": "You do not have permission to perform this action",
+        "invalidFilter": "Invalid filter field: '{field}'",
+        "invalidOperator": "Invalid filter operator: '{operator}'",
+        "invalidConditionType": "Invalid condition type: '{type}'",
+        "invalidSort": "Invalid sort field: '{field}'",
+        "failedPagination": "Failed to retrieve paginated resources: {error}",
+        "traductionAlreadyExists": "Translation for locale '{locale}' already exists",
+        "translationFieldRequired": "Translation field '{field}' is required for locale '{locale}'",
+        "noTranslationsProvided": "No translations provided",
+        "crudUnsupportedOperation": "Unsupported operation '{operation}' for CRUD service",
+        "resourceNotFound": "Resource with id '{id}' not found",
+        "uniqueConstraintViolation": "Unique constraint violation: '{constraint}'",
+        "unsupportedContextType": "Unsupported context type: '{type}'"
+    },
+
+    "qr": {
+        "invalidData": "Invalid QR data format",
+        "missingRequiredData": "Missing required data in QR payload: '{field}'",
+        "generationFailed": "Failed to generate QR code: {reason}",
+        "verificationFailed": "Failed to verify QR code: {reason}",
+        "invalidPayload": "Invalid QR payload format",
+        "missingToken": "Missing token in QR payload",
+        "expired": "QR code has expired",
+        "invalidSignature": "Invalid QR code signature",
+        "missingData": "Missing data in QR payload",
+        "secretKeyNotConfigured": "QR secret key is not configured"
+    },
+
+    "cache": {
+        "keyNotFound": "Cache key '{keyName}' not found in domain '{domain}'",
+        "invalidKeyFormat": "Invalid cache key format: {detail}",
+        "operationFailed": "Cache operation '{operation}' failed: {detail}"
+    },
+
+    "role": {
+        "invalidGiver": "Giver does not have valid role to assign",
+        "invalidTargetScope": "Target scope id is required"
+    },
+
+    "sessionTicket": {
+        "invalidDepartureDateTime": "Departure date and time must be before arrival date and time",
+        "invalidCheckinDate": "Checkin date must be before checkout date",
+        "invalidDepartureTime": "Departure time must be before arrival time"
+    }
+}

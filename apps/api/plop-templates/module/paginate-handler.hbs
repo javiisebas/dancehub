@@ -1,0 +1,27 @@
+import { GetPaginatedQuery } from '@api/common/abstract/application/queries.abstract';
+import { CacheService, CacheTTL } from '@api/modules/core/cache';
+import { Inject, Injectable } from '@nestjs/common';
+import { Paginated{{pascalCase name}}Request } from '@repo/shared';
+import { I{{pascalCase name}}Repository, {{constantCase name}}_REPOSITORY } from '../../domain/repositories/i-{{kebabCase name}}.repository';
+import { {{pascalCase name}}CacheKey } from '../../infrastructure/cache/{{kebabCase name}}.cache-keys';
+
+export class GetPaginated{{pascalCase (pluralize name)}}Query extends GetPaginatedQuery<Paginated{{pascalCase name}}Request> {}
+
+@Injectable()
+export class GetPaginated{{pascalCase (pluralize name)}}Handler {
+    constructor(
+        @Inject({{constantCase name}}_REPOSITORY) private readonly repository: I{{pascalCase name}}Repository,
+        private readonly cache: CacheService,
+    ) {}
+
+    async execute(query: GetPaginated{{pascalCase (pluralize name)}}Query) {
+        const data = query.data;
+        const cacheKey = {{pascalCase name}}CacheKey.paginated(data);
+
+        return this.cache.getOrSet(
+            cacheKey,
+            async () => await this.repository.paginate(data),
+            { ttl: CacheTTL.SHORT },
+        );
+    }
+}

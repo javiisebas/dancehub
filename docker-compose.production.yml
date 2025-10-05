@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+    api:
+        build:
+            context: .
+            dockerfile: apps/api/Dockerfile
+            target: production
+        container_name: dancehub-api
+        restart: unless-stopped
+        ports:
+            - '3000:3000'
+        environment:
+            - NODE_ENV=production
+            - DATABASE_HOST=postgres
+            - DATABASE_PORT=5432
+            - DATABASE_NAME=${DATABASE_NAME}
+            - DATABASE_USER=${DATABASE_USER}
+            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - STORAGE_R2_ACCOUNT_ID=${STORAGE_R2_ACCOUNT_ID}
+            - STORAGE_R2_ACCESS_KEY_ID=${STORAGE_R2_ACCESS_KEY_ID}
+            - STORAGE_R2_SECRET_ACCESS_KEY=${STORAGE_R2_SECRET_ACCESS_KEY}
+            - STORAGE_R2_BUCKET=${STORAGE_R2_BUCKET}
+            - STORAGE_R2_PUBLIC_URL=${STORAGE_R2_PUBLIC_URL}
+        volumes:
+            - /tmp/video-processing:/tmp/video-processing
+        depends_on:
+            - postgres
+            - redis
+        networks:
+            - dancehub
+
+    postgres:
+        image: postgres:16-alpine
+        container_name: dancehub-postgres
+        restart: unless-stopped
+        environment:
+            - POSTGRES_DB=${DATABASE_NAME}
+            - POSTGRES_USER=${DATABASE_USER}
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - dancehub
+
+    redis:
+        image: redis:7-alpine
+        container_name: dancehub-redis
+        restart: unless-stopped
+        command: redis-server --appendonly yes
+        volumes:
+            - redis_data:/data
+        networks:
+            - dancehub
+
+volumes:
+    postgres_data:
+    redis_data:
+
+networks:
+    dancehub:
+        driver: bridge

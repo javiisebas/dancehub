@@ -1,0 +1,8 @@
+{
+    "passwordReset": {
+        "subject": "Reset your password"
+    },
+    "verifyAccount": {
+        "subject": "Verify your account"
+    }
+}

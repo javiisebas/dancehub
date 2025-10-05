@@ -1,0 +1,10 @@
+{
+    "auth": {
+        "logoutSuccess": "Logout successful",
+        "accountAlreadyVerified": "Account already verified",
+        "accountVerified": "Account verified successfully",
+        "emailVerificationSent": "Confirmation token resend. Check your email",
+        "resetPasswordSent": "If the email you've entered is registered, you will receive an email with instructions",
+        "passwordChanged": "Password changed successfully"
+    }
+}

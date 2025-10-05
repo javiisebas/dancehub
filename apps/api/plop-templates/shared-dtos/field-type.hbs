@@ -1,0 +1,11 @@
+// prettier-ignore export enum
+{{pascalCase name}}Field {
+{{#if fields}}
+    {{#each fields}}
+        {{constantCase this.name}}
+        = '{{camelCase this.name}}',
+    {{/each}}
+{{else}}
+    // TODO: Add your fields here // Example: FIELD_NAME = 'fieldName',
+{{/if}}
+}

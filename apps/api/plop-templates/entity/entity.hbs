@@ -1,0 +1,7 @@
+import { BaseEntity } from '@api/common/abstract/domain'; export class
+{{pascalCase name}}
+extends BaseEntity { constructor( id: string, createdAt: Date, updatedAt: Date, ) { super(id,
+createdAt, updatedAt); } static create(id: string):
+{{pascalCase name}}
+{ const now = new Date(); return new
+{{pascalCase name}}(id, now, now); } }

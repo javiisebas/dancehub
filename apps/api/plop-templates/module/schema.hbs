@@ -1,0 +1,22 @@
+{{#if fields}}
+    import { pgTable, uuid, timestamp{{#each fields}}{{#unless
+            (or (eq this.drizzleType 'uuid') (eq this.drizzleType 'timestamp'))
+        }}, {{this.drizzleType}}{{/unless}}{{/each}}
+    } from 'drizzle-orm/pg-core';
+{{else}}
+    import { pgTable, uuid, timestamp } from 'drizzle-orm/pg-core';
+{{/if}}
+
+export const
+{{camelCase name}}Schema = pgTable('{{snakeCase name}}', { id:
+uuid('id').primaryKey().defaultRandom(),
+{{#if fields}}
+    {{#each fields}}
+        {{camelCase this.name}}:
+        {{{this.drizzleDefinition}}},
+    {{/each}}
+{{else}}
+    // TODO: Add your fields here // Example: name: varchar('name', { length: 255 }).notNull(),
+{{/if}}
+createdAt: timestamp('created_at').notNull().defaultNow(), updatedAt:
+timestamp('updated_at').notNull().defaultNow(), });

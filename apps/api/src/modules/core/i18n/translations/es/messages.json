@@ -1,0 +1,10 @@
+{
+    "auth": {
+        "logoutSuccess": "Cierre de sesión exitoso",
+        "accountAlreadyVerified": "Cuenta ya verificada",
+        "accountVerified": "Cuenta verificada exitosamente",
+        "emailVerificationSent": "Token de confirmación reenviado. Revisa tu correo electrónico",
+        "resetPasswordSent": "Si el correo electrónico que has introducido está registrado, recibirás un correo con instrucciones",
+        "passwordChanged": "Contraseña cambiada exitosamente"
+    }
+}

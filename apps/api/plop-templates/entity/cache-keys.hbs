@@ -1,0 +1,8 @@
+import { BaseCacheKey } from '@api/modules/core/cache'; import { Paginated{{pascalCase name}}Request
+} from '@repo/shared'; export class
+{{pascalCase name}}CacheKey extends BaseCacheKey { constructor(key: string) { super('{{kebabCase
+    name
+}}', key); } static byId(id: string): BaseCacheKey { return new
+{{pascalCase name}}CacheKey(id); } static paginated(data: Paginated{{pascalCase name}}Request):
+BaseCacheKey { return new
+{{pascalCase name}}CacheKey(`paginated:${data.toString()}`); } }

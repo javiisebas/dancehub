@@ -1,0 +1,13 @@
+import { Expose, Transform, Type } from 'class-transformer'; import { BaseResponse } from
+'../../common'; import {
+{{pascalCase name}}TranslationResponse } from './{{kebabCase name}}-translation.response'; export
+class
+{{pascalCase name}}Response extends BaseResponse { @Expose() @Transform(({ obj }) => obj.entity?.id
+|| obj.id) declare id: string; @Expose() @Transform(({ obj }) => obj.entity?.slug || obj.slug)
+slug!: string; @Expose() @Transform(({ obj }) => obj.entity?.createdAt || obj.createdAt) declare
+createdAt: string; @Expose() @Transform(({ obj }) => obj.entity?.updatedAt || obj.updatedAt) declare
+updatedAt: string; @Expose() @Type(() =>
+{{pascalCase name}}TranslationResponse) translation?:
+{{pascalCase name}}TranslationResponse; @Expose() @Type(() =>
+{{pascalCase name}}TranslationResponse) translations?:
+{{pascalCase name}}TranslationResponse[]; }
