@@ -1,3 +1,4 @@
+import { Command } from '@api/common/abstract/application/commands.abstract';
 import { BusinessException } from '@api/common/exceptions/business.exception';
 import { TranslationService } from '@api/modules/core/i18n/services/translation.service';
 import {
@@ -9,14 +10,12 @@ import { Injectable } from '@nestjs/common';
 import { PasswordResponse } from '@repo/shared';
 import { AuthPasswordService } from '../../domain/services/auth-password.service';
 
-export class ChangePasswordCommand {
-    constructor(
-        public readonly user: User,
-        public readonly oldPassword: string,
-        public readonly newPassword: string,
-        public readonly confirmPassword: string,
-    ) {}
-}
+export class ChangePasswordCommand extends Command<{
+    user: User;
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}> {}
 
 @Injectable()
 export class ChangePasswordHandler {
@@ -26,36 +25,26 @@ export class ChangePasswordHandler {
         private readonly translationService: TranslationService,
     ) {}
 
-    async execute({
-        user,
-        oldPassword,
-        newPassword,
-        confirmPassword,
-    }: ChangePasswordCommand): Promise<PasswordResponse> {
-        if (newPassword !== confirmPassword) {
+    async execute({ data }: ChangePasswordCommand): Promise<PasswordResponse> {
+        const { user, oldPassword, newPassword, confirmPassword } = data;
+
+        if (newPassword !== confirmPassword)
             throw new BusinessException({ code: 'auth.passwordMismatch' });
-        }
 
-        if (!user.isLocalProvider()) {
+        if (!user.isLocalProvider())
             throw new BusinessException({ code: 'auth.passwordSocialReset' });
-        }
 
-        if (newPassword === oldPassword) {
+        if (newPassword === oldPassword)
             throw new BusinessException({ code: 'auth.passwordOldAndNewMatch' });
-        }
 
-        if (!user.password) {
-            throw new BusinessException({ code: 'auth.invalidCredentials' });
-        }
+        if (!user.password) throw new BusinessException({ code: 'auth.invalidCredentials' });
 
         const isValidOldPassword = await this.authPasswordService.verifyPassword(
             user.password,
             oldPassword,
         );
 
-        if (!isValidOldPassword) {
-            throw new BusinessException({ code: 'auth.invalidCredentials' });
-        }
+        if (!isValidOldPassword) throw new BusinessException({ code: 'auth.invalidCredentials' });
 
         const hashedPassword = await this.authPasswordService.hashPassword(newPassword);
 

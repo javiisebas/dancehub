@@ -1,3 +1,4 @@
+import { Command } from '@api/common/abstract/application/commands.abstract';
 import { NotFoundException } from '@api/common/exceptions/not-found.exception';
 import { TranslationService } from '@api/modules/core/i18n/services/translation.service';
 import {
@@ -11,9 +12,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { PasswordResponse } from '@repo/shared';
 
-export class LogoutCommand {
-    constructor(public readonly userId: string) {}
-}
+export class LogoutCommand extends Command<{ userId: string }> {}
 
 @Injectable()
 export class LogoutHandler {
@@ -23,7 +22,9 @@ export class LogoutHandler {
         private readonly translationService: TranslationService,
     ) {}
 
-    async execute({ userId }: LogoutCommand): Promise<PasswordResponse> {
+    async execute({ data }: LogoutCommand): Promise<PasswordResponse> {
+        const { userId } = data;
+
         const user = await this.getUserHandler.execute(new GetUserQuery(userId));
 
         if (!user) {

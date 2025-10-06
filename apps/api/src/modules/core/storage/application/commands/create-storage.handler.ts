@@ -3,7 +3,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateStorageRequest } from '@repo/shared';
 import { randomUUID } from 'crypto';
 import { Storage } from '../../domain/entities/storage.entity';
-import { IStorageRepository, STORAGE_REPOSITORY } from '../../domain/repositories/i-storage.repository';
+import {
+    IStorageRepository,
+    STORAGE_REPOSITORY,
+} from '../../domain/repositories/i-storage.repository';
 
 export class CreateStorageCommand extends CreateCommand<CreateStorageRequest> {}
 

@@ -1,3 +1,5 @@
+import { PaymentModule } from '@api/modules/core/payment/payment.module';
+import { StorageModule } from '@api/modules/core/storage/storage.module';
 import { Module } from '@nestjs/common';
 import { CreateUserHandler } from './application/commands/create-user.handler';
 import { DeleteUserHandler } from './application/commands/delete-user.handler';
@@ -9,6 +11,7 @@ import { UserController } from './infrastructure/controllers/user.controller';
 import { UserRepositoryImpl } from './infrastructure/repositories/user.repository';
 
 @Module({
+    imports: [PaymentModule, StorageModule],
     controllers: [UserController],
     providers: [
         {

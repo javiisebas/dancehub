@@ -1,12 +1,12 @@
 import { EMAIL_QUEUE } from '@api/common/constants/email.constants';
-import { Process, Processor } from '@nestjs/bull';
+import { Process } from '@nestjs/bull';
 import { Job } from 'bull';
 import { EmailStatusEnum } from '../../domain/enums/email-status.enum';
 import { SendEmailJobData } from '../../infrastructure/dtos/send-email-job-data.dto';
 import { EmailLogQueueService } from '../services/email-log-queue.service';
 import { EmailService } from '../services/email.service';
 
-@Processor(EMAIL_QUEUE.name)
+// @Processor(EMAIL_QUEUE.name)
 export class EmailProcessor {
     constructor(
         private readonly emailService: EmailService,

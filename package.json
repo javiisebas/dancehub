@@ -12,11 +12,15 @@
         "test:e2e": "turbo run test:e2e",
         "lint": "turbo run lint",
         "format": "prettier --write --plugin=prettier-plugin-organize-imports \"**/*.{ts,tsx,md,json}\"",
-        "empty-dirs": "find ./ -type d -empty -delete"
+        "empty-dirs": "find ./ -type d -empty -delete",
+        "prepare": "husky install",
+        "typecheck": "turbo run typecheck"
     },
     "devDependencies": {
         "@repo/eslint-config": "workspace:*",
         "@repo/typescript-config": "workspace:*",
+        "husky": "^8.0.3",
+        "lint-staged": "^15.5.2",
         "prettier": "^3.2.5",
         "prettier-plugin-organize-imports": "^4.3.0",
         "turbo": "^2.5.8"

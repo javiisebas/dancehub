@@ -1,11 +1,8 @@
+import { Command } from '@api/common/abstract/application/commands.abstract';
 import { BusinessException } from '@api/common/exceptions/business.exception';
 import { BaseCacheKey } from '@api/modules/core/cache/base-cache-key';
 import { CacheService } from '@api/modules/core/cache/cache.service';
 import { CacheDomain } from '@api/modules/core/cache/constants';
-import { TypedConfigService } from '@api/modules/core/config/config.service';
-import { TranslationService } from '@api/modules/core/i18n/services/translation.service';
-import { EmailQueueService } from '@api/modules/core/mailer/application/services/email-queue.service';
-import { EmailTemplateEnum } from '@api/modules/core/mailer/domain/enums/email-templates.enum';
 import {
     CreateUserCommand,
     CreateUserHandler,
@@ -16,25 +13,23 @@ import {
 } from '@api/modules/user/application/commands/update-user.handler';
 import { User } from '@api/modules/user/domain/entities/user.entity';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateUserRequest, LoginResponse } from '@repo/shared';
 import { AuthPasswordService } from '../../domain/services/auth-password.service';
 import { AuthTokenService } from '../../domain/services/auth-token.service';
+import { UserRegisteredEvent } from '../events/user-registered.event';
 
-export class RegisterCommand {
-    constructor(public readonly data: CreateUserRequest) {}
-}
+export class RegisterCommand extends Command<CreateUserRequest> {}
 
 @Injectable()
 export class RegisterHandler {
     constructor(
         private readonly authPasswordService: AuthPasswordService,
         private readonly authTokenService: AuthTokenService,
-        private readonly createUserHandler: CreateUserHandler,
-        private readonly updateUserHandler: UpdateUserHandler,
-        private readonly emailQueue: EmailQueueService,
         private readonly cacheService: CacheService,
-        private readonly configService: TypedConfigService,
-        private readonly translationService: TranslationService,
+        private readonly createUserHandler: CreateUserHandler,
+        private readonly eventEmitter: EventEmitter2,
+        private readonly updateUserHandler: UpdateUserHandler,
     ) {}
 
     async execute({ data }: RegisterCommand): Promise<LoginResponse> {
@@ -82,14 +77,9 @@ export class RegisterHandler {
         const cacheKey = new BaseCacheKey(CacheDomain.AUTH, 'email-verification', token);
         await this.cacheService.set(cacheKey, user.id);
 
-        await this.emailQueue.sendEmail({
-            template: EmailTemplateEnum.VERIFY_EMAIL,
-            data: {
-                username: user.firstName ?? user.name,
-                verificationUrl: `${this.configService.get('app.frontendOrigin')}/verify-email/?token=${token}`,
-            },
-            subject: await this.translationService.t('mailing.verifyAccount.subject'),
-            to: user.email,
-        });
+        this.eventEmitter.emit(
+            'auth.user.registered',
+            new UserRegisteredEvent(user.id, user.email, user.firstName ?? user.name, token),
+        );
     }
 }

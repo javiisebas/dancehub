@@ -1,7 +1,10 @@
 import { DeleteCommand } from '@api/common/abstract/application';
 import { NotFoundException } from '@api/common/exceptions/not-found.exception';
 import { Inject, Injectable } from '@nestjs/common';
-import { IStorageRepository, STORAGE_REPOSITORY } from '../../domain/repositories/i-storage.repository';
+import {
+    IStorageRepository,
+    STORAGE_REPOSITORY,
+} from '../../domain/repositories/i-storage.repository';
 
 export class DeleteStorageCommand extends DeleteCommand {}
 

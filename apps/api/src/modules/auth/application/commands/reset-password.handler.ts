@@ -1,21 +1,19 @@
+import { Command } from '@api/common/abstract/application/commands.abstract';
 import { BaseCacheKey } from '@api/modules/core/cache/base-cache-key';
 import { CacheService } from '@api/modules/core/cache/cache.service';
 import { CacheDomain } from '@api/modules/core/cache/constants';
-import { TypedConfigService } from '@api/modules/core/config/config.service';
 import { TranslationService } from '@api/modules/core/i18n/services/translation.service';
-import { EmailQueueService } from '@api/modules/core/mailer/application/services/email-queue.service';
-import { EmailTemplateEnum } from '@api/modules/core/mailer/domain/enums/email-templates.enum';
 import {
     IUserRepository,
     USER_REPOSITORY,
 } from '@api/modules/user/domain/repositories/i-user.repository';
 import { Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PasswordResponse } from '@repo/shared';
 import { AuthTokenService } from '../../domain/services/auth-token.service';
+import { PasswordResetRequestedEvent } from '../events/password-reset-requested.event';
 
-export class ResetPasswordCommand {
-    constructor(public readonly email: string) {}
-}
+export class ResetPasswordCommand extends Command<{ email: string }> {}
 
 @Injectable()
 export class ResetPasswordHandler {
@@ -23,12 +21,13 @@ export class ResetPasswordHandler {
         @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
         private readonly authTokenService: AuthTokenService,
         private readonly cacheService: CacheService,
-        private readonly configService: TypedConfigService,
-        private readonly emailQueue: EmailQueueService,
+        private readonly eventEmitter: EventEmitter2,
         private readonly translationService: TranslationService,
     ) {}
 
-    async execute({ email }: ResetPasswordCommand): Promise<PasswordResponse> {
+    async execute({ data }: ResetPasswordCommand): Promise<PasswordResponse> {
+        const { email } = data;
+
         const user = await this.userRepository.findByEmail(email);
 
         if (user && user.isLocalProvider()) {
@@ -37,15 +36,15 @@ export class ResetPasswordHandler {
             const cacheKey = new BaseCacheKey(CacheDomain.AUTH, 'reset-password', token);
             await this.cacheService.set(cacheKey, user.id);
 
-            await this.emailQueue.sendEmail({
-                template: EmailTemplateEnum.RESET_PASSWORD,
-                data: {
-                    username: user.firstName ?? user.name,
-                    resetUrl: `${this.configService.get('app.frontendOrigin')}/reset-password?token=${token}`,
-                },
-                subject: await this.translationService.t('mailing.passwordReset.subject'),
-                to: user.email,
-            });
+            this.eventEmitter.emit(
+                'auth.password-reset.requested',
+                new PasswordResetRequestedEvent(
+                    user.id,
+                    user.email,
+                    user.firstName ?? user.name,
+                    token,
+                ),
+            );
         }
 
         return {

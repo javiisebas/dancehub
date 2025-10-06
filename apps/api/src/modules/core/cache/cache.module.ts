@@ -3,6 +3,8 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { redisStore } from 'cache-manager-redis-yet';
 import { CacheService } from './cache.service';
+import { CacheInvalidateInterceptor } from './interceptors/cache-invalidate.interceptor';
+import { RelationshipManager } from './relationship-manager';
 import { TranslatableCacheService } from './translatable-cache.service';
 
 @Global()
@@ -29,7 +31,17 @@ import { TranslatableCacheService } from './translatable-cache.service';
             },
         }),
     ],
-    providers: [CacheService, TranslatableCacheService],
-    exports: [CacheService, TranslatableCacheService],
+    providers: [
+        CacheService,
+        TranslatableCacheService,
+        RelationshipManager,
+        CacheInvalidateInterceptor,
+    ],
+    exports: [
+        CacheService,
+        TranslatableCacheService,
+        RelationshipManager,
+        CacheInvalidateInterceptor,
+    ],
 })
 export class CacheModule {}

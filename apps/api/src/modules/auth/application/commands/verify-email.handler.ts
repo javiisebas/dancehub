@@ -1,3 +1,4 @@
+import { Command } from '@api/common/abstract/application/commands.abstract';
 import { BusinessException } from '@api/common/exceptions/business.exception';
 import { NotFoundException } from '@api/common/exceptions/not-found.exception';
 import { BaseCacheKey } from '@api/modules/core/cache/base-cache-key';
@@ -15,9 +16,7 @@ import {
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { PasswordResponse, UserStatusEnum } from '@repo/shared';
 
-export class VerifyEmailCommand {
-    constructor(public readonly token: string) {}
-}
+export class VerifyEmailCommand extends Command<{ token: string }> {}
 
 @Injectable()
 export class VerifyEmailHandler {
@@ -28,7 +27,9 @@ export class VerifyEmailHandler {
         private readonly translationService: TranslationService,
     ) {}
 
-    async execute({ token }: VerifyEmailCommand): Promise<PasswordResponse> {
+    async execute({ data }: VerifyEmailCommand): Promise<PasswordResponse> {
+        const { token } = data;
+
         const cacheKey = new BaseCacheKey(CacheDomain.AUTH, 'email-verification', token);
         const userId = (await this.cacheService.get(cacheKey)) as string;
 

@@ -100,7 +100,6 @@ export default registerAs<DatabaseConfig>('database', () => {
         poolMin: Number(process.env.DATABASE_POOL_MIN) || 2,
         poolSize: Number(process.env.DATABASE_POOL_SIZE) || 20,
         retryAttempts: Number(process.env.DATABASE_RETRY_ATTEMPTS) || 0,
-        retryDelay: Number(process.env.DATABASE_RETRY_DELAY) || 3000,
         connectionTimeout: Number(process.env.DATABASE_CONNECTION_TIMEOUT) || 5000,
         idleTimeout: Number(process.env.DATABASE_IDLE_TIMEOUT) || 30000,
     };

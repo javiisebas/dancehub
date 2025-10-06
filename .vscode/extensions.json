@@ -1,17 +1,13 @@
 {
     "recommendations": [
-        "streetsidesoftware.code-spell-checker",
-        "ms-azuretools.vscode-docker",
-        "github.vscode-pull-request-github",
-        "heybourn.headwind",
-        "orta.vscode-jest",
-        "ms-vsliveshare.vsliveshare",
-        "quicktype.quicktype",
+        "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "yoavbls.pretty-ts-errors",
-        "wallabyjs.quokka-vscode",
         "bradlc.vscode-tailwindcss",
-        "vscode-icons-team.vscode-icons",
-        "gruntfuggly.todo-tree"
+        "ms-azuretools.vscode-docker",
+        "prisma.prisma",
+        "ms-vscode.vscode-typescript-next",
+        "orta.vscode-jest",
+        "firsttris.vscode-jest-runner",
+        "humao.rest-client"
     ]
 }

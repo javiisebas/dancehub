@@ -1,3 +1,4 @@
+import { Command } from '@api/common/abstract/application/commands.abstract';
 import { BusinessException } from '@api/common/exceptions/business.exception';
 import { NotFoundException } from '@api/common/exceptions/not-found.exception';
 import { BaseCacheKey } from '@api/modules/core/cache/base-cache-key';
@@ -16,13 +17,11 @@ import { Injectable } from '@nestjs/common';
 import { PasswordResponse } from '@repo/shared';
 import { AuthPasswordService } from '../../domain/services/auth-password.service';
 
-export class SetNewPasswordCommand {
-    constructor(
-        public readonly token: string,
-        public readonly newPassword: string,
-        public readonly confirmPassword: string,
-    ) {}
-}
+export class SetNewPasswordCommand extends Command<{
+    token: string;
+    newPassword: string;
+    confirmPassword: string;
+}> {}
 
 @Injectable()
 export class SetNewPasswordHandler {
@@ -34,11 +33,9 @@ export class SetNewPasswordHandler {
         private readonly translationService: TranslationService,
     ) {}
 
-    async execute({
-        token,
-        newPassword,
-        confirmPassword,
-    }: SetNewPasswordCommand): Promise<PasswordResponse> {
+    async execute({ data }: SetNewPasswordCommand): Promise<PasswordResponse> {
+        const { token, newPassword, confirmPassword } = data;
+
         if (newPassword !== confirmPassword) {
             throw new BusinessException({ code: 'auth.passwordMismatch' });
         }

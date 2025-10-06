@@ -3,7 +3,7 @@ import { ProvidersEnum, UserStatusEnum } from '@repo/shared';
 
 export class User extends BaseEntity {
     constructor(
-        id: string,
+        public id: string,
         public email: string,
         public name: string,
         private _password: string | null,
@@ -15,8 +15,8 @@ export class User extends BaseEntity {
         public lastName: string | null,
         public displayName: string | null,
         public image: string | null,
-        createdAt: Date,
-        updatedAt: Date,
+        public createdAt: Date,
+        public updatedAt: Date,
     ) {
         super(id, createdAt, updatedAt);
     }

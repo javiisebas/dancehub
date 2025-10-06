@@ -2,7 +2,7 @@ import { EMAIL_LOG_QUEUE } from '@api/common/constants/email-log.constants';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { UpdateEmailLogCommandInput } from '../commands/update-email-log-status/update-email-log.command';
+import { UpdateEmailLogCommandInput } from '../commands/update-email-log.handler';
 
 @Injectable()
 export class EmailLogQueueService {

@@ -1,13 +1,15 @@
+import { Command } from '@api/common/abstract/application/commands.abstract';
 import { BusinessException } from '@api/common/exceptions/business.exception';
-import { GetUserHandler, GetUserQuery } from '@api/modules/user/application/queries/get-user.handler';
+import {
+    GetUserHandler,
+    GetUserQuery,
+} from '@api/modules/user/application/queries/get-user.handler';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { LoginResponse } from '@repo/shared';
 import { AuthTokenService } from '../../domain/services/auth-token.service';
 import { LoginCommand, LoginHandler } from './login.handler';
 
-export class RefreshTokenCommand {
-    constructor(public readonly refreshToken: string) {}
-}
+export class RefreshTokenCommand extends Command<{ refreshToken: string }> {}
 
 @Injectable()
 export class RefreshTokenHandler {
@@ -17,7 +19,9 @@ export class RefreshTokenHandler {
         private readonly loginHandler: LoginHandler,
     ) {}
 
-    async execute({ refreshToken }: RefreshTokenCommand): Promise<LoginResponse> {
+    async execute({ data }: RefreshTokenCommand): Promise<LoginResponse> {
+        const { refreshToken } = data;
+
         const payload = await this.authTokenService.verifyRefreshToken(refreshToken);
 
         const user = await this.getUserHandler.execute(new GetUserQuery(payload.id));
@@ -29,6 +33,6 @@ export class RefreshTokenHandler {
             });
         }
 
-        return await this.loginHandler.execute(new LoginCommand(user));
+        return await this.loginHandler.execute(new LoginCommand({ user }));
     }
 }

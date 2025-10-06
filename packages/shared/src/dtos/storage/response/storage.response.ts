@@ -1,5 +1,5 @@
-import { BaseResponse } from '../../common/response';
 import { StorageProviderEnum, StorageStatusEnum, StorageVisibilityEnum } from '../../../enums';
+import { BaseResponse } from '../../common/response';
 
 export class StorageResponse extends BaseResponse {
     filename!: string;

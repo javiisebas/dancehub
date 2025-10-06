@@ -9,7 +9,7 @@ services:
         container_name: dancehub-api
         restart: unless-stopped
         ports:
-            - '3000:3000'
+            - '4000:4000'
         environment:
             - NODE_ENV=production
             - DATABASE_HOST=postgres

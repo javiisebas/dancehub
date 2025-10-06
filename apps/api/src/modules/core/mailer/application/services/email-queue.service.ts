@@ -6,8 +6,7 @@ import { Queue } from 'bull';
 import { EmailLog } from '../../domain/entities/email-log.entity';
 import { SendEmailJobData } from '../../infrastructure/dtos/send-email-job-data.dto';
 import { SendEmailDto } from '../../infrastructure/dtos/send-email.dto';
-import { CreateEmailLogCommand } from '../commands/create-email-log/create-email-log.command';
-import { CreateEmailLogHandler } from '../commands/create-email-log/create-email-log.handler';
+import { CreateEmailLogCommand, CreateEmailLogHandler } from '../commands/create-email-log.handler';
 
 @Injectable()
 export class EmailQueueService {

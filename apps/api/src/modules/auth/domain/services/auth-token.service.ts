@@ -2,10 +2,10 @@ import { TypedConfigService } from '@api/modules/core/config/config.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
-import { AccessTokenDto } from './interfaces/access-token.dto';
-import { GenericGenerateTokenDto } from './interfaces/generate-async-token.dto';
-import { GenerateTokenDto } from './interfaces/generate-token.dto';
-import { RefreshTokenDto } from './interfaces/refresh-token.dto';
+import { AccessTokenDto } from '../dtos/access-token.dto';
+import { GenericGenerateTokenDto } from '../dtos/generate-async-token.dto';
+import { GenerateTokenDto } from '../dtos/generate-token.dto';
+import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 
 @Injectable()
 export class AuthTokenService {
@@ -70,24 +70,38 @@ export class AuthTokenService {
     }
 
     public async verifyRefreshToken(refreshToken: string): Promise<RefreshTokenDto> {
-        try {
-            return await this.jwtService.verifyAsync<RefreshTokenDto>(refreshToken, {
-                secret: this.configService.get('auth.jwtRefreshSecret'),
-                issuer: 'PoProstuWitold',
-            });
-        } catch (err) {
-            throw new UnauthorizedException('Invalid refresh token');
-        }
+        return this.verifyToken({
+            token: refreshToken,
+            type: 'refreshToken',
+        });
     }
 
     public async verifyAccessToken(accessToken: string): Promise<AccessTokenDto> {
+        return this.verifyToken({
+            token: accessToken,
+            type: 'accessToken',
+        });
+    }
+
+    public async verifyToken<T extends object>({
+        token,
+        type,
+    }: {
+        token: string;
+        type: 'accessToken' | 'refreshToken';
+    }): Promise<T> {
+        const secret = {
+            refreshToken: this.configService.get('auth.jwtSecret'),
+            accessToken: this.configService.get('auth.jwtRefreshSecret'),
+        }[type];
+
         try {
-            return await this.jwtService.verifyAsync<AccessTokenDto>(accessToken, {
-                secret: this.configService.get('auth.jwtSecret'),
+            return await this.jwtService.verifyAsync<T>(token, {
+                secret,
                 issuer: 'PoProstuWitold',
             });
         } catch (err) {
-            throw new UnauthorizedException('Invalid access token');
+            throw new UnauthorizedException('Invalid token');
         }
     }
 }

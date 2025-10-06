@@ -15,7 +15,7 @@ class EnvironmentVariablesValidator {
     NODE_ENV: Environment;
 
     @IsString()
-    ORIGIN: string;
+    API_ORIGIN: string;
 
     @IsString()
     FRONTEND_ORIGIN: string;
@@ -24,7 +24,7 @@ class EnvironmentVariablesValidator {
     @Min(0)
     @Max(65535)
     @IsOptional()
-    APP_PORT: number;
+    API_PORT: number;
 
     @IsString()
     @IsOptional()
@@ -60,15 +60,11 @@ export default registerAs<AppConfig>('app', () => {
 
     return {
         nodeEnv: process.env.NODE_ENV || 'development',
-        origin: process.env.ORIGIN || 'http://localhost:4000/api',
+        origin: process.env.API_ORIGIN || 'http://localhost:4000/api',
         frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
         isProduction: process.env.NODE_ENV === 'production',
         workingDirectory: process.env.PWD || process.cwd(),
-        port: process.env.APP_PORT
-            ? Number(process.env.APP_PORT)
-            : process.env.PORT
-              ? Number(process.env.PORT)
-              : 4000,
+        port: process.env.PORT ? Number(process.env.PORT) : 4000,
         apiPrefix: process.env.API_PREFIX || '/api',
         headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
         resendApiKey: process.env.RESEND_API_KEY || '',

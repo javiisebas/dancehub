@@ -10,7 +10,6 @@ export class SerializeInterceptor<T> implements NestInterceptor {
         return next.handle().pipe(
             map((data: unknown) => {
                 return plainToInstance(this.dto, data, {
-                    excludeExtraneousValues: true,
                     enableImplicitConversion: true,
                 });
             }),

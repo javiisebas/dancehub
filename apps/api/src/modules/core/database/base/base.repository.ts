@@ -8,6 +8,7 @@ import { DatabaseService } from '../services/database.service';
 import { UnitOfWorkService } from '../unit-of-work/unit-of-work.service';
 import { IBaseRepository } from './base.repository.interface';
 import { QueryBuilder } from './query-builder';
+import { RelationRegistry, WithRelationsOptions } from './relation-builder';
 
 export type WhereCondition = SQL | undefined;
 
@@ -26,12 +27,29 @@ export abstract class BaseRepository<
     protected abstract toSchema(entity: TEntity): Partial<TTable['$inferInsert']>;
 
     private queryBuilder!: QueryBuilder<TTable, TField>;
+    private relationRegistry: RelationRegistry;
+    private relationsConfigured = false;
 
     constructor(
         protected readonly databaseService: DatabaseService,
         protected readonly unitOfWorkService: UnitOfWorkService,
         protected readonly logger: LogService,
-    ) {}
+    ) {
+        this.relationRegistry = new RelationRegistry();
+    }
+
+    protected configureRelations(): void {}
+
+    protected relation<TRelated = any>(name: string) {
+        return this.relationRegistry.relation<TRelated>(name);
+    }
+
+    private ensureRelationsConfigured(): void {
+        if (!this.relationsConfigured) {
+            this.configureRelations();
+            this.relationsConfigured = true;
+        }
+    }
 
     protected getQueryBuilder(): QueryBuilder<TTable, TField> {
         if (!this.queryBuilder) {
@@ -47,26 +65,49 @@ export abstract class BaseRepository<
         );
     }
 
-    async findById(id: string | number): Promise<TEntity> {
+    private async applyRelations(
+        entities: TEntity[],
+        options?: WithRelationsOptions,
+    ): Promise<TEntity[]> {
+        if (!options?.relations || options.relations.length === 0) {
+            return entities;
+        }
+
+        this.ensureRelationsConfigured();
+        return this.relationRegistry.applyRelations(entities, options.relations);
+    }
+
+    async findById(id: string | number, options?: WithRelationsOptions): Promise<TEntity> {
         const idColumn = this.getIdColumn();
         const result = await this.db.select().from(this.table).where(eq(idColumn, id)).limit(1);
 
         if (!result.length) {
             throw new NotFoundException(`${this.entityName} with ID ${id} not found`);
         }
-        return this.toDomain(result[0] as TTable['$inferSelect']);
+
+        const entity = this.toDomain(result[0] as TTable['$inferSelect']);
+        const entities = await this.applyRelations([entity], options);
+        return entities[0];
     }
 
-    async findOne(filter?: Filter<TField>): Promise<TEntity | null> {
+    async findOne(filter?: Filter<TField>, options?: WithRelationsOptions): Promise<TEntity | null> {
         const where = this.getQueryBuilder().buildWhereClause(filter);
         const result = await this.db.select().from(this.table).where(where).limit(1);
-        return result.length ? this.toDomain(result[0] as TTable['$inferSelect']) : null;
+
+        if (!result.length) {
+            return null;
+        }
+
+        const entity = this.toDomain(result[0] as TTable['$inferSelect']);
+        const entities = await this.applyRelations([entity], options);
+        return entities[0];
     }
 
     async findMany(
         filter?: Filter<TField>,
         sort?: Sort<TField>,
         limit?: number,
+        options?: WithRelationsOptions,
     ): Promise<TEntity[]> {
         const where = this.getQueryBuilder().buildWhereClause(filter);
         const orderBy = this.getQueryBuilder().buildOrderByClause(sort);
@@ -82,10 +123,15 @@ export abstract class BaseRepository<
         }
 
         const result = await query;
-        return result.map((r) => this.toDomain(r as TTable['$inferSelect']));
+        const entities = result.map((r) => this.toDomain(r as TTable['$inferSelect']));
+
+        return this.applyRelations(entities, options);
     }
 
-    async paginate(request: PaginatedRequest<TField>): Promise<PaginatedResponse<TEntity>> {
+    async paginate(
+        request: PaginatedRequest<TField>,
+        options?: WithRelationsOptions,
+    ): Promise<PaginatedResponse<TEntity>> {
         const { page, limit, filter, sort } = request;
         const offset = (page - 1) * limit;
 
@@ -118,8 +164,10 @@ export abstract class BaseRepository<
         const totalPages = Math.ceil(total / limit);
         const entities = data.map((r) => this.toDomain(r as TTable['$inferSelect']));
 
+        const entitiesWithRelations = await this.applyRelations(entities, options);
+
         return new PaginatedResponse({
-            data: entities,
+            data: entitiesWithRelations,
             total,
             page,
             limit,

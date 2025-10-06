@@ -3,29 +3,34 @@
     "configurations": [
         {
             "type": "node",
-            "request": "attach",
+            "request": "launch",
             "name": "Debug API",
-            "port": 9229,
-            "restart": true,
-            "sourceMaps": true,
-            "outFiles": ["${workspaceFolder}/apps/api/dist/**/*.js"],
-            "cwd": "${workspaceFolder}/apps/api",
-            "env": {
-                "NODE_ENV": "development"
-            }
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["--filter", "@repo/api", "start:debug"],
+            "skipFiles": ["<node_internals>/**"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "restart": true
         },
         {
             "type": "node",
-            "request": "attach",
-            "name": "Debug Web",
-            "port": 9229,
-            "restart": true,
-            "sourceMaps": true,
-            "outFiles": ["${workspaceFolder}/apps/web/dist/**/*.js"],
-            "cwd": "${workspaceFolder}/apps/web",
-            "env": {
-                "NODE_ENV": "development"
-            }
+            "request": "launch",
+            "name": "Debug Jest Tests",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "args": ["--runInBand", "--no-cache", "--watchAll=false", "${file}"],
+            "cwd": "${workspaceFolder}/apps/api",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Current Jest Test",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "args": ["${fileBasenameNoExtension}", "--runInBand", "--no-cache", "--watchAll=false"],
+            "cwd": "${workspaceFolder}/apps/api",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }

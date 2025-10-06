@@ -1,0 +1,1335 @@
+{
+    "id": "04bb0176-f5d4-4795-bb18-8e0aa71f4b49",
+    "prevId": "acd177a5-34ed-4c7c-85ba-a8f7bd7e3cfa",
+    "version": "7",
+    "dialect": "postgresql",
+    "tables": {
+        "public.dance_style_translations": {
+            "name": "dance_style_translations",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "dance_style_id": {
+                    "name": "dance_style_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "locale": {
+                    "name": "locale",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "description": {
+                    "name": "description",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "dance_style_translations_dance_style_id_dance_styles_id_fk": {
+                    "name": "dance_style_translations_dance_style_id_dance_styles_id_fk",
+                    "tableFrom": "dance_style_translations",
+                    "tableTo": "dance_styles",
+                    "columnsFrom": ["dance_style_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "dance_style_translations_dance_style_id_locale_unique": {
+                    "name": "dance_style_translations_dance_style_id_locale_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["dance_style_id", "locale"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.dance_styles": {
+            "name": "dance_styles",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "slug": {
+                    "name": "slug",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "dance_styles_slug_unique": {
+                    "name": "dance_styles_slug_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["slug"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.connected_accounts": {
+            "name": "connected_accounts",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "stripe_account_id": {
+                    "name": "stripe_account_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "charges_enabled": {
+                    "name": "charges_enabled",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": false
+                },
+                "payouts_enabled": {
+                    "name": "payouts_enabled",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": false
+                },
+                "details_submitted": {
+                    "name": "details_submitted",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "connected_accounts_user_id_users_id_fk": {
+                    "name": "connected_accounts_user_id_users_id_fk",
+                    "tableFrom": "connected_accounts",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "connected_accounts_user_id_unique": {
+                    "name": "connected_accounts_user_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["user_id"]
+                },
+                "connected_accounts_stripe_account_id_unique": {
+                    "name": "connected_accounts_stripe_account_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["stripe_account_id"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.customers": {
+            "name": "customers",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "stripe_customer_id": {
+                    "name": "stripe_customer_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "email": {
+                    "name": "email",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "name": {
+                    "name": "name",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "customers_user_id_users_id_fk": {
+                    "name": "customers_user_id_users_id_fk",
+                    "tableFrom": "customers",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "customers_user_id_unique": {
+                    "name": "customers_user_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["user_id"]
+                },
+                "customers_stripe_customer_id_unique": {
+                    "name": "customers_stripe_customer_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["stripe_customer_id"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.feature_packs": {
+            "name": "feature_packs",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "description": {
+                    "name": "description",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "stripe_price_id": {
+                    "name": "stripe_price_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "stripe_product_id": {
+                    "name": "stripe_product_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "amount": {
+                    "name": "amount",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "currency": {
+                    "name": "currency",
+                    "type": "varchar(3)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "features": {
+                    "name": "features",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "is_active": {
+                    "name": "is_active",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": true
+                },
+                "metadata": {
+                    "name": "metadata",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "feature_packs_stripe_price_id_unique": {
+                    "name": "feature_packs_stripe_price_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["stripe_price_id"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.payment_intents": {
+            "name": "payment_intents",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "stripe_payment_intent_id": {
+                    "name": "stripe_payment_intent_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "amount": {
+                    "name": "amount",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "currency": {
+                    "name": "currency",
+                    "type": "varchar(3)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "status": {
+                    "name": "status",
+                    "type": "payment_status",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'pending'"
+                },
+                "payment_type": {
+                    "name": "payment_type",
+                    "type": "payment_type",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'one_time'"
+                },
+                "description": {
+                    "name": "description",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "metadata": {
+                    "name": "metadata",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "payment_intents_user_id_users_id_fk": {
+                    "name": "payment_intents_user_id_users_id_fk",
+                    "tableFrom": "payment_intents",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "payment_intents_stripe_payment_intent_id_unique": {
+                    "name": "payment_intents_stripe_payment_intent_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["stripe_payment_intent_id"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.subscriptions": {
+            "name": "subscriptions",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "stripe_subscription_id": {
+                    "name": "stripe_subscription_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "stripe_price_id": {
+                    "name": "stripe_price_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "stripe_product_id": {
+                    "name": "stripe_product_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "status": {
+                    "name": "status",
+                    "type": "subscription_status",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'incomplete'"
+                },
+                "current_period_start": {
+                    "name": "current_period_start",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "current_period_end": {
+                    "name": "current_period_end",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "cancel_at_period_end": {
+                    "name": "cancel_at_period_end",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": false
+                },
+                "interval": {
+                    "name": "interval",
+                    "type": "subscription_interval",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "interval_count": {
+                    "name": "interval_count",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 1
+                },
+                "amount": {
+                    "name": "amount",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "currency": {
+                    "name": "currency",
+                    "type": "varchar(3)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "trial_end": {
+                    "name": "trial_end",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "canceled_at": {
+                    "name": "canceled_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "metadata": {
+                    "name": "metadata",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "subscriptions_user_id_users_id_fk": {
+                    "name": "subscriptions_user_id_users_id_fk",
+                    "tableFrom": "subscriptions",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "subscriptions_stripe_subscription_id_unique": {
+                    "name": "subscriptions_stripe_subscription_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["stripe_subscription_id"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.user_features": {
+            "name": "user_features",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "feature_pack_id": {
+                    "name": "feature_pack_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "feature_name": {
+                    "name": "feature_name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "is_enabled": {
+                    "name": "is_enabled",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'true'"
+                },
+                "expires_at": {
+                    "name": "expires_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "user_features_user_id_users_id_fk": {
+                    "name": "user_features_user_id_users_id_fk",
+                    "tableFrom": "user_features",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "user_features_feature_pack_id_feature_packs_id_fk": {
+                    "name": "user_features_feature_pack_id_feature_packs_id_fk",
+                    "tableFrom": "user_features",
+                    "tableTo": "feature_packs",
+                    "columnsFrom": ["feature_pack_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.webhook_events": {
+            "name": "webhook_events",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "stripe_event_id": {
+                    "name": "stripe_event_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "event_type": {
+                    "name": "event_type",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "data": {
+                    "name": "data",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "processed": {
+                    "name": "processed",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": false
+                },
+                "processed_at": {
+                    "name": "processed_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "error": {
+                    "name": "error",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "retry_count": {
+                    "name": "retry_count",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'0'"
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "webhook_events_stripe_event_id_unique": {
+                    "name": "webhook_events_stripe_event_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["stripe_event_id"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.user_dance_styles": {
+            "name": "user_dance_styles",
+            "schema": "",
+            "columns": {
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "dance_style_id": {
+                    "name": "dance_style_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "user_dance_styles_user_id_users_id_fk": {
+                    "name": "user_dance_styles_user_id_users_id_fk",
+                    "tableFrom": "user_dance_styles",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "user_dance_styles_dance_style_id_dance_styles_id_fk": {
+                    "name": "user_dance_styles_dance_style_id_dance_styles_id_fk",
+                    "tableFrom": "user_dance_styles",
+                    "tableTo": "dance_styles",
+                    "columnsFrom": ["dance_style_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "user_dance_styles_user_id_dance_style_id_pk": {
+                    "name": "user_dance_styles_user_id_dance_style_id_pk",
+                    "columns": ["user_id", "dance_style_id"]
+                }
+            },
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.users": {
+            "name": "users",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "email": {
+                    "name": "email",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "password": {
+                    "name": "password",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "refresh_token": {
+                    "name": "refresh_token",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "status": {
+                    "name": "status",
+                    "type": "user_status",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'pending'"
+                },
+                "provider": {
+                    "name": "provider",
+                    "type": "provider",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'local'"
+                },
+                "provider_id": {
+                    "name": "provider_id",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "first_name": {
+                    "name": "first_name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "last_name": {
+                    "name": "last_name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "display_name": {
+                    "name": "display_name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "image": {
+                    "name": "image",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "users_email_unique": {
+                    "name": "users_email_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["email"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.email_logs": {
+            "name": "email_logs",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "to": {
+                    "name": "to",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "subject": {
+                    "name": "subject",
+                    "type": "varchar(500)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "template": {
+                    "name": "template",
+                    "type": "email_template",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "data": {
+                    "name": "data",
+                    "type": "json",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "status": {
+                    "name": "status",
+                    "type": "email_status",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'PENDING'"
+                },
+                "attempts": {
+                    "name": "attempts",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "error": {
+                    "name": "error",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "sent_at": {
+                    "name": "sent_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.storage_thumbnails": {
+            "name": "storage_thumbnails",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "storage_id": {
+                    "name": "storage_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "size": {
+                    "name": "size",
+                    "type": "thumbnail_size",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "width": {
+                    "name": "width",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "height": {
+                    "name": "height",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "path": {
+                    "name": "path",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "file_size": {
+                    "name": "file_size",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "storage_thumbnails_storage_id_storages_id_fk": {
+                    "name": "storage_thumbnails_storage_id_storages_id_fk",
+                    "tableFrom": "storage_thumbnails",
+                    "tableTo": "storages",
+                    "columnsFrom": ["storage_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.storages": {
+            "name": "storages",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "filename": {
+                    "name": "filename",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "original_name": {
+                    "name": "original_name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "mime_type": {
+                    "name": "mime_type",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "extension": {
+                    "name": "extension",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "size": {
+                    "name": "size",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "path": {
+                    "name": "path",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "provider": {
+                    "name": "provider",
+                    "type": "storage_provider",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'r2'"
+                },
+                "provider_id": {
+                    "name": "provider_id",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "visibility": {
+                    "name": "visibility",
+                    "type": "storage_visibility",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'private'"
+                },
+                "status": {
+                    "name": "status",
+                    "type": "storage_status",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'uploading'"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "metadata": {
+                    "name": "metadata",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "storages_user_id_users_id_fk": {
+                    "name": "storages_user_id_users_id_fk",
+                    "tableFrom": "storages",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "set null",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        }
+    },
+    "enums": {
+        "public.payment_status": {
+            "name": "payment_status",
+            "schema": "public",
+            "values": [
+                "pending",
+                "processing",
+                "succeeded",
+                "failed",
+                "canceled",
+                "refunded",
+                "partially_refunded"
+            ]
+        },
+        "public.payment_type": {
+            "name": "payment_type",
+            "schema": "public",
+            "values": ["one_time", "subscription", "marketplace", "feature_pack"]
+        },
+        "public.subscription_interval": {
+            "name": "subscription_interval",
+            "schema": "public",
+            "values": ["day", "week", "month", "year"]
+        },
+        "public.subscription_status": {
+            "name": "subscription_status",
+            "schema": "public",
+            "values": [
+                "active",
+                "past_due",
+                "unpaid",
+                "canceled",
+                "incomplete",
+                "incomplete_expired",
+                "trialing",
+                "paused"
+            ]
+        },
+        "public.provider": {
+            "name": "provider",
+            "schema": "public",
+            "values": ["local", "google", "facebook", "apple"]
+        },
+        "public.user_status": {
+            "name": "user_status",
+            "schema": "public",
+            "values": ["pending", "verified", "suspended"]
+        },
+        "public.email_status": {
+            "name": "email_status",
+            "schema": "public",
+            "values": ["TO_BE_SENT", "PENDING", "SENT", "FAILED", "RATE_LIMITED"]
+        },
+        "public.email_template": {
+            "name": "email_template",
+            "schema": "public",
+            "values": ["verify-email", "reset-password", "welcome"]
+        },
+        "public.thumbnail_size": {
+            "name": "thumbnail_size",
+            "schema": "public",
+            "values": ["small", "medium", "large"]
+        },
+        "public.storage_provider": {
+            "name": "storage_provider",
+            "schema": "public",
+            "values": ["r2", "s3", "local"]
+        },
+        "public.storage_status": {
+            "name": "storage_status",
+            "schema": "public",
+            "values": ["uploading", "active", "failed", "deleted"]
+        },
+        "public.storage_visibility": {
+            "name": "storage_visibility",
+            "schema": "public",
+            "values": ["public", "private", "authenticated"]
+        }
+    },
+    "schemas": {},
+    "sequences": {},
+    "roles": {},
+    "policies": {},
+    "views": {},
+    "_meta": {
+        "columns": {},
+        "schemas": {},
+        "tables": {}
+    }
+}

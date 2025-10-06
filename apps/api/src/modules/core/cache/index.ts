@@ -1,11 +1,10 @@
-/**
- * Shared Cache Module
- *
- * Export everything needed to use the cache system
- */
 export * from './base-cache-key';
+export * from './cache-tags';
 export * from './cache.module';
 export * from './cache.service';
 export * from './constants';
+export * from './decorators/cache-invalidate.decorator';
+export * from './interceptors/cache-invalidate.interceptor';
+export * from './relationship-manager';
 export * from './translatable-cache-keys';
 export * from './translatable-cache.service';

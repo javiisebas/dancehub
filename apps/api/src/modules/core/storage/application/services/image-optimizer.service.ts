@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { LogService } from '@api/modules/core/logger/services/logger.service';
+import { Injectable } from '@nestjs/common';
 import sharp from 'sharp';
 
 export interface OptimizedImageResult {

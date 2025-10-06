@@ -1,3 +1,4 @@
+import { Command } from '@api/common/abstract/application/commands.abstract';
 import { BusinessException } from '@api/common/exceptions/business.exception';
 import { User } from '@api/modules/user/domain/entities/user.entity';
 import {
@@ -9,9 +10,7 @@ import { LoginResponse, SocialLoginRequest, UserStatusEnum } from '@repo/shared'
 import { randomUUID } from 'crypto';
 import { LoginCommand, LoginHandler } from './login.handler';
 
-export class SocialLoginCommand {
-    constructor(public readonly data: SocialLoginRequest) {}
-}
+export class SocialLoginCommand extends Command<SocialLoginRequest> {}
 
 @Injectable()
 export class SocialLoginHandler {
@@ -54,6 +53,6 @@ export class SocialLoginHandler {
             }
         }
 
-        return await this.loginHandler.execute(new LoginCommand(user));
+        return await this.loginHandler.execute(new LoginCommand({ user }));
     }
 }

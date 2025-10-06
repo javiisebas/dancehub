@@ -1,20 +1,27 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1759501607427,
-      "tag": "0000_breezy_tempest",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1759630396000,
-      "tag": "0001_unknown_black_knight",
-      "breakpoints": true
-    }
-  ]
+    "version": "7",
+    "dialect": "postgresql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "7",
+            "when": 1759660036894,
+            "tag": "0000_military_mole_man",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "7",
+            "when": 1759664451882,
+            "tag": "0001_condemned_valeria_richards",
+            "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "7",
+            "when": 1759665628923,
+            "tag": "0002_bent_anthem",
+            "breakpoints": true
+        }
+    ]
 }

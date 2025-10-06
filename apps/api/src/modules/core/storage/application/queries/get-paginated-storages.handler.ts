@@ -1,7 +1,10 @@
 import { GetPaginatedQuery } from '@api/common/abstract/application';
 import { Inject, Injectable } from '@nestjs/common';
 import { PaginatedStorageRequest } from '@repo/shared';
-import { IStorageRepository, STORAGE_REPOSITORY } from '../../domain/repositories/i-storage.repository';
+import {
+    IStorageRepository,
+    STORAGE_REPOSITORY,
+} from '../../domain/repositories/i-storage.repository';
 
 export class GetPaginatedStoragesQuery extends GetPaginatedQuery<PaginatedStorageRequest> {}
 

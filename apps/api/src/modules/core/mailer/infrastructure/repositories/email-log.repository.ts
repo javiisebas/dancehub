@@ -1,10 +1,9 @@
 import { BaseRepository } from '@api/modules/core/database/base/base.repository';
-import { Injectable, Provider } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { and, lt, or, SQL, sql } from 'drizzle-orm';
 import { EmailLog } from '../../domain/entities/email-log.entity';
 import { EmailStatusEnum } from '../../domain/enums/email-status.enum';
 import { IEmailLogRepository } from '../../domain/repositories/i-email-log.repository';
-import { TOKENS } from '../../mailer.tokens';
 import { emailLogs } from '../schemas/email-log.schema';
 
 @Injectable()
@@ -66,8 +65,3 @@ export class EmailLogRepositoryImpl
         return results.map((schema) => this.toDomain(schema));
     }
 }
-
-export const EmailLogRepositoryProvider: Provider = {
-    provide: TOKENS.EMAIL_LOG_REPOSITORY,
-    useClass: EmailLogRepositoryImpl,
-};

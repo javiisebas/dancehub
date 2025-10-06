@@ -18,7 +18,7 @@ export class AuthPasswordService {
      * @param plainPassword - The plain password
      * @returns True if the password is correct, false otherwise
      */
-    public async verifyPassword(hashedPassword: string, plainPassword: string): Promise<boolean> {
+    public async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
         return await argon2.verify(hashedPassword, plainPassword);
     }
 }

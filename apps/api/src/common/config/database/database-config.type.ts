@@ -13,7 +13,6 @@ export type DatabaseConfig = {
     poolMin?: number;
     poolSize?: number;
     retryAttempts?: number;
-    retryDelay?: number;
     connectionTimeout?: number;
     idleTimeout?: number;
 };

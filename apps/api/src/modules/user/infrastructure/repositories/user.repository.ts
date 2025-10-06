@@ -1,5 +1,8 @@
-import { BaseRepository } from '@api/modules/core/database/base/base.repository';
-import { Injectable } from '@nestjs/common';
+import { BaseRepository, RelationHelpers } from '@api/modules/core/database/base';
+import { CUSTOMER_REPOSITORY } from '@api/modules/core/payment/domain/repositories/i-customer.repository';
+import { SUBSCRIPTION_REPOSITORY } from '@api/modules/core/payment/domain/repositories/i-subscription.repository';
+import { STORAGE_REPOSITORY } from '@api/modules/core/storage/domain/repositories/i-storage.repository';
+import { Inject, Injectable } from '@nestjs/common';
 import { FilterOperator, UserField } from '@repo/shared';
 import { sql } from 'drizzle-orm';
 import { User } from '../../domain/entities/user.entity';
@@ -13,6 +16,27 @@ export class UserRepositoryImpl
 {
     protected table = users;
     protected entityName = 'User';
+
+    constructor(
+        databaseService: any,
+        unitOfWorkService: any,
+        logger: any,
+        @Inject(CUSTOMER_REPOSITORY) private readonly customerRepository: any,
+        @Inject(SUBSCRIPTION_REPOSITORY) private readonly subscriptionRepository: any,
+        @Inject(STORAGE_REPOSITORY) private readonly storageRepository: any,
+    ) {
+        super(databaseService, unitOfWorkService, logger);
+    }
+
+    protected configureRelations(): void {
+        this.relation('customer').one(RelationHelpers.oneToOne(this.customerRepository, 'userId'));
+
+        this.relation('subscriptions').many(
+            RelationHelpers.oneToMany(this.subscriptionRepository, 'userId'),
+        );
+
+        this.relation('storages').many(RelationHelpers.oneToMany(this.storageRepository, 'userId'));
+    }
 
     protected toDomain(schema: typeof users.$inferSelect): User {
         return new User(

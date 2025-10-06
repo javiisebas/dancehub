@@ -1,4 +1,6 @@
+import { AUTH } from '@api/common/constants/auth.constants';
 import { CurrentUser } from '@api/common/decorators/current-user.decorator';
+import { Serialize } from '@api/common/decorators/serialize.decorator';
 import { Verified } from '@api/common/decorators/verified.decorator';
 import { JwtAuthGuard } from '@api/common/guards/jwt-auth.guard';
 import { LocalAuthGuard } from '@api/common/guards/local-auth.guard';
@@ -13,9 +15,12 @@ import {
     Patch,
     Post,
     Query,
+    Req,
+    Res,
     UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 import {
     CreateUserRequest,
     LoginResponse,
@@ -23,10 +28,10 @@ import {
     PasswordResponse,
     PasswordValuesRequest,
     ResetPasswordRequest,
-    SocialLoginRequest,
     UserResponse,
     UserStatusEnum,
 } from '@repo/shared';
+import { Request, Response } from 'express';
 import {
     ChangePasswordCommand,
     ChangePasswordHandler,
@@ -63,90 +68,71 @@ import {
 @Controller('auth')
 export class AuthController {
     constructor(
-        private readonly registerHandler: RegisterHandler,
+        private readonly changePasswordHandler: ChangePasswordHandler,
         private readonly loginHandler: LoginHandler,
         private readonly logoutHandler: LogoutHandler,
-        private readonly verifyEmailHandler: VerifyEmailHandler,
+        private readonly refreshTokenHandler: RefreshTokenHandler,
+        private readonly registerHandler: RegisterHandler,
         private readonly resendVerificationHandler: ResendVerificationHandler,
         private readonly resetPasswordHandler: ResetPasswordHandler,
         private readonly setNewPasswordHandler: SetNewPasswordHandler,
-        private readonly changePasswordHandler: ChangePasswordHandler,
         private readonly socialLoginHandler: SocialLoginHandler,
-        private readonly refreshTokenHandler: RefreshTokenHandler,
+        private readonly verifyEmailHandler: VerifyEmailHandler,
     ) {}
 
-    @ApiCreatedResponse({ description: 'Create an account with provided data if correct' })
     @Post('local/register')
     async register(@Body() credentials: CreateUserRequest): Promise<LoginResponse> {
         return this.registerHandler.execute(new RegisterCommand(credentials));
     }
 
-    @ApiOkResponse({ description: 'Logs in user' })
     @HttpCode(200)
     @UseGuards(LocalAuthGuard)
     @Post('local/login')
     async login(@CurrentUser() user: User): Promise<LoginResponse> {
-        return this.loginHandler.execute(new LoginCommand(user));
+        return this.loginHandler.execute(new LoginCommand({ user }));
     }
 
-    @ApiOkResponse({ description: 'Logs out user' })
     @Delete('logout')
     @UseGuards(JwtAuthGuard)
     async logout(@CurrentUser() user: User): Promise<PasswordResponse> {
-        return this.logoutHandler.execute(new LogoutCommand(user.id));
+        return this.logoutHandler.execute(new LogoutCommand({ userId: user.id }));
     }
 
-    @ApiOkResponse({ description: 'Currently logged user profile' })
-    @UseGuards(JwtAuthGuard)
     @Get('me')
-    getProfile(@CurrentUser() user: User): UserResponse {
-        return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            createdAt:
-                user.createdAt instanceof Date ? user.createdAt.toISOString() : user.createdAt,
-            updatedAt:
-                user.updatedAt instanceof Date ? user.updatedAt.toISOString() : user.updatedAt,
-        };
+    @UseGuards(JwtAuthGuard)
+    @Serialize(UserResponse)
+    getProfile(@CurrentUser() user: User): User {
+        return user;
     }
 
-    @ApiOkResponse({ description: 'Refresh tokens' })
     @HttpCode(200)
     @Post('refresh')
     async refresh(@Body('refreshToken') refreshToken: string): Promise<LoginResponse> {
-        return this.refreshTokenHandler.execute(new RefreshTokenCommand(refreshToken));
+        return this.refreshTokenHandler.execute(new RefreshTokenCommand({ refreshToken }));
     }
 
-    @ApiOkResponse({ description: 'Confirm account' })
     @Get('verify-email')
     verifyEmail(@Query('token') token: string): Promise<PasswordResponse> {
-        return this.verifyEmailHandler.execute(new VerifyEmailCommand(token));
+        return this.verifyEmailHandler.execute(new VerifyEmailCommand({ token }));
     }
 
-    @ApiOkResponse({ description: 'Resend confirmation token' })
     @Verified(UserStatusEnum.PENDING)
     @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Post('resend-verify-email')
     resendConfirmToken(@CurrentUser() user: User): Promise<PasswordResponse> {
-        return this.resendVerificationHandler.execute(new ResendVerificationCommand(user));
+        return this.resendVerificationHandler.execute(new ResendVerificationCommand({ user }));
     }
 
-    @ApiOkResponse({ description: 'Reset your password' })
     @Post('password/reset')
     resetPassword(@Body() { email }: ResetPasswordRequest): Promise<PasswordResponse> {
-        return this.resetPasswordHandler.execute(new ResetPasswordCommand(email));
+        return this.resetPasswordHandler.execute(new ResetPasswordCommand({ email }));
     }
 
-    @ApiOkResponse({ description: 'Set new password' })
     @Patch('password/new')
     setNewPassword(@Body() data: NewPasswordRequest): Promise<PasswordResponse> {
-        return this.setNewPasswordHandler.execute(
-            new SetNewPasswordCommand(data.token, data.newPassword, data.confirmPassword),
-        );
+        return this.setNewPasswordHandler.execute(new SetNewPasswordCommand(data));
     }
 
-    @ApiOkResponse({ description: 'Change your password' })
     @Patch('password/change')
     @Verified(UserStatusEnum.VERIFIED)
     @UseGuards(JwtAuthGuard, VerifiedGuard)
@@ -155,18 +141,37 @@ export class AuthController {
         @Body() passwordValues: PasswordValuesRequest,
     ): Promise<PasswordResponse> {
         return this.changePasswordHandler.execute(
-            new ChangePasswordCommand(
+            new ChangePasswordCommand({
                 user,
-                passwordValues.oldPassword,
-                passwordValues.newPassword,
-                passwordValues.confirmPassword,
-            ),
+                ...passwordValues,
+            }),
         );
     }
 
-    @ApiOkResponse({ description: 'Login o registro de usuario vía proveedor social' })
-    @Post('social/login')
-    async socialLogin(@Body() socialLoginDto: SocialLoginRequest): Promise<LoginResponse> {
-        return this.socialLoginHandler.execute(new SocialLoginCommand(socialLoginDto));
+    @Get('google')
+    @UseGuards(AuthGuard(AUTH.GOOGLE))
+    async googleAuth(): Promise<void> {
+        // Guard initiates Google OAuth flow
+    }
+
+    @Get('google/redirect')
+    @UseGuards(AuthGuard(AUTH.GOOGLE))
+    async googleAuthRedirect(@Req() req: Request, @Res() res: Response): Promise<void> {
+        const socialUser = req.user as any;
+
+        const { accessToken, refreshToken } = await this.socialLoginHandler.execute(
+            new SocialLoginCommand({
+                provider: socialUser.provider,
+                providerId: socialUser.providerId,
+                email: socialUser.email,
+                displayName: socialUser.name,
+                image: socialUser.picture,
+                verified: true,
+            }),
+        );
+
+        res.redirect(
+            `${process.env.FRONTEND_ORIGIN}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`,
+        );
     }
 }

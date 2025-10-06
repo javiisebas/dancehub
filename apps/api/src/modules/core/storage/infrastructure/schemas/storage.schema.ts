@@ -1,9 +1,27 @@
-import { pgEnum, pgTable, text, timestamp, uuid, varchar, integer, jsonb } from 'drizzle-orm/pg-core';
 import { users } from '@api/modules/user/infrastructure/schemas/user.schema';
+import {
+    integer,
+    jsonb,
+    pgEnum,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
+    varchar,
+} from 'drizzle-orm/pg-core';
 
 export const storageProviderEnum = pgEnum('storage_provider', ['r2', 's3', 'local']);
-export const storageVisibilityEnum = pgEnum('storage_visibility', ['public', 'private', 'authenticated']);
-export const storageStatusEnum = pgEnum('storage_status', ['uploading', 'active', 'failed', 'deleted']);
+export const storageVisibilityEnum = pgEnum('storage_visibility', [
+    'public',
+    'private',
+    'authenticated',
+]);
+export const storageStatusEnum = pgEnum('storage_status', [
+    'uploading',
+    'active',
+    'failed',
+    'deleted',
+]);
 
 export const storages = pgTable('storages', {
     id: uuid('id').primaryKey().defaultRandom(),

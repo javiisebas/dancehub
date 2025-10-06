@@ -13,11 +13,15 @@ import { ResetPasswordHandler } from './application/commands/reset-password.hand
 import { SetNewPasswordHandler } from './application/commands/set-new-password.handler';
 import { SocialLoginHandler } from './application/commands/social-login.handler';
 import { VerifyEmailHandler } from './application/commands/verify-email.handler';
+import { EmailVerificationRequestedListener } from './application/events/email-verification-requested.event';
+import { PasswordResetRequestedListener } from './application/events/password-reset-requested.event';
+import { UserRegisteredListener } from './application/events/user-registered.event';
 import { GetAuthenticatedUserHandler } from './application/queries/get-authenticated-user.handler';
 import { ValidateUserExistsHandler } from './application/queries/validate-user-exists.handler';
 import { AuthPasswordService } from './domain/services/auth-password.service';
 import { AuthTokenService } from './domain/services/auth-token.service';
 import { AuthController } from './infrastructure/controllers/auth.controller';
+import { GoogleStrategy } from './infrastructure/strategies/google.strategy';
 import { JwtStrategy } from './infrastructure/strategies/jwt-auth.strategy';
 import { JwtRefreshStrategy } from './infrastructure/strategies/jwt-refresh.strategy';
 import { LocalStrategy } from './infrastructure/strategies/local.strategy';
@@ -37,9 +41,15 @@ const CommandHandlers: Provider[] = [
 
 const QueryHandlers: Provider[] = [GetAuthenticatedUserHandler, ValidateUserExistsHandler];
 
+const EventListeners: Provider[] = [
+    EmailVerificationRequestedListener,
+    PasswordResetRequestedListener,
+    UserRegisteredListener,
+];
+
 const DomainServices: Provider[] = [AuthPasswordService, AuthTokenService];
 
-const Strategies: Provider[] = [JwtStrategy, JwtRefreshStrategy, LocalStrategy];
+const Strategies: Provider[] = [JwtStrategy, JwtRefreshStrategy, LocalStrategy, GoogleStrategy];
 
 @Module({
     imports: [
@@ -52,11 +62,17 @@ const Strategies: Provider[] = [JwtStrategy, JwtRefreshStrategy, LocalStrategy];
                 },
             }),
         }),
-        UserModule,
         AppMailerModule,
+        UserModule,
     ],
     controllers: [AuthController],
-    providers: [...DomainServices, ...CommandHandlers, ...QueryHandlers, ...Strategies],
+    providers: [
+        ...DomainServices,
+        ...CommandHandlers,
+        ...QueryHandlers,
+        ...EventListeners,
+        ...Strategies,
+    ],
     exports: [AuthPasswordService, AuthTokenService],
 })
 export class AuthModule {}

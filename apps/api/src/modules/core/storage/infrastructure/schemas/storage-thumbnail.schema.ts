@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, text, timestamp, uuid, varchar, integer } from 'drizzle-orm/pg-core';
+import { integer, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { storages } from './storage.schema';
 
 export const thumbnailSizeEnum = pgEnum('thumbnail_size', ['small', 'medium', 'large']);

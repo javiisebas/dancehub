@@ -8,7 +8,7 @@ services:
             POSTGRES_PASSWORD: dancehub123
             POSTGRES_DB: dancehub
             POSTGRES_HOST_AUTH_METHOD: md5
-        command: postgres -c listen_addresses='*'
+        command: postgres -c listen_addresses='*' -c max_connections=200
         ports:
             - '5432:5432'
         volumes:
@@ -19,11 +19,14 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+        networks:
+            - dancehub-network
 
     redis:
         image: redis:7-alpine
         container_name: dancehub-redis
         restart: unless-stopped
+        command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
         ports:
             - '6380:6379'
         volumes:
@@ -33,9 +36,54 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+        networks:
+            - dancehub-network
+
+    # Storage local (MinIO como alternativa a Cloudflare R2 para desarrollo)
+    minio:
+        image: minio/minio:latest
+        container_name: dancehub-minio
+        restart: unless-stopped
+        command: server /data --console-address ":9001"
+        environment:
+            MINIO_ROOT_USER: minioadmin
+            MINIO_ROOT_PASSWORD: minioadmin123
+        ports:
+            - '9000:9000' # API
+            - '9001:9001' # Console
+        volumes:
+            - minio_data:/data
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+            interval: 30s
+            timeout: 20s
+            retries: 3
+        networks:
+            - dancehub-network
+        profiles:
+            - storage
+
+    # Mailhog para testing de emails en local
+    mailhog:
+        image: mailhog/mailhog:latest
+        container_name: dancehub-mailhog
+        restart: unless-stopped
+        ports:
+            - '1025:1025' # SMTP
+            - '8025:8025' # Web UI
+        networks:
+            - dancehub-network
+        profiles:
+            - mail
 
 volumes:
     postgres_data:
         driver: local
     redis_data:
         driver: local
+    minio_data:
+        driver: local
+
+networks:
+    dancehub-network:
+        driver: bridge

@@ -3,8 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TIME_MS } from '@repo/shared';
 import { EmailStatusEnum } from '../../domain/enums/email-status.enum';
-import { FindFailedOrStuckEmailLogsHandler } from '../queries/find-failed-or-stuck-email-logs/find-failed-or-stuck-email-logs.handler';
-import { FindFailedOrStuckEmailLogsQuery } from '../queries/find-failed-or-stuck-email-logs/find-failed-or-stuck-email-logs.query';
+import {
+    FindFailedOrStuckEmailLogsHandler,
+    FindFailedOrStuckEmailLogsQuery,
+} from '../queries/find-failed-or-stuck-email-logs.handler';
 import { EmailQueueService } from './email-queue.service';
 
 @Injectable()

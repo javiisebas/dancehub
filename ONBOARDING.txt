@@ -1,0 +1,265 @@
+════════════════════════════════════════════════════════════════════════════════
+  🚀 DANCEHUB - ONBOARDING
+════════════════════════════════════════════════════════════════════════════════
+
+📦 QUICK START
+──────────────────────────────────────────────────────────────────────────────
+
+  1. Clone and setup:
+     ./quickstart.sh
+
+  2. Start development:
+     pnpm dev
+
+  That's it! 🎉
+
+
+🛠️ MANUAL SETUP (if quickstart fails)
+──────────────────────────────────────────────────────────────────────────────
+
+  1. Install dependencies:
+     pnpm install
+
+  2. Start Docker services:
+     docker-compose up -d
+
+  3. Copy environment files:
+     cp apps/api/.env.example apps/api/.env
+
+  4. Setup database:
+     cd apps/api && pnpm db:push
+
+  5. Start development:
+     pnpm dev
+
+
+📚 USEFUL COMMANDS
+──────────────────────────────────────────────────────────────────────────────
+
+  Development:
+    make dev              Start all services in dev mode
+    make dev-api          Start only API
+    make dev-web          Start only Web
+
+  Database:
+    make db-studio        Open Drizzle Studio (UI)
+    make db-push          Push schema changes
+    make db-seed          Seed test data
+    make db-reset         Reset and reseed DB
+
+  Testing:
+    make test             Run all tests
+    make test-watch       Tests in watch mode
+    make test-cov         Tests with coverage
+
+  Docker:
+    make start            Start Docker services
+    make stop             Stop Docker services
+    make logs             View logs
+    make health           Check service health
+
+  Quality:
+    make lint             Run linter
+    make format           Format code
+    make typecheck        Check TypeScript types
+
+  All commands: make help
+
+
+🌐 SERVICES & PORTS
+──────────────────────────────────────────────────────────────────────────────
+
+  ✅ Core (always running):
+    • API:          http://localhost:4000
+    • Swagger Docs: http://localhost:4000/docs
+    • Web:          http://localhost:3001
+    • PostgreSQL:   localhost:5432
+    • Redis:        localhost:6380
+
+  📧 Optional (run with --profile):
+    • MailHog UI:   http://localhost:8025
+      Command: docker-compose --profile mail up -d
+
+    • MinIO:        http://localhost:9001
+      Command: docker-compose --profile storage up -d
+
+
+🔑 DEFAULT CREDENTIALS
+──────────────────────────────────────────────────────────────────────────────
+
+  PostgreSQL:
+    User:     dancehub
+    Password: dancehub123
+    Database: dancehub
+
+  Redis:
+    Port:     6380
+    Password: (none)
+
+  MinIO:
+    User:     minioadmin
+    Password: minioadmin123
+
+  MailHog:
+    No auth required
+
+
+🏗️ PROJECT STRUCTURE
+──────────────────────────────────────────────────────────────────────────────
+
+  dancehub/
+  ├── apps/
+  │   ├── api/              NestJS backend
+  │   │   ├── src/
+  │   │   │   ├── modules/  Feature modules
+  │   │   │   └── common/   Shared code
+  │   │   └── scripts/      Utility scripts
+  │   └── web/              Next.js frontend
+  ├── packages/
+  │   ├── shared/           Shared DTOs, types, enums
+  │   ├── ui/               Shared UI components
+  │   └── eslint-config/    ESLint configs
+  └── docker-compose.yml    Docker services
+
+
+🧪 TESTING
+──────────────────────────────────────────────────────────────────────────────
+
+  Run tests:
+    cd apps/api
+    pnpm test
+
+  Test patterns:
+    • Unit tests:        *.spec.ts (co-located)
+    • Integration tests: *.integration.spec.ts
+    • E2E tests:         test/*.e2e-spec.ts
+
+  Current coverage: 118 tests passing ✅
+
+
+💳 STRIPE SETUP (Payments)
+──────────────────────────────────────────────────────────────────────────────
+
+  1. Get test keys: https://dashboard.stripe.com/test/apikeys
+
+  2. Add to apps/api/.env:
+     STRIPE_SECRET_KEY=sk_test_...
+     STRIPE_PUBLISHABLE_KEY=pk_test_...
+     STRIPE_WEBHOOK_SECRET=whsec_...
+
+  3. Test webhooks locally:
+     stripe listen --forward-to localhost:4000/api/payment/webhook
+
+
+📧 EMAIL TESTING (MailHog)
+──────────────────────────────────────────────────────────────────────────────
+
+  1. Start MailHog:
+     docker-compose --profile mail up -d
+
+  2. Configure apps/api/.env:
+     MAIL_HOST=localhost
+     MAIL_PORT=1025
+
+  3. View emails:
+     http://localhost:8025
+
+
+💾 STORAGE SETUP (MinIO)
+──────────────────────────────────────────────────────────────────────────────
+
+  1. Start MinIO:
+     docker-compose --profile storage up -d
+
+  2. Run setup:
+     cd apps/api && pnpm storage:setup
+
+  3. Access console:
+     http://localhost:9001
+
+
+🔥 COMMON ISSUES
+──────────────────────────────────────────────────────────────────────────────
+
+  Issue: "Cannot connect to database"
+  Solution: docker-compose up -d && sleep 5 && pnpm health
+
+  Issue: "Port 4000 already in use"
+  Solution: lsof -ti:4000 | xargs kill -9
+
+  Issue: "Redis connection refused"
+  Solution: Check port 6380 (not default 6379)
+
+  Issue: "Module not found"
+  Solution: pnpm install
+
+  Issue: "Docker services not starting"
+  Solution: docker-compose down -v && docker-compose up -d
+
+
+🎯 FIRST TASKS
+──────────────────────────────────────────────────────────────────────────────
+
+  1. ✅ Start services: make start
+  2. ✅ Check health: make health
+  3. ✅ Open Swagger: http://localhost:4000/docs
+  4. ✅ Run tests: make test
+  5. ✅ Open DB Studio: make db-studio
+
+
+🤝 GIT WORKFLOW
+──────────────────────────────────────────────────────────────────────────────
+
+  Branches:
+    main     → Production
+    develop  → Development
+
+  Before commit:
+    • Husky runs pre-commit hooks automatically
+    • Linter fixes issues
+    • Type checking runs
+
+  CI/CD:
+    • Push triggers GitHub Actions
+    • Runs tests, linting, type checking
+    • Main branch deploys automatically
+
+
+📖 ARCHITECTURE
+──────────────────────────────────────────────────────────────────────────────
+
+  API follows Hexagonal Architecture:
+    • Domain:         Business logic & entities
+    • Application:    Use cases & commands
+    • Infrastructure: DB, external services
+
+  Key patterns:
+    • Repository Pattern
+    • Command Bus (CQRS)
+    • Domain Events
+    • Dependency Injection
+
+
+💡 TIPS
+──────────────────────────────────────────────────────────────────────────────
+
+  • Use VSCode recommended extensions
+  • Format on save is enabled
+  • Use Makefile for common tasks
+  • Check make help for all commands
+  • Keep .env.example updated
+  • Co-locate tests with source code
+
+
+🆘 NEED HELP?
+──────────────────────────────────────────────────────────────────────────────
+
+  1. Check: make help
+  2. Run: make health
+  3. Check logs: make logs
+  4. Reset: make clean && make setup
+
+
+════════════════════════════════════════════════════════════════════════════════
+  Happy Coding! 🚀
+════════════════════════════════════════════════════════════════════════════════
