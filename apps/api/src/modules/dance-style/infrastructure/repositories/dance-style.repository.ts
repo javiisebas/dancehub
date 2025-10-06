@@ -1,5 +1,4 @@
-import { TranslatableCacheService } from '@api/modules/core/cache';
-import { BaseTranslatableCachedRepository } from '@api/modules/core/database/base/base-translatable-cached.repository';
+import { BaseTranslatableRepository, RepositoryRegistry } from '@api/modules/core/database/base';
 import { DatabaseService } from '@api/modules/core/database/services/database.service';
 import { UnitOfWorkService } from '@api/modules/core/database/unit-of-work/unit-of-work.service';
 import { LogService } from '@api/modules/core/logger/services/logger.service';
@@ -8,32 +7,37 @@ import { DanceStyleField, FilterOperator } from '@repo/shared';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { DanceStyleTranslation } from '../../domain/entities/dance-style-translation.entity';
 import { DanceStyle } from '../../domain/entities/dance-style.entity';
-import { IDanceStyleRepository } from '../../domain/repositories/i-dance-style.repository';
+import {
+    DANCE_STYLE_REPOSITORY,
+    IDanceStyleRepository,
+} from '../../domain/repositories/i-dance-style.repository';
 import { danceStyles, danceStyleTranslations } from '../schemas';
 
 @Injectable()
 export class DanceStyleRepositoryImpl
-    extends BaseTranslatableCachedRepository<
+    extends BaseTranslatableRepository<
         DanceStyle,
         DanceStyleTranslation,
         typeof danceStyles,
         typeof danceStyleTranslations,
-        DanceStyleField
+        DanceStyleField,
+        {}
     >
     implements IDanceStyleRepository
 {
     protected table = danceStyles;
     protected translationTable = danceStyleTranslations;
     protected entityName = 'DanceStyle';
-    protected cacheEntityName = 'dance-style';
 
     constructor(
         databaseService: DatabaseService,
         unitOfWorkService: UnitOfWorkService,
         logger: LogService,
-        translatableCache: TranslatableCacheService,
+        private readonly registry: RepositoryRegistry,
     ) {
-        super(databaseService, unitOfWorkService, logger, translatableCache);
+        super(databaseService, unitOfWorkService, logger, registry);
+        // Auto-register in repository registry for nested relations
+        this.registry.register('DanceStyle', this, DANCE_STYLE_REPOSITORY);
     }
 
     protected toDomain(schema: typeof danceStyles.$inferSelect): DanceStyle {
@@ -77,9 +81,11 @@ export class DanceStyleRepositoryImpl
 
     async findBySlug(slug: string): Promise<DanceStyle | null> {
         return this.findOne({
-            field: 'slug',
-            operator: FilterOperator.EQ,
-            value: slug,
+            filter: {
+                field: 'slug',
+                operator: FilterOperator.EQ,
+                value: slug,
+            },
         });
     }
 

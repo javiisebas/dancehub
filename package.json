@@ -6,14 +6,18 @@
     "author": "",
     "license": "UNLICENSED",
     "scripts": {
-        "dev": "turbo run dev",
         "build": "turbo run build",
-        "test": "turbo run test",
-        "test:e2e": "turbo run test:e2e",
-        "lint": "turbo run lint",
-        "format": "prettier --write --plugin=prettier-plugin-organize-imports \"**/*.{ts,tsx,md,json}\"",
+        "dev": "turbo run dev",
+        "docker:down": "docker-compose down",
+        "docker:logs": "docker-compose logs -f",
+        "docker:reset": "docker-compose down -v && docker-compose up -d",
+        "docker:up": "docker-compose up -d",
         "empty-dirs": "find ./ -type d -empty -delete",
+        "format": "prettier --write --plugin=prettier-plugin-organize-imports \"**/*.{ts,tsx,md,json}\"",
+        "lint": "turbo run lint",
         "prepare": "husky install",
+        "test:e2e": "turbo run test:e2e",
+        "test": "turbo run test",
         "typecheck": "turbo run typecheck"
     },
     "devDependencies": {

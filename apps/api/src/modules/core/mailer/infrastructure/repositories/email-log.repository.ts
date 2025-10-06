@@ -6,9 +6,11 @@ import { EmailStatusEnum } from '../../domain/enums/email-status.enum';
 import { IEmailLogRepository } from '../../domain/repositories/i-email-log.repository';
 import { emailLogs } from '../schemas/email-log.schema';
 
+type EmailLogField = 'to' | 'subject' | 'template' | 'status' | 'attempts' | 'error' | 'sentAt';
+
 @Injectable()
 export class EmailLogRepositoryImpl
-    extends BaseRepository<EmailLog, typeof emailLogs>
+    extends BaseRepository<EmailLog, typeof emailLogs, EmailLogField, {}>
     implements IEmailLogRepository
 {
     protected table = emailLogs;

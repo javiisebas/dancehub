@@ -32,6 +32,8 @@ export class CreateDanceStyleHandler {
 
         await this.repository.saveTranslations(savedDanceStyle.id, translations);
 
-        return this.repository.findByIdWithTranslations(savedDanceStyle.id);
+        return this.repository.findById(savedDanceStyle.id, {
+            includeAllTranslations: true,
+        });
     }
 }

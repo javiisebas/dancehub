@@ -169,274 +169,6 @@
         ]
       }
     },
-    "/api/payment/intent": {
-      "post": {
-        "operationId": "PaymentController_createPaymentIntent",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePaymentIntentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payment"
-        ]
-      }
-    },
-    "/api/payment/subscription": {
-      "post": {
-        "operationId": "PaymentController_createSubscription",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateSubscriptionRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payment"
-        ]
-      }
-    },
-    "/api/payment/subscription/{id}/cancel": {
-      "post": {
-        "operationId": "PaymentController_cancelSubscription",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payment"
-        ]
-      }
-    },
-    "/api/payment/checkout": {
-      "post": {
-        "operationId": "PaymentController_createCheckoutSession",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCheckoutSessionRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payment"
-        ]
-      }
-    },
-    "/api/payment/connect/account": {
-      "post": {
-        "operationId": "PaymentController_createConnectedAccount",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateConnectedAccountRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payment"
-        ]
-      }
-    },
-    "/api/payment/marketplace": {
-      "post": {
-        "operationId": "PaymentController_createMarketplacePayment",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateMarketplacePaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payment"
-        ]
-      }
-    },
-    "/api/payment/webhook": {
-      "post": {
-        "operationId": "PaymentController_handleWebhook",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payment"
-        ]
-      }
-    },
-    "/api/users": {
-      "post": {
-        "operationId": "UserController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      },
-      "get": {
-        "operationId": "UserController_paginate",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      }
-    },
-    "/api/users/{id}": {
-      "get": {
-        "operationId": "UserController_findById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      },
-      "patch": {
-        "operationId": "UserController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      },
-      "delete": {
-        "operationId": "UserController_delete",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      }
-    },
     "/api/storage/upload": {
       "post": {
         "operationId": "StorageController_uploadFile",
@@ -665,6 +397,117 @@
         },
         "tags": [
           "Storage"
+        ]
+      }
+    },
+    "/api/users": {
+      "post": {
+        "operationId": "UserController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      },
+      "get": {
+        "operationId": "UserController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "operationId": "UserController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      },
+      "patch": {
+        "operationId": "UserController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      },
+      "delete": {
+        "operationId": "UserController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
         ]
       }
     },
@@ -1018,6 +861,92 @@
           "auth"
         ]
       }
+    },
+    "/api/venues": {
+      "post": {
+        "operationId": "VenueController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVenueRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Venue"
+        ]
+      }
+    },
+    "/api/venues/{slug}": {
+      "get": {
+        "operationId": "VenueController_getBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeRelations",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Venue"
+        ]
+      }
+    },
+    "/api/artists/{id}": {
+      "get": {
+        "operationId": "ArtistController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeRelations",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Artist"
+        ]
+      }
     }
   },
   "info": {
@@ -1037,23 +966,11 @@
       }
     },
     "schemas": {
-      "CreatePaymentIntentRequest": {
+      "UploadFileRequest": {
         "type": "object",
         "properties": {}
       },
-      "CreateSubscriptionRequest": {
-        "type": "object",
-        "properties": {}
-      },
-      "CreateCheckoutSessionRequest": {
-        "type": "object",
-        "properties": {}
-      },
-      "CreateConnectedAccountRequest": {
-        "type": "object",
-        "properties": {}
-      },
-      "CreateMarketplacePaymentRequest": {
+      "UpdateStorageRequest": {
         "type": "object",
         "properties": {}
       },
@@ -1062,14 +979,6 @@
         "properties": {}
       },
       "UpdateUserRequest": {
-        "type": "object",
-        "properties": {}
-      },
-      "UploadFileRequest": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateStorageRequest": {
         "type": "object",
         "properties": {}
       },
@@ -1090,6 +999,10 @@
         "properties": {}
       },
       "PasswordValuesRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateVenueRequest": {
         "type": "object",
         "properties": {}
       }

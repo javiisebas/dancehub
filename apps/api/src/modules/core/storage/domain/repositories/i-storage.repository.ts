@@ -1,4 +1,4 @@
-import { IBaseRepository } from '@api/modules/core/database/base/base.repository.interface';
+import { IBaseRepository } from '@api/modules/core/database/interfaces/i-base.repository';
 import type { StorageField } from '@repo/shared';
 import type { Storage } from '../entities/storage.entity';
 

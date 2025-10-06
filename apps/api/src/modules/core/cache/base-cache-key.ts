@@ -1,10 +1,6 @@
 import { PaginatedRequest } from '@repo/shared';
-import { CacheTag } from './cache-tags';
 
 export class BaseCacheKey {
-    private readonly tags: CacheTag[] = [];
-    private readonly relations: string[] = [];
-
     constructor(
         protected readonly namespace: string,
         protected readonly identifier: string,
@@ -15,9 +11,6 @@ export class BaseCacheKey {
         const parts = [this.namespace, this.identifier];
         if (this.suffix) {
             parts.push(this.suffix);
-        }
-        if (this.relations.length > 0) {
-            parts.push(`with:${this.relations.sort().join(',')}`);
         }
         return parts.join(':');
     }
@@ -40,24 +33,6 @@ export class BaseCacheKey {
 
     getSuffix(): string | undefined {
         return this.suffix;
-    }
-
-    getTags(): CacheTag[] {
-        return [...this.tags];
-    }
-
-    getRelations(): string[] {
-        return [...this.relations];
-    }
-
-    withTags(...tags: CacheTag[]): this {
-        this.tags.push(...tags);
-        return this;
-    }
-
-    withRelations(...relations: string[]): this {
-        this.relations.push(...relations);
-        return this;
     }
 
     static byId(id: string): BaseCacheKey {

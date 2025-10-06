@@ -14,7 +14,7 @@ import { storages } from '../schemas/storage.schema';
 
 @Injectable()
 export class StorageRepositoryImpl
-    extends BaseRepository<Storage, typeof storages, StorageField>
+    extends BaseRepository<Storage, typeof storages, StorageField, {}>
     implements IStorageRepository
 {
     protected table = storages;

@@ -1,4 +1,5 @@
-import { BaseCacheKey, CacheService, CacheTag, CacheTTL } from '@api/modules/core/cache';
+import { GetByIdQuery } from '@api/common/abstract/application';
+import { BaseCacheKey, CacheService, CacheTTL } from '@api/modules/core/cache';
 import { Inject, Injectable } from '@nestjs/common';
 import { DanceStyle } from '../../domain/entities/dance-style.entity';
 import {
@@ -6,12 +7,7 @@ import {
     IDanceStyleRepository,
 } from '../../domain/repositories/i-dance-style.repository';
 
-export class GetDanceStyleWithUsersQuery {
-    constructor(
-        public readonly id: string,
-        public readonly includeUsers?: boolean,
-    ) {}
-}
+export class GetDanceStyleWithUsersQuery extends GetByIdQuery {}
 
 @Injectable()
 export class GetDanceStyleWithUsersHandler {
@@ -20,23 +16,11 @@ export class GetDanceStyleWithUsersHandler {
         private readonly cache: CacheService,
     ) {}
 
-    async execute({ id, includeUsers }: GetDanceStyleWithUsersQuery): Promise<DanceStyle> {
-        const relations = includeUsers ? ['users'] : [];
+    async execute({ id }: GetDanceStyleWithUsersQuery): Promise<DanceStyle> {
+        const cacheKey = new BaseCacheKey('dance-style', id);
 
-        const cacheKey = new BaseCacheKey('dance-style', id).withTags(
-            CacheTag.entity('DanceStyle', id),
-        );
-
-        if (includeUsers) {
-            cacheKey
-                .withRelations('users')
-                .withTags(CacheTag.entityRelation('DanceStyle', id, 'users'));
-        }
-
-        return this.cache.getOrSet(
-            cacheKey,
-            async () => await this.repository.findById(id, { relations }),
-            { ttl: CacheTTL.MEDIUM },
-        );
+        return this.cache.getOrSet(cacheKey, async () => await this.repository.findById(id), {
+            ttl: CacheTTL.MEDIUM,
+        });
     }
 }

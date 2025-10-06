@@ -39,6 +39,8 @@ export class UpdateDanceStyleHandler {
             );
         }
 
-        return this.repository.findByIdWithTranslations(id);
+        return this.repository.findById(id, {
+            includeAllTranslations: true,
+        });
     }
 }

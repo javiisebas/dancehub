@@ -1,41 +1,31 @@
-import { BaseRepository, RelationHelpers } from '@api/modules/core/database/base';
-import { CUSTOMER_REPOSITORY } from '@api/modules/core/payment/domain/repositories/i-customer.repository';
-import { SUBSCRIPTION_REPOSITORY } from '@api/modules/core/payment/domain/repositories/i-subscription.repository';
-import { STORAGE_REPOSITORY } from '@api/modules/core/storage/domain/repositories/i-storage.repository';
-import { Inject, Injectable } from '@nestjs/common';
+import { BaseRepository, RepositoryRegistry } from '@api/modules/core/database/base';
+import { DatabaseService } from '@api/modules/core/database/services/database.service';
+import { UnitOfWorkService } from '@api/modules/core/database/unit-of-work/unit-of-work.service';
+import { LogService } from '@api/modules/core/logger/services/logger.service';
+import { Injectable } from '@nestjs/common';
 import { FilterOperator, UserField } from '@repo/shared';
 import { sql } from 'drizzle-orm';
 import { User } from '../../domain/entities/user.entity';
-import { IUserRepository } from '../../domain/repositories/i-user.repository';
+import { IUserRepository, USER_REPOSITORY } from '../../domain/repositories/i-user.repository';
 import { users } from '../schemas/user.schema';
 
 @Injectable()
 export class UserRepositoryImpl
-    extends BaseRepository<User, typeof users, UserField>
+    extends BaseRepository<User, typeof users, UserField, {}>
     implements IUserRepository
 {
     protected table = users;
     protected entityName = 'User';
 
     constructor(
-        databaseService: any,
-        unitOfWorkService: any,
-        logger: any,
-        @Inject(CUSTOMER_REPOSITORY) private readonly customerRepository: any,
-        @Inject(SUBSCRIPTION_REPOSITORY) private readonly subscriptionRepository: any,
-        @Inject(STORAGE_REPOSITORY) private readonly storageRepository: any,
+        databaseService: DatabaseService,
+        unitOfWorkService: UnitOfWorkService,
+        logger: LogService,
+        private readonly registry: RepositoryRegistry,
     ) {
-        super(databaseService, unitOfWorkService, logger);
-    }
-
-    protected configureRelations(): void {
-        this.relation('customer').one(RelationHelpers.oneToOne(this.customerRepository, 'userId'));
-
-        this.relation('subscriptions').many(
-            RelationHelpers.oneToMany(this.subscriptionRepository, 'userId'),
-        );
-
-        this.relation('storages').many(RelationHelpers.oneToMany(this.storageRepository, 'userId'));
+        super(databaseService, unitOfWorkService, logger, registry);
+        // Auto-register in repository registry for nested relations
+        this.registry.register('User', this, USER_REPOSITORY);
     }
 
     protected toDomain(schema: typeof users.$inferSelect): User {
@@ -75,9 +65,11 @@ export class UserRepositoryImpl
 
     async findByEmail(email: string): Promise<User | null> {
         return this.findOne({
-            field: 'email',
-            operator: FilterOperator.EQ,
-            value: email.toLowerCase(),
+            filter: {
+                field: 'email',
+                operator: FilterOperator.EQ,
+                value: email.toLowerCase(),
+            },
         });
     }
 

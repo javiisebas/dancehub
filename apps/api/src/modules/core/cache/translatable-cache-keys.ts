@@ -13,14 +13,6 @@ export class TranslatableCacheKeys {
         return `${this.entityName}:translations:${id}`;
     }
 
-    composite(id: string, locale: string): string {
-        return `${this.entityName}:composite:${id}:${locale}`;
-    }
-
-    compositeAll(id: string): string {
-        return `${this.entityName}:composite:${id}:all`;
-    }
-
     entityPattern(id: string): string {
         return `${this.entityName}:*:${id}*`;
     }

@@ -1,4 +1,4 @@
-import { IBaseTranslatableRepository } from '@api/modules/core/database/base/base-translatable.repository.interface';
+import { IBaseTranslatableRepository } from '@api/modules/core/database/interfaces/i-base-translatable.repository';
 import { DanceStyleField } from '@repo/shared';
 import { DanceStyleTranslation } from '../entities/dance-style-translation.entity';
 import { DanceStyle } from '../entities/dance-style.entity';

@@ -1,6 +1,7 @@
 import { BaseTranslatableEntity } from '@api/common/abstract/domain';
+import { DanceStyleTranslation } from './dance-style-translation.entity';
 
-export class DanceStyle extends BaseTranslatableEntity {
+export class DanceStyle extends BaseTranslatableEntity<DanceStyleTranslation> {
     constructor(
         id: string,
         public slug: string,

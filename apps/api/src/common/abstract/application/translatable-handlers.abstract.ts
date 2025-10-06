@@ -1,5 +1,5 @@
-import { IBaseTranslatableRepository } from '@api/modules/core/database/base/base-translatable.repository.interface';
-import { BaseTranslatableEntity, BaseTranslationEntity, TranslatableComposite } from '../domain';
+import { IBaseTranslatableRepository } from '@api/modules/core/database/interfaces/i-base-translatable.repository';
+import { BaseTranslatableEntity, BaseTranslationEntity } from '../domain';
 
 export abstract class BaseGetTranslatableHandler<
     TEntity extends BaseTranslatableEntity,
@@ -10,14 +10,11 @@ export abstract class BaseGetTranslatableHandler<
         protected readonly repository: IBaseTranslatableRepository<TEntity, TTranslation, TField>,
     ) {}
 
-    async execute(
-        id: string,
-        locale?: string,
-    ): Promise<TranslatableComposite<TEntity, TTranslation>> {
-        if (locale) {
-            return this.repository.findByIdWithTranslation(id, locale);
-        }
-        return this.repository.findByIdWithTranslations(id);
+    async execute(id: string, locale?: string): Promise<TEntity> {
+        return this.repository.findById(id, {
+            locale,
+            includeAllTranslations: !locale,
+        });
     }
 }
 

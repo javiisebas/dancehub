@@ -32,9 +32,12 @@ import {
 } from 'drizzle-orm';
 import { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { FieldMapper } from './field-mapper';
+import { JoinConfig, TranslationJoinMetadata } from './types/join-config.types';
 
 export class QueryBuilder<TTable extends PgTable, TField extends string = string> {
     private fieldMapper: FieldMapper<TTable, TField>;
+    private requiredJoins: Map<string, JoinConfig> = new Map();
+    private translationMetadata?: TranslationJoinMetadata;
 
     constructor(
         private readonly table: TTable,
@@ -44,6 +47,18 @@ export class QueryBuilder<TTable extends PgTable, TField extends string = string
             throw new Error('QueryBuilder: table parameter is required');
         }
         this.fieldMapper = new FieldMapper(table, customFieldMapping);
+    }
+
+    setTranslationMetadata(metadata: TranslationJoinMetadata): void {
+        this.translationMetadata = metadata;
+    }
+
+    getRequiredJoins(): JoinConfig[] {
+        return Array.from(this.requiredJoins.values());
+    }
+
+    clearJoins(): void {
+        this.requiredJoins.clear();
     }
 
     buildWhereClause(filter?: Filter<TField>): SQL | undefined {
@@ -85,10 +100,35 @@ export class QueryBuilder<TTable extends PgTable, TField extends string = string
     }
 
     private processFilterCondition(condition: FilterCondition<TField>): SQL | undefined {
+        const fieldStr = String(condition.field);
+
+        // Check if this is a nested field (translation.name, artist.name, etc.)
+        if (fieldStr.includes('.')) {
+            return this.processNestedFilterCondition(fieldStr, condition);
+        }
+
         const column = this.fieldMapper.getColumn(condition.field);
         if (!column) return undefined;
 
         return this.applyOperator(column, condition.operator, condition.value);
+    }
+
+    private processNestedFilterCondition(
+        fieldPath: string,
+        condition: FilterCondition<TField>,
+    ): SQL | undefined {
+        const [prefix, fieldName] = fieldPath.split('.');
+
+        // Handle translation fields
+        if (prefix === 'translation' && this.translationMetadata) {
+            this.registerTranslationJoin();
+            const column = (this.translationMetadata.translationTable as any)[fieldName];
+            if (column) {
+                return this.applyOperator(column, condition.operator, condition.value);
+            }
+        }
+
+        return undefined;
     }
 
     private applyOperator(
@@ -161,9 +201,38 @@ export class QueryBuilder<TTable extends PgTable, TField extends string = string
     }
 
     private processSortField(sortField: SortField<TField>): SQL | undefined {
+        const fieldStr = String(sortField.field);
+
+        // Check if this is a nested field
+        if (fieldStr.includes('.')) {
+            return this.processNestedSortField(fieldStr, sortField);
+        }
+
         const column = this.fieldMapper.getColumn(sortField.field);
         if (!column) return undefined;
 
+        return this.buildOrderClause(column, sortField);
+    }
+
+    private processNestedSortField(
+        fieldPath: string,
+        sortField: SortField<TField>,
+    ): SQL | undefined {
+        const [prefix, fieldName] = fieldPath.split('.');
+
+        // Handle translation fields
+        if (prefix === 'translation' && this.translationMetadata) {
+            this.registerTranslationJoin();
+            const column = (this.translationMetadata.translationTable as any)[fieldName];
+            if (column) {
+                return this.buildOrderClause(column, sortField);
+            }
+        }
+
+        return undefined;
+    }
+
+    private buildOrderClause(column: any, sortField: SortField<TField>): SQL {
         let orderClause: SQL;
 
         if (sortField.order === SortOrder.DESC) {
@@ -179,6 +248,36 @@ export class QueryBuilder<TTable extends PgTable, TField extends string = string
         }
 
         return orderClause;
+    }
+
+    private registerTranslationJoin(): void {
+        if (!this.translationMetadata) return;
+
+        const joinKey = 'translation';
+        if (this.requiredJoins.has(joinKey)) return;
+
+        const idColumn = this.getIdColumn();
+        const locale = this.translationMetadata.getCurrentLocale();
+
+        this.requiredJoins.set(joinKey, {
+            table: this.translationMetadata.translationTable,
+            type: 'inner',
+            on: {
+                leftColumn: idColumn,
+                rightColumn: this.translationMetadata.entityIdColumn,
+                additionalConditions: [eq(this.translationMetadata.localeColumn, locale)],
+            },
+        });
+    }
+
+    private getIdColumn(): PgColumn {
+        const idColumn = Object.values(this.table).find(
+            (col): col is PgColumn => col instanceof PgColumn && col.name === 'id',
+        );
+        if (!idColumn) {
+            throw new Error('ID column not found in table');
+        }
+        return idColumn as PgColumn;
     }
 
     private normalizeValue(
