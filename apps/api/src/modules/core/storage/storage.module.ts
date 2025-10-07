@@ -29,17 +29,30 @@ const CommandHandlers: Provider[] = [
 const QueryHandlers: Provider[] = [GetStorageHandler, GetPaginatedStoragesHandler];
 
 const Services: Provider[] = [
+    // Core services
     StorageService,
+
+    // File processing
     ImageOptimizerService,
-    StorageThumbnailService,
     VideoProcessorService,
+
+    // Thumbnails
+    StorageThumbnailService,
     VideoThumbnailService,
+
+    // Progress tracking
     StorageProgressService,
     StorageProgressGateway,
+
+    // Jobs
     StorageCleanupJob,
+
+    // Guards & Interceptors
     StorageAccessGuard,
     StorageOwnershipGuard,
     StorageUrlInterceptor,
+
+    // Storage provider
     {
         provide: 'STORAGE_PROVIDER',
         useClass: R2StorageProviderService,

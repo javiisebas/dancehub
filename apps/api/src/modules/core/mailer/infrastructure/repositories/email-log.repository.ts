@@ -6,15 +6,13 @@ import { EmailStatusEnum } from '../../domain/enums/email-status.enum';
 import { IEmailLogRepository } from '../../domain/repositories/i-email-log.repository';
 import { emailLogs } from '../schemas/email-log.schema';
 
-type EmailLogField = 'to' | 'subject' | 'template' | 'status' | 'attempts' | 'error' | 'sentAt';
-
 @Injectable()
 export class EmailLogRepositoryImpl
-    extends BaseRepository<EmailLog, typeof emailLogs, EmailLogField, {}>
+    extends BaseRepository<EmailLog, typeof emailLogs>
     implements IEmailLogRepository
 {
-    protected table = emailLogs;
-    protected entityName = 'EmailLog';
+    protected readonly table = emailLogs;
+    protected readonly entityName = 'EmailLog';
 
     protected toDomain(schema: typeof emailLogs.$inferSelect): EmailLog {
         return new EmailLog(

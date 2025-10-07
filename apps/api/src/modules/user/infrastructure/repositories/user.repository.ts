@@ -1,32 +1,18 @@
-import { BaseRepository, RepositoryRegistry } from '@api/modules/core/database/base';
-import { DatabaseService } from '@api/modules/core/database/services/database.service';
-import { UnitOfWorkService } from '@api/modules/core/database/unit-of-work/unit-of-work.service';
-import { LogService } from '@api/modules/core/logger/services/logger.service';
+import { BaseRepository } from '@api/modules/core/database/base';
 import { Injectable } from '@nestjs/common';
-import { FilterOperator, UserField } from '@repo/shared';
+import { FilterOperator } from '@repo/shared';
 import { sql } from 'drizzle-orm';
 import { User } from '../../domain/entities/user.entity';
-import { IUserRepository, USER_REPOSITORY } from '../../domain/repositories/i-user.repository';
+import { IUserRepository } from '../../domain/repositories/i-user.repository';
 import { users } from '../schemas/user.schema';
 
 @Injectable()
 export class UserRepositoryImpl
-    extends BaseRepository<User, typeof users, UserField, {}>
+    extends BaseRepository<User, typeof users>
     implements IUserRepository
 {
-    protected table = users;
-    protected entityName = 'User';
-
-    constructor(
-        databaseService: DatabaseService,
-        unitOfWorkService: UnitOfWorkService,
-        logger: LogService,
-        private readonly registry: RepositoryRegistry,
-    ) {
-        super(databaseService, unitOfWorkService, logger, registry);
-        // Auto-register in repository registry for nested relations
-        this.registry.register('User', this, USER_REPOSITORY);
-    }
+    protected readonly table = users;
+    protected readonly entityName = 'User';
 
     protected toDomain(schema: typeof users.$inferSelect): User {
         return new User(

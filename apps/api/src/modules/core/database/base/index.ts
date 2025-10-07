@@ -1,9 +1,9 @@
 export * from '../interfaces/i-base-translatable.repository';
 export * from '../interfaces/i-base.repository';
-export * from '../services/repository-registry.service';
 export * from './base-translatable.repository';
 export * from './base.repository';
 export * from './field-mapper';
+export * from './helpers/define-relations.helper';
 export * from './query-builder';
 export * from './relation-builder';
 export * from './relation-loader';
@@ -11,3 +11,4 @@ export * from './types/join-config.types';
 export * from './types/nested-relations.types';
 export * from './types/query-options.types';
 export * from './types/relation.types';
+export * from './types/type-helpers.types';

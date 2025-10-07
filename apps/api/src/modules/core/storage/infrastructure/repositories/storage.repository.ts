@@ -1,9 +1,5 @@
-import { BaseRepository } from '@api/modules/core/database/base/base.repository';
-import { DatabaseService } from '@api/modules/core/database/services/database.service';
-import { UnitOfWorkService } from '@api/modules/core/database/unit-of-work/unit-of-work.service';
-import { LogService } from '@api/modules/core/logger/services/logger.service';
+import { BaseRepository } from '@api/modules/core/database/base';
 import { Injectable, Provider } from '@nestjs/common';
-import { StorageField } from '@repo/shared';
 import { eq } from 'drizzle-orm';
 import { Storage } from '../../domain/entities/storage.entity';
 import {
@@ -14,19 +10,12 @@ import { storages } from '../schemas/storage.schema';
 
 @Injectable()
 export class StorageRepositoryImpl
-    extends BaseRepository<Storage, typeof storages, StorageField, {}>
+    extends BaseRepository<Storage, typeof storages>
     implements IStorageRepository
 {
-    protected table = storages;
-    protected entityName = 'Storage';
-
-    constructor(
-        databaseService: DatabaseService,
-        unitOfWorkService: UnitOfWorkService,
-        logger: LogService,
-    ) {
-        super(databaseService, unitOfWorkService, logger);
-    }
+    protected readonly table = storages;
+    protected readonly entityName = 'Storage';
+    protected readonly repositoryToken = STORAGE_REPOSITORY;
 
     protected toDomain(schema: typeof storages.$inferSelect): Storage {
         return new Storage(
@@ -66,17 +55,20 @@ export class StorageRepositoryImpl
     }
 
     async findByUserId(userId: string): Promise<Storage[]> {
-        const db = this.unitOfWorkService.getTransaction() ?? this.databaseService.db;
-
-        const results = await db.select().from(this.table).where(eq(this.table.userId, userId));
+        const results = await this.db
+            .select()
+            .from(this.table)
+            .where(eq(this.table.userId, userId));
 
         return results.map((result) => this.toDomain(result));
     }
 
     async findByPath(path: string): Promise<Storage | null> {
-        const db = this.unitOfWorkService.getTransaction() ?? this.databaseService.db;
-
-        const result = await db.select().from(this.table).where(eq(this.table.path, path)).limit(1);
+        const result = await this.db
+            .select()
+            .from(this.table)
+            .where(eq(this.table.path, path))
+            .limit(1);
 
         return result.length > 0 ? this.toDomain(result[0]) : null;
     }

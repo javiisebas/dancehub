@@ -6,11 +6,11 @@ import { and, eq, SQL, sql } from 'drizzle-orm';
 import { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { IBaseRepository } from '../interfaces/i-base.repository';
 import { DatabaseService } from '../services/database.service';
-import { RepositoryRegistry } from '../services/repository-registry.service';
 import { UnitOfWorkService } from '../unit-of-work/unit-of-work.service';
 import { QueryBuilder } from './query-builder';
 import { RelationLoader } from './relation-loader';
 import { RelationMap, RelationType } from './types/relation.types';
+import { InferFields, InferRelations } from './types/type-helpers.types';
 
 import { QueryOptions } from './types/query-options.types';
 
@@ -27,32 +27,27 @@ export type FindOptions<TRelations extends Record<string, any>> = QueryOptions<s
 export abstract class BaseRepository<
     TEntity,
     TTable extends PgTable,
-    TField extends string = string,
-    TRelations extends Record<string, any> = {},
-> implements IBaseRepository<TEntity, TField>
+    TRelationMap extends RelationMap = RelationMap,
+> implements IBaseRepository<TEntity, InferFields<TTable>>
 {
-    protected abstract table: TTable;
-    protected abstract entityName: string;
-    protected fieldColumnMap?: Partial<Record<TField, keyof TTable>>;
-    protected relations?: RelationMap;
+    protected abstract readonly table: TTable;
+    protected abstract readonly entityName: string;
+    protected readonly fieldColumnMap?: Partial<Record<InferFields<TTable>, keyof TTable>>;
+    protected readonly relations?: TRelationMap;
 
     protected abstract toDomain(schema: TTable['$inferSelect']): TEntity;
     protected abstract toSchema(entity: TEntity): Partial<TTable['$inferInsert']>;
 
-    private queryBuilder!: QueryBuilder<TTable, TField>;
+    private queryBuilder!: QueryBuilder<TTable, InferFields<TTable>>;
     private relationLoader!: RelationLoader;
-    protected repositoryRegistry?: RepositoryRegistry;
 
     constructor(
         protected readonly databaseService: DatabaseService,
         protected readonly unitOfWorkService: UnitOfWorkService,
         protected readonly logger: LogService,
-        repositoryRegistry?: RepositoryRegistry,
-    ) {
-        this.repositoryRegistry = repositoryRegistry;
-    }
+    ) {}
 
-    protected getQueryBuilder(): QueryBuilder<TTable, TField> {
+    protected getQueryBuilder(): QueryBuilder<TTable, InferFields<TTable>> {
         if (!this.queryBuilder) {
             this.queryBuilder = new QueryBuilder(this.table, this.fieldColumnMap);
         }
@@ -75,8 +70,8 @@ export abstract class BaseRepository<
 
     async findById(
         id: string | number,
-        options?: QueryOptions<TField, TRelations>,
-    ): Promise<TEntity | EntityWithRelations<TEntity, TRelations>> {
+        options?: QueryOptions<InferFields<TTable>, InferRelations<TRelationMap>>,
+    ): Promise<TEntity | EntityWithRelations<TEntity, InferRelations<TRelationMap>>> {
         const idColumn = this.getIdColumn();
         const result = await this.db.select().from(this.table).where(eq(idColumn, id)).limit(1);
 
@@ -94,8 +89,8 @@ export abstract class BaseRepository<
     }
 
     async findOne(
-        options?: QueryOptions<TField, TRelations>,
-    ): Promise<TEntity | EntityWithRelations<TEntity, TRelations> | null> {
+        options?: QueryOptions<InferFields<TTable>, InferRelations<TRelationMap>>,
+    ): Promise<TEntity | EntityWithRelations<TEntity, InferRelations<TRelationMap>> | null> {
         const { where, orderBy, joins } = this.buildQuery(options);
 
         let query = this.db.select().from(this.table).$dynamic();
@@ -121,8 +116,8 @@ export abstract class BaseRepository<
     }
 
     async findMany(
-        options?: QueryOptions<TField, TRelations>,
-    ): Promise<TEntity[] | EntityWithRelations<TEntity, TRelations>[]> {
+        options?: QueryOptions<InferFields<TTable>, InferRelations<TRelationMap>>,
+    ): Promise<TEntity[] | EntityWithRelations<TEntity, InferRelations<TRelationMap>>[]> {
         const { where, orderBy, joins } = this.buildQuery(options);
 
         let query = this.db.select().from(this.table).$dynamic();
@@ -151,16 +146,17 @@ export abstract class BaseRepository<
     }
 
     async paginate(
-        request: PaginatedRequest<TField>,
-        options?: QueryOptions<TField, TRelations>,
+        request: PaginatedRequest<InferFields<TTable>>,
+        options?: QueryOptions<InferFields<TTable>, InferRelations<TRelationMap>>,
     ): Promise<
-        PaginatedResponse<TEntity> | PaginatedResponse<EntityWithRelations<TEntity, TRelations>>
+        | PaginatedResponse<TEntity>
+        | PaginatedResponse<EntityWithRelations<TEntity, InferRelations<TRelationMap>>>
     > {
         const { page, limit } = request;
         const offset = (page - 1) * limit;
 
         // Merge filters and sorts from request and options
-        const mergedOptions: QueryOptions<TField, TRelations> = {
+        const mergedOptions: QueryOptions<InferFields<TTable>, InferRelations<TRelationMap>> = {
             ...options,
             filter: options?.filter || (request as any).filter,
             sort: options?.sort || (request as any).sort,
@@ -273,7 +269,7 @@ export abstract class BaseRepository<
         return this.toDomain(result[0] as TTable['$inferSelect']);
     }
 
-    async updateMany(filter: Filter<TField>, data: unknown): Promise<TEntity[]> {
+    async updateMany(filter: Filter<InferFields<TTable>>, data: unknown): Promise<TEntity[]> {
         const where = this.getQueryBuilder().buildWhereClause(filter);
         const result = await this.db
             .update(this.table)
@@ -292,13 +288,13 @@ export abstract class BaseRepository<
         }
     }
 
-    async deleteMany(filter: Filter<TField>): Promise<number> {
+    async deleteMany(filter: Filter<InferFields<TTable>>): Promise<number> {
         const where = this.getQueryBuilder().buildWhereClause(filter);
         const result = await this.db.delete(this.table).where(where).returning();
         return result.length;
     }
 
-    async exists(filter: Filter<TField>): Promise<boolean> {
+    async exists(filter: Filter<InferFields<TTable>>): Promise<boolean> {
         const where = this.getQueryBuilder().buildWhereClause(filter);
         const result = await this.db
             .select({ count: sql<number>`count(*)::int` })
@@ -308,7 +304,7 @@ export abstract class BaseRepository<
         return Number(result[0]?.count || 0) > 0;
     }
 
-    async count(filter?: Filter<TField>): Promise<number> {
+    async count(filter?: Filter<InferFields<TTable>>): Promise<number> {
         const where = this.getQueryBuilder().buildWhereClause(filter);
         const result = await this.db
             .select({ count: sql<number>`count(*)::int` })
@@ -327,7 +323,7 @@ export abstract class BaseRepository<
         return idColumn;
     }
 
-    private buildQuery(options?: QueryOptions<TField, TRelations>): {
+    private buildQuery(options?: QueryOptions<InferFields<TTable>, InferRelations<TRelationMap>>): {
         where: SQL | undefined;
         orderBy: SQL[];
         joins: any[];
@@ -364,10 +360,10 @@ export abstract class BaseRepository<
         return result[tableName] || result;
     }
 
-    async loadRelation<K extends keyof TRelations>(
+    async loadRelation<K extends keyof InferRelations<TRelationMap>>(
         entity: TEntity,
         relationName: K,
-    ): Promise<TRelations[K] | null> {
+    ): Promise<InferRelations<TRelationMap>[K] | null> {
         if (!this.relations || !(relationName in this.relations)) {
             throw new Error(`Relation "${String(relationName)}" is not defined in the repository`);
         }
@@ -381,18 +377,18 @@ export abstract class BaseRepository<
                 config,
                 entityId,
                 foreignKeyValue,
-            ) as Promise<TRelations[K] | null>;
+            ) as Promise<InferRelations<TRelationMap>[K] | null>;
         }
 
         const result = await this.getRelationLoader().loadRelation(config, entityId);
-        return result as TRelations[K] | null;
+        return result as InferRelations<TRelationMap>[K] | null;
     }
 
     async loadRelations(
         entity: TEntity,
-        relationNames: (keyof TRelations)[],
-    ): Promise<Partial<TRelations>> {
-        const loadedRelations: Partial<TRelations> = {};
+        relationNames: (keyof InferRelations<TRelationMap>)[],
+    ): Promise<Partial<InferRelations<TRelationMap>>> {
+        const loadedRelations: Partial<InferRelations<TRelationMap>> = {};
 
         await Promise.all(
             relationNames.map(async (relationName) => {
@@ -406,170 +402,34 @@ export abstract class BaseRepository<
         return loadedRelations;
     }
 
-    async withRelations<K extends keyof TRelations>(
+    async withRelations<K extends keyof InferRelations<TRelationMap>>(
         entity: TEntity,
-        relationNames: (K | string)[],
-    ): Promise<EntityWithRelations<TEntity, Pick<TRelations, K>>> {
+        relationNames: K[],
+    ): Promise<EntityWithRelations<TEntity, Pick<InferRelations<TRelationMap>, K>>> {
         const loadedRelations: any = {};
-        const processedFirstLevel = new Set<string>();
 
         for (const relationName of relationNames) {
-            const relName = String(relationName);
-
-            if (relName.includes('.')) {
-                const [firstRel, ...nestedPath] = relName.split('.');
-
-                if (!processedFirstLevel.has(firstRel)) {
-                    const firstRelation = await this.loadRelation(entity, firstRel as K);
-                    processedFirstLevel.add(firstRel);
-
-                    if (firstRelation !== null) {
-                        if (Array.isArray(firstRelation)) {
-                            loadedRelations[firstRel] = await this.loadNestedForMany(
-                                firstRelation,
-                                nestedPath,
-                            );
-                        } else {
-                            loadedRelations[firstRel] = await this.loadNestedForOne(
-                                firstRelation,
-                                nestedPath,
-                            );
-                        }
-                    }
-                }
-            } else {
-                if (!processedFirstLevel.has(relName)) {
-                    const relation = await this.loadRelation(entity, relationName);
-                    if (relation !== null) {
-                        loadedRelations[relName] = relation;
-                        processedFirstLevel.add(relName);
-                    }
-                }
+            const relation = await this.loadRelation(entity, relationName);
+            if (relation !== null) {
+                loadedRelations[relationName] = relation;
             }
         }
 
         return { ...entity, ...loadedRelations } as EntityWithRelations<
             TEntity,
-            Pick<TRelations, K>
+            Pick<InferRelations<TRelationMap>, K>
         >;
     }
 
-    private async loadNestedForOne(entity: any, path: string[]): Promise<any> {
-        if (!entity || path.length === 0) return entity;
-
-        const [firstRel, ...restPath] = path;
-        const relationConfig = (entity.constructor as any).prototype.relations?.[firstRel];
-
-        if (!relationConfig && this.relations) {
-            const relConfig = Object.values(this.relations).find(
-                (config: any) => config.relationName === firstRel,
-            );
-
-            if (relConfig) {
-                const nestedEntity = await this.loadRelationDirect(entity, firstRel, relConfig);
-
-                if (nestedEntity && restPath.length > 0) {
-                    if (Array.isArray(nestedEntity)) {
-                        return this.loadNestedForMany(nestedEntity, restPath);
-                    } else {
-                        return this.loadNestedForOne(nestedEntity, restPath);
-                    }
-                }
-
-                return nestedEntity;
-            }
-        }
-
-        return entity;
-    }
-
-    private async loadNestedForMany(entities: any[], path: string[]): Promise<any[]> {
-        if (!entities || entities.length === 0 || path.length === 0) return entities;
-
-        const [firstRel, ...restPath] = path;
-
-        return Promise.all(
-            entities.map(async (entity) => {
-                const nested = await this.loadNestedRelationDynamic(entity, firstRel);
-
-                if (nested && restPath.length > 0) {
-                    if (Array.isArray(nested)) {
-                        return {
-                            ...entity,
-                            [firstRel]: await this.loadNestedForMany(nested, restPath),
-                        };
-                    } else {
-                        return {
-                            ...entity,
-                            [firstRel]: await this.loadNestedForOne(nested, restPath),
-                        };
-                    }
-                }
-
-                return { ...entity, [firstRel]: nested };
-            }),
-        );
-    }
-
-    // CACHE STRATEGY: Only cache repository instances (metadata), never entities
-    // This is safe because repositories are stateless singletons
-    // Entities are ALWAYS fetched fresh from DB for data consistency
-    private repositoryCache = new Map<string, any>();
-
-    private async loadNestedRelationDynamic(entity: any, relationName: string): Promise<any> {
-        if (!this.repositoryRegistry) {
-            return null;
-        }
-
-        const entityConstructorName = entity.constructor.name;
-
-        let relatedRepo = this.repositoryCache.get(entityConstructorName);
-        if (!relatedRepo) {
-            relatedRepo = this.repositoryRegistry.get(entityConstructorName);
-            if (relatedRepo) {
-                this.repositoryCache.set(entityConstructorName, relatedRepo);
-            }
-        }
-
-        if (relatedRepo && typeof relatedRepo.loadRelation === 'function') {
-            try {
-                return await relatedRepo.loadRelation(entity, relationName);
-            } catch (error) {
-                this.logger.warn(
-                    `Failed to load nested relation "${relationName}" for entity "${entityConstructorName}": ${error}`,
-                );
-                return null;
-            }
-        }
-
-        return null;
-    }
-
-    private async loadRelationDirect(entity: any, relationName: string, config: any): Promise<any> {
-        const entityId = (entity as any).id;
-
-        if (config.type === RelationType.ONE_TO_MANY) {
-            return this.getRelationLoader().loadOneToMany(config, entityId);
-        }
-
-        if (config.type === RelationType.MANY_TO_ONE) {
-            const foreignKeyValue = (entity as any)[config.relationName];
-            return this.getRelationLoader().loadManyToOne(config, foreignKeyValue);
-        }
-
-        if (config.type === RelationType.MANY_TO_MANY) {
-            return this.getRelationLoader().loadManyToMany(config, entityId);
-        }
-
-        return null;
-    }
-
-    async withRelationsMany<K extends keyof TRelations>(
+    async withRelationsMany<K extends keyof InferRelations<TRelationMap>>(
         entities: TEntity[],
         relationNames: K[],
-    ): Promise<EntityWithRelations<TEntity, Pick<TRelations, K>>[]> {
+    ): Promise<EntityWithRelations<TEntity, Pick<InferRelations<TRelationMap>, K>>[]> {
         if (!this.relations || relationNames.length === 0) {
-            return entities as EntityWithRelations<TEntity, Pick<TRelations, K>>[];
+            return entities as EntityWithRelations<
+                TEntity,
+                Pick<InferRelations<TRelationMap>, K>
+            >[];
         }
 
         return Promise.all(
@@ -577,7 +437,7 @@ export abstract class BaseRepository<
                 const relations = await this.loadRelations(entity, relationNames);
                 return { ...entity, ...relations } as EntityWithRelations<
                     TEntity,
-                    Pick<TRelations, K>
+                    Pick<InferRelations<TRelationMap>, K>
                 >;
             }),
         );

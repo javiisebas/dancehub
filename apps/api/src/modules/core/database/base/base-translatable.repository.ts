@@ -7,6 +7,8 @@ import { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { I18nContext } from 'nestjs-i18n';
 import { BaseRepository, EntityWithRelations } from './base.repository';
 import { QueryOptions } from './types/query-options.types';
+import { RelationMap } from './types/relation.types';
+import { InferFields, InferRelations as InferRelationsHelper } from './types/type-helpers.types';
 
 @Injectable()
 export abstract class BaseTranslatableRepository<
@@ -14,9 +16,8 @@ export abstract class BaseTranslatableRepository<
     TTranslation extends BaseTranslationEntity,
     TTable extends PgTable,
     TTranslationTable extends PgTable,
-    TField extends string = string,
-    TRelations extends Record<string, any> = {},
-> extends BaseRepository<TEntity, TTable, TField, TRelations> {
+    TRelationMap extends RelationMap = RelationMap,
+> extends BaseRepository<TEntity, TTable, TRelationMap> {
     protected abstract translationTable: TTranslationTable;
 
     protected abstract translationToDomain(schema: TTranslationTable['$inferSelect']): TTranslation;
@@ -123,7 +124,7 @@ export abstract class BaseTranslatableRepository<
 
     private async attachTranslation(
         entity: TEntity,
-        options?: QueryOptions<TField, TRelations>,
+        options?: QueryOptions<InferFields<TTable>, InferRelationsHelper<TRelationMap>>,
     ): Promise<TEntity> {
         const entityId = String((entity as any).id);
 
@@ -140,7 +141,7 @@ export abstract class BaseTranslatableRepository<
 
     private async attachTranslations(
         entities: TEntity[],
-        options?: QueryOptions<TField, TRelations>,
+        options?: QueryOptions<InferFields<TTable>, InferRelationsHelper<TRelationMap>>,
     ): Promise<TEntity[]> {
         if (entities.length === 0) return entities;
 
@@ -151,8 +152,8 @@ export abstract class BaseTranslatableRepository<
 
     async findById(
         id: string | number,
-        options?: QueryOptions<TField, TRelations>,
-    ): Promise<TEntity | EntityWithRelations<TEntity, TRelations>> {
+        options?: QueryOptions<InferFields<TTable>, InferRelationsHelper<TRelationMap>>,
+    ): Promise<TEntity | EntityWithRelations<TEntity, InferRelationsHelper<TRelationMap>>> {
         if (!this['_translationFieldsRegistered']) {
             this.registerTranslationFields();
             this['_translationFieldsRegistered'] = true;
@@ -164,8 +165,8 @@ export abstract class BaseTranslatableRepository<
     }
 
     async findOne(
-        options?: QueryOptions<TField, TRelations>,
-    ): Promise<TEntity | EntityWithRelations<TEntity, TRelations> | null> {
+        options?: QueryOptions<InferFields<TTable>, InferRelationsHelper<TRelationMap>>,
+    ): Promise<TEntity | EntityWithRelations<TEntity, InferRelationsHelper<TRelationMap>> | null> {
         if (!this['_translationFieldsRegistered']) {
             this.registerTranslationFields();
             this['_translationFieldsRegistered'] = true;
@@ -179,8 +180,8 @@ export abstract class BaseTranslatableRepository<
     }
 
     async findMany(
-        options?: QueryOptions<TField, TRelations>,
-    ): Promise<TEntity[] | EntityWithRelations<TEntity, TRelations>[]> {
+        options?: QueryOptions<InferFields<TTable>, InferRelationsHelper<TRelationMap>>,
+    ): Promise<TEntity[] | EntityWithRelations<TEntity, InferRelationsHelper<TRelationMap>>[]> {
         if (!this['_translationFieldsRegistered']) {
             this.registerTranslationFields();
             this['_translationFieldsRegistered'] = true;
@@ -192,10 +193,11 @@ export abstract class BaseTranslatableRepository<
     }
 
     async paginate(
-        request: PaginatedRequest<TField>,
-        options?: QueryOptions<TField, TRelations>,
+        request: PaginatedRequest<InferFields<TTable>>,
+        options?: QueryOptions<InferFields<TTable>, InferRelationsHelper<TRelationMap>>,
     ): Promise<
-        PaginatedResponse<TEntity> | PaginatedResponse<EntityWithRelations<TEntity, TRelations>>
+        | PaginatedResponse<TEntity>
+        | PaginatedResponse<EntityWithRelations<TEntity, InferRelationsHelper<TRelationMap>>>
     > {
         if (!this['_translationFieldsRegistered']) {
             this.registerTranslationFields();
