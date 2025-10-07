@@ -8,4 +8,4 @@ export * from '../../user/infrastructure/schemas/user.schema';
 export * from '../mailer/infrastructure/schemas/email-log.schema';
 export * from '../storage/infrastructure/schemas/storage-thumbnail.schema';
 export * from '../storage/infrastructure/schemas/storage.schema';
-export * from '../../test/infrastructure/schemas/test.schema';
+export * from '../../event/infrastructure/schemas/event.schema';
