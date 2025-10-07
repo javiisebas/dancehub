@@ -1,16 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-/**
- * Parsea un campo de schema de Drizzle y extrae información útil
- * Ejemplo: "varchar('name', { length: 255 }).notNull()"
- * -> { name: 'name', drizzleType: 'varchar', tsType: 'string', required: true, maxLength: 255 }
- */
 function parseField(fieldName, fieldDefinition) {
     const field = {
         name: fieldName,
         drizzleType: null,
-        drizzleDefinition: fieldDefinition, // Guardar la definición completa
+        drizzleDefinition: fieldDefinition,
         tsType: 'any',
         required: false,
         unique: false,
@@ -19,10 +14,13 @@ function parseField(fieldName, fieldDefinition) {
         isEmail: false,
         isUUID: false,
         isDate: false,
+        isEnum: false,
+        enumName: null,
+        enumValues: [],
         default: null,
+        isForeignKey: false,
     };
 
-    // Extraer tipo de Drizzle
     const typeMatch = fieldDefinition.match(
         /^(varchar|text|char|integer|smallint|bigint|serial|decimal|numeric|real|double|boolean|timestamp|date|time|uuid|json|jsonb)\(/,
     );
@@ -30,7 +28,6 @@ function parseField(fieldName, fieldDefinition) {
         field.drizzleType = typeMatch[1];
     }
 
-    // Mapear tipo de Drizzle a TypeScript
     const typeMapping = {
         varchar: 'string',
         text: 'string',
@@ -53,28 +50,18 @@ function parseField(fieldName, fieldDefinition) {
     };
     field.tsType = typeMapping[field.drizzleType] || 'any';
 
-    // Extraer longitud máxima para varchar
     const lengthMatch = fieldDefinition.match(/length:\s*(\d+)/);
     if (lengthMatch) {
         field.maxLength = parseInt(lengthMatch[1]);
     }
 
-    // Detectar si es requerido
     field.required = fieldDefinition.includes('.notNull()');
-
-    // Detectar si es único
     field.unique = fieldDefinition.includes('.unique()');
-
-    // Detectar si es UUID
     field.isUUID = field.drizzleType === 'uuid';
-
-    // Detectar si es fecha
     field.isDate = ['timestamp', 'date', 'time'].includes(field.drizzleType);
-
-    // Detectar si es email (por convención en el nombre)
     field.isEmail = fieldName.toLowerCase().includes('email');
+    field.isForeignKey = fieldDefinition.includes('.references(');
 
-    // Extraer valor por defecto
     const defaultMatch = fieldDefinition.match(/\.default\(([^)]+)\)/);
     if (defaultMatch) {
         field.default = defaultMatch[1];
@@ -83,43 +70,210 @@ function parseField(fieldName, fieldDefinition) {
     return field;
 }
 
-/**
- * Parsea un objeto de schema de Drizzle
- */
+function parseRelation(relationName, relationDef) {
+    const relation = {
+        name: relationName,
+        type: null,
+        entity: null,
+        table: null,
+        foreignKey: null,
+        references: null,
+        through: null,
+    };
+
+    if (typeof relationDef === 'string') {
+        const oneToOneMatch = relationDef.match(/oneToOne\((\w+),\s*'(\w+)'\)/);
+        const oneToManyMatch = relationDef.match(/oneToMany\((\w+),\s*'(\w+)'\)/);
+        const manyToOneMatch = relationDef.match(/manyToOne\((\w+),\s*'(\w+)'\)/);
+        const manyToManyMatch = relationDef.match(/manyToMany\((\w+),\s*(\w+)\)/);
+
+        if (oneToOneMatch) {
+            relation.type = 'oneToOne';
+            relation.entity = oneToOneMatch[1];
+            relation.foreignKey = oneToOneMatch[2];
+        } else if (oneToManyMatch) {
+            relation.type = 'oneToMany';
+            relation.entity = oneToManyMatch[1];
+            relation.references = oneToManyMatch[2];
+        } else if (manyToOneMatch) {
+            relation.type = 'manyToOne';
+            relation.entity = manyToOneMatch[1];
+            relation.foreignKey = manyToOneMatch[2];
+        } else if (manyToManyMatch) {
+            relation.type = 'manyToMany';
+            relation.entity = manyToManyMatch[1];
+            relation.through = manyToManyMatch[2];
+        }
+    } else if (typeof relationDef === 'object') {
+        relation.type = relationDef.type;
+        relation.entity = relationDef.entity;
+        relation.table = relationDef.table;
+        relation.foreignKey = relationDef.foreignKey;
+        relation.references = relationDef.references;
+        relation.through = relationDef.through;
+    }
+
+    return relation;
+}
+
+function parseEnum(enumDef) {
+    const enumData = {
+        name: null,
+        values: [],
+        description: null,
+    };
+
+    if (typeof enumDef === 'object' && enumDef.name && enumDef.values) {
+        enumData.name = enumDef.name;
+        enumData.values = Array.isArray(enumDef.values) ? enumDef.values : [];
+        enumData.description = enumDef.description || null;
+    } else if (typeof enumDef === 'string') {
+        const match = enumDef.match(/pgEnum\('(\w+)',\s*\[([^\]]+)\]\)/);
+        if (match) {
+            enumData.name = match[1];
+            enumData.values = match[2].split(',').map((v) => v.trim().replace(/['"]/g, ''));
+        }
+    }
+
+    return enumData;
+}
+
+function parseForeignKey(fkDef) {
+    const foreignKey = {
+        name: null,
+        refTable: null,
+        refColumn: 'id',
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+    };
+
+    if (typeof fkDef === 'object') {
+        foreignKey.name = fkDef.name;
+        foreignKey.refTable = fkDef.refTable;
+        foreignKey.refColumn = fkDef.refColumn || 'id';
+        foreignKey.onDelete = fkDef.onDelete || 'cascade';
+        foreignKey.onUpdate = fkDef.onUpdate || 'cascade';
+    }
+
+    return foreignKey;
+}
+
 function parseSchema(schemaDefinition) {
     const fields = [];
     const imports = new Set(['pgTable', 'timestamp', 'uuid']);
+    const relations = [];
+    const enums = [];
+    const foreignKeys = [];
 
-    // El schema viene como un objeto donde cada key es el nombre del campo
-    // y el value es la definición de Drizzle como string
-    for (const [fieldName, fieldDef] of Object.entries(schemaDefinition)) {
-        // Ignorar campos base (id, createdAt, updatedAt) si ya están
-        if (['id', 'createdAt', 'updatedAt'].includes(fieldName)) {
+    for (const [key, value] of Object.entries(schemaDefinition)) {
+        if (['id', 'createdAt', 'updatedAt'].includes(key)) {
             continue;
         }
 
-        const field = parseField(fieldName, fieldDef);
-        fields.push(field);
+        if (typeof value === 'string') {
+            const field = parseField(key, value);
+            fields.push(field);
 
-        // Agregar import necesario para el tipo de Drizzle
-        if (field.drizzleType) {
-            imports.add(field.drizzleType);
+            if (field.drizzleType) {
+                imports.add(field.drizzleType);
+            }
+
+            if (field.isForeignKey) {
+                const fkMatch = value.match(/references\(\(\)\s*=>\s*(\w+)\.(\w+)/);
+                if (fkMatch) {
+                    foreignKeys.push({
+                        name: key,
+                        refTable: fkMatch[1],
+                        refColumn: fkMatch[2],
+                        onDelete: value.includes('onDelete:')
+                            ? value.match(/onDelete:\s*'(\w+)'/)[1]
+                            : 'cascade',
+                    });
+                }
+            }
         }
     }
 
     return {
         fields,
         imports: Array.from(imports).sort(),
+        relations,
+        enums,
+        foreignKeys,
     };
 }
 
-/**
- * Genera validadores de class-validator basados en el campo
- */
+function parseSchemaEnhanced(schemaDefinition) {
+    const result = {
+        fields: [],
+        relations: [],
+        enums: [],
+        foreignKeys: [],
+        imports: new Set(['pgTable', 'timestamp', 'uuid']),
+    };
+
+    if (schemaDefinition.fields) {
+        for (const [fieldName, fieldDef] of Object.entries(schemaDefinition.fields)) {
+            if (['id', 'createdAt', 'updatedAt'].includes(fieldName)) {
+                continue;
+            }
+
+            const field = parseField(fieldName, fieldDef);
+            result.fields.push(field);
+
+            if (field.drizzleType) {
+                result.imports.add(field.drizzleType);
+            }
+        }
+    }
+
+    if (schemaDefinition.relations) {
+        for (const [relationName, relationDef] of Object.entries(schemaDefinition.relations)) {
+            const relation = parseRelation(relationName, relationDef);
+            if (relation.type) {
+                result.relations.push(relation);
+            }
+        }
+    }
+
+    if (schemaDefinition.enums) {
+        if (Array.isArray(schemaDefinition.enums)) {
+            schemaDefinition.enums.forEach((enumDef) => {
+                const parsedEnum = parseEnum(enumDef);
+                if (parsedEnum.name && parsedEnum.values.length > 0) {
+                    result.enums.push(parsedEnum);
+                }
+            });
+        } else {
+            for (const [enumName, enumDef] of Object.entries(schemaDefinition.enums)) {
+                const parsedEnum = parseEnum({ name: enumName, ...enumDef });
+                if (parsedEnum.values.length > 0) {
+                    result.enums.push(parsedEnum);
+                }
+            }
+        }
+    }
+
+    if (schemaDefinition.foreignKeys) {
+        if (Array.isArray(schemaDefinition.foreignKeys)) {
+            schemaDefinition.foreignKeys.forEach((fkDef) => {
+                const foreignKey = parseForeignKey(fkDef);
+                if (foreignKey.name && foreignKey.refTable) {
+                    result.foreignKeys.push(foreignKey);
+                }
+            });
+        }
+    }
+
+    return {
+        ...result,
+        imports: Array.from(result.imports).sort(),
+    };
+}
+
 function generateValidators(field, isUpdate = false) {
     const validators = [];
 
-    // Tipo base
     if (field.tsType === 'string') {
         validators.push(`@IsString({ message: '${field.name} must be a string' })`);
     } else if (field.tsType === 'number') {
@@ -138,7 +292,6 @@ function generateValidators(field, isUpdate = false) {
         validators.push(`@IsDate({ message: '${field.name} must be a date' })`);
     }
 
-    // Validadores especiales
     if (field.isEmail) {
         validators.push(`@IsEmail({}, { message: 'Invalid email format' })`);
     }
@@ -147,14 +300,16 @@ function generateValidators(field, isUpdate = false) {
         validators.push(`@IsUUID('4', { message: 'Invalid UUID format' })`);
     }
 
-    // Required o Optional
+    if (field.isEnum && field.enumName) {
+        validators.push(`@IsEnum(${field.enumName}, { message: 'Invalid ${field.name} value' })`);
+    }
+
     if (field.required && !isUpdate) {
         validators.push(`@IsNotEmpty({ message: '${field.name} cannot be empty' })`);
     } else {
         validators.push('@IsOptional()');
     }
 
-    // Longitud
     if (field.maxLength) {
         validators.push(
             `@MaxLength(${field.maxLength}, { message: '${field.name} cannot exceed ${field.maxLength} characters' })`,
@@ -170,9 +325,6 @@ function generateValidators(field, isUpdate = false) {
     return validators;
 }
 
-/**
- * Lee un archivo de schema y lo parsea
- */
 function readSchemaFile(filePath) {
     const absolutePath = path.resolve(process.cwd(), filePath);
 
@@ -183,10 +335,8 @@ function readSchemaFile(filePath) {
     const content = fs.readFileSync(absolutePath, 'utf-8');
 
     try {
-        // Intentar como JSON primero
         return JSON.parse(content);
     } catch (e) {
-        // Si falla, intentar como módulo JS
         try {
             delete require.cache[require.resolve(absolutePath)];
             return require(absolutePath);
@@ -196,13 +346,15 @@ function readSchemaFile(filePath) {
     }
 }
 
-/**
- * Prepara los datos para los templates de Plop
- */
 function prepareTemplateData(schemaDefinition, name, translatable = false) {
-    const result = parseSchema(schemaDefinition);
+    let result;
 
-    // Añadir validadores a cada campo
+    if (schemaDefinition.fields || schemaDefinition.relations || schemaDefinition.enums) {
+        result = parseSchemaEnhanced(schemaDefinition);
+    } else {
+        result = parseSchema(schemaDefinition);
+    }
+
     const fieldsWithValidators = result.fields.map((field) => ({
         ...field,
         validators: generateValidators(field, false),
@@ -213,14 +365,36 @@ function prepareTemplateData(schemaDefinition, name, translatable = false) {
         name,
         translatable,
         fields: fieldsWithValidators,
+        relations: result.relations || [],
+        enums: result.enums || [],
+        foreignKeys: result.foreignKeys || [],
         imports: result.imports,
     };
+}
+
+function generateEnumFile(enumData, targetPath) {
+    const pascalCase = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+    const content = `export enum ${pascalCase(enumData.name)} {
+${enumData.values.map((v) => `    ${v.toUpperCase()} = '${v}',`).join('\n')}
+}
+`;
+
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+    fs.writeFileSync(targetPath, content, 'utf-8');
+
+    console.log(`✅ Enum ${pascalCase(enumData.name)} created at ${targetPath}`);
 }
 
 module.exports = {
     parseField,
     parseSchema,
+    parseSchemaEnhanced,
+    parseRelation,
+    parseEnum,
+    parseForeignKey,
     generateValidators,
     readSchemaFile,
     prepareTemplateData,
+    generateEnumFile,
 };

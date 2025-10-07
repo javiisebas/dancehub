@@ -1,28 +1,27 @@
 import {
-    BaseGetPaginatedTranslatableHandler,
-    GetPaginatedQuery,
+    BaseGetPaginatedHandler,
+    GetPaginatedQueryEnhanced,
 } from '@api/common/abstract/application';
 import { Inject, Injectable } from '@nestjs/common';
 import { PaginatedDanceStyleRequest } from '@repo/shared';
-import { DanceStyleTranslation } from '../../domain/entities/dance-style-translation.entity';
 import { DanceStyle } from '../../domain/entities/dance-style.entity';
 import {
     DANCE_STYLE_REPOSITORY,
+    DanceStyleField,
+    DanceStyleRelations,
     IDanceStyleRepository,
 } from '../../domain/repositories/i-dance-style.repository';
 
-export class GetPaginatedDanceStylesQuery extends GetPaginatedQuery<PaginatedDanceStyleRequest> {}
+export class GetPaginatedDanceStylesQuery extends GetPaginatedQueryEnhanced<PaginatedDanceStyleRequest> {}
 
 @Injectable()
-export class GetPaginatedDanceStylesHandler extends BaseGetPaginatedTranslatableHandler<
+export class GetPaginatedDanceStylesHandler extends BaseGetPaginatedHandler<
     DanceStyle,
-    DanceStyleTranslation
+    PaginatedDanceStyleRequest,
+    DanceStyleField,
+    DanceStyleRelations
 > {
     constructor(@Inject(DANCE_STYLE_REPOSITORY) repository: IDanceStyleRepository) {
         super(repository);
-    }
-
-    async executeQuery({ data }: GetPaginatedDanceStylesQuery) {
-        return this.execute(data);
     }
 }

@@ -1,7 +1,11 @@
-import { IBaseRepository } from '@api/modules/core/database/base/base.repository.interface';
-import type { {{pascalCase name}}Field } from '@repo/shared';
-import type { {{pascalCase name}} } from '../entities/{{kebabCase name}}.entity';
+import { InferFields } from '@api/modules/core/database/base';
+import { IBaseRepository } from '@api/modules/core/database/interfaces/i-base.repository';
+import { {{pascalCase name}} } from '../entities/{{kebabCase name}}.entity';
+import { {{camelCase name}}s } from '../../infrastructure/schemas/{{kebabCase name}}.schema';
 
 export const {{constantCase name}}_REPOSITORY = Symbol('{{constantCase name}}_REPOSITORY');
 
-export interface I{{pascalCase name}}Repository extends IBaseRepository<{{pascalCase name}}, {{pascalCase name}}Field> {}
+export type {{pascalCase name}}Field = InferFields<typeof {{camelCase name}}s>;
+export type {{pascalCase name}}Relations = {};
+
+export interface I{{pascalCase name}}Repository extends IBaseRepository<{{pascalCase name}}, {{pascalCase name}}Field, {{pascalCase name}}Relations> {}

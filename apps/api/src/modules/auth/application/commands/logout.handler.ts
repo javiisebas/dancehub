@@ -6,9 +6,9 @@ import {
     UpdateUserHandler,
 } from '@api/modules/user/application/commands/update-user.handler';
 import {
-    GetUserHandler,
-    GetUserQuery,
-} from '@api/modules/user/application/queries/get-user.handler';
+    GetUserByFieldHandler,
+    GetUserByFieldQuery,
+} from '@api/modules/user/application/queries/get-user-by-field.handler';
 import { Injectable } from '@nestjs/common';
 import { PasswordResponse } from '@repo/shared';
 
@@ -17,7 +17,7 @@ export class LogoutCommand extends Command<{ userId: string }> {}
 @Injectable()
 export class LogoutHandler {
     constructor(
-        private readonly getUserHandler: GetUserHandler,
+        private readonly getUserByFieldHandler: GetUserByFieldHandler,
         private readonly updateUserHandler: UpdateUserHandler,
         private readonly translationService: TranslationService,
     ) {}
@@ -25,7 +25,9 @@ export class LogoutHandler {
     async execute({ data }: LogoutCommand): Promise<PasswordResponse> {
         const { userId } = data;
 
-        const user = await this.getUserHandler.execute(new GetUserQuery(userId));
+        const user = await this.getUserByFieldHandler.execute(
+            new GetUserByFieldQuery('id', userId),
+        );
 
         if (!user) {
             throw new NotFoundException('User');

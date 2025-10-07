@@ -9,6 +9,7 @@ export const CacheTTL = {
 export type CacheTTLValue = (typeof CacheTTL)[keyof typeof CacheTTL];
 
 export enum CacheDomain {
+    ARTIST = 'artist',
     AUTH = 'auth',
     USER = 'user',
     DANCE_STYLE = 'dance-style',

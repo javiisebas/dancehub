@@ -1,5 +1,4 @@
 import { CurrentLocale } from '@api/common/decorators/current-locale.decorator';
-import { IncludeAllTranslations } from '@api/common/decorators/include-all-translations.decorator';
 import { Serialize } from '@api/common/decorators/serialize.decorator';
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import {
@@ -22,9 +21,13 @@ import {
     UpdateDanceStyleHandler,
 } from '../../application/commands/update-dance-style.handler';
 import {
-    GetDanceStyleHandler,
-    GetDanceStyleQuery,
-} from '../../application/queries/get-dance-style.handler';
+    FindManyDanceStylesHandler,
+    FindManyDanceStylesQuery,
+} from '../../application/queries/find-many-dance-styles.handler';
+import {
+    GetDanceStyleByFieldHandler,
+    GetDanceStyleByFieldQuery,
+} from '../../application/queries/get-dance-style-by-field.handler';
 import {
     GetPaginatedDanceStylesHandler,
     GetPaginatedDanceStylesQuery,
@@ -34,10 +37,11 @@ import {
 export class DanceStyleController {
     constructor(
         private readonly createDanceStyleHandler: CreateDanceStyleHandler,
-        private readonly deleteDanceStyleHandler: DeleteDanceStyleHandler,
-        private readonly getDanceStyleHandler: GetDanceStyleHandler,
-        private readonly getPaginatedDanceStylesHandler: GetPaginatedDanceStylesHandler,
         private readonly updateDanceStyleHandler: UpdateDanceStyleHandler,
+        private readonly deleteDanceStyleHandler: DeleteDanceStyleHandler,
+        private readonly getDanceStyleByFieldHandler: GetDanceStyleByFieldHandler,
+        private readonly findManyDanceStylesHandler: FindManyDanceStylesHandler,
+        private readonly getPaginatedDanceStylesHandler: GetPaginatedDanceStylesHandler,
     ) {}
 
     @Post()
@@ -45,28 +49,6 @@ export class DanceStyleController {
     async create(@Body() dto: CreateDanceStyleRequest) {
         const command = new CreateDanceStyleCommand(dto);
         return this.createDanceStyleHandler.execute(command);
-    }
-
-    @Get()
-    @Serialize(DanceStylePaginatedResponse)
-    async paginate(@Query() dto: PaginatedDanceStyleRequest) {
-        const query = new GetPaginatedDanceStylesQuery(dto);
-        return this.getPaginatedDanceStylesHandler.executeQuery(query);
-    }
-
-    @Get(':id/all-translations')
-    @IncludeAllTranslations()
-    @Serialize(DanceStyleResponse)
-    async findByIdWithAllTranslations(@Param('id') id: string) {
-        const query = new GetDanceStyleQuery(id);
-        return this.getDanceStyleHandler.executeQuery(query);
-    }
-
-    @Get(':id')
-    @Serialize(DanceStyleResponse)
-    async findById(@Param('id') id: string, @CurrentLocale() locale: string) {
-        const query = new GetDanceStyleQuery(id, locale);
-        return this.getDanceStyleHandler.executeQuery(query);
     }
 
     @Patch(':id')
@@ -80,6 +62,67 @@ export class DanceStyleController {
     @HttpCode(204)
     async delete(@Param('id') id: string): Promise<void> {
         const command = new DeleteDanceStyleCommand(id);
-        await this.deleteDanceStyleHandler.executeCommand(command);
+        await this.deleteDanceStyleHandler.execute(command);
+    }
+
+    @Get('search')
+    @Serialize(DanceStyleResponse)
+    async search(
+        @Query('locale') locale?: string,
+        @Query('limit') limit?: string,
+        @CurrentLocale() localeHeader?: string,
+    ) {
+        const query = new FindManyDanceStylesQuery({
+            locale: locale || localeHeader || undefined,
+            limit: limit ? parseInt(limit) : undefined,
+        });
+        return this.findManyDanceStylesHandler.execute(query);
+    }
+
+    @Get('by-slug/:slug')
+    @Serialize(DanceStyleResponse)
+    async findBySlug(
+        @Param('slug') slug: string,
+        @Query('locale') localeParam?: string,
+        @Query('includeAllTranslations') includeAll?: string,
+        @CurrentLocale() localeHeader?: string,
+    ) {
+        const locale = localeParam || localeHeader;
+        const includeAllTranslations = includeAll === 'true' || !locale;
+        const query = new GetDanceStyleByFieldQuery('slug', slug, {
+            locale: locale || undefined,
+            includeAllTranslations,
+        });
+        return this.getDanceStyleByFieldHandler.execute(query);
+    }
+
+    @Get()
+    @Serialize(DanceStylePaginatedResponse)
+    async paginate(
+        @Query() dto: PaginatedDanceStyleRequest,
+        @Query('locale') localeParam?: string,
+        @CurrentLocale() localeHeader?: string,
+    ) {
+        const query = new GetPaginatedDanceStylesQuery(dto, {
+            locale: localeParam || localeHeader || undefined,
+        });
+        return this.getPaginatedDanceStylesHandler.execute(query);
+    }
+
+    @Get(':id')
+    @Serialize(DanceStyleResponse)
+    async findById(
+        @Param('id') id: string,
+        @Query('locale') localeParam?: string,
+        @Query('includeAllTranslations') includeAll?: string,
+        @CurrentLocale() localeHeader?: string,
+    ) {
+        const locale = localeParam || localeHeader;
+        const includeAllTranslations = includeAll === 'true' || !locale;
+        const query = new GetDanceStyleByFieldQuery('id', id, {
+            locale: locale || undefined,
+            includeAllTranslations,
+        });
+        return this.getDanceStyleByFieldHandler.execute(query);
     }
 }

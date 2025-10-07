@@ -14,4 +14,6 @@ export interface IBaseTranslatableRepository<
     deleteTranslation(entityId: string, locale?: string): Promise<void>;
     updateTranslations(entityId: string, translations: TTranslation[]): Promise<void>;
     upsertTranslations(entityId: string, translations: TTranslation[]): Promise<void>;
+    createWithTranslations(entity: TEntity, translations: TTranslation[]): Promise<TEntity>;
+    updateWithTranslations(entity: TEntity, translations?: TTranslation[]): Promise<TEntity>;
 }

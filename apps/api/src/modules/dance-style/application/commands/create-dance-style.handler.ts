@@ -24,16 +24,10 @@ export class CreateDanceStyleHandler {
         }
 
         const danceStyle = DanceStyle.create(randomUUID(), data.slug);
-        const savedDanceStyle = await this.repository.save(danceStyle);
-
         const translations = data.translations.map((t) =>
             DanceStyleTranslation.create(randomUUID(), t.locale, t.name, t.description),
         );
 
-        await this.repository.saveTranslations(savedDanceStyle.id, translations);
-
-        return this.repository.findById(savedDanceStyle.id, {
-            includeAllTranslations: true,
-        });
+        return this.repository.createWithTranslations(danceStyle, translations);
     }
 }

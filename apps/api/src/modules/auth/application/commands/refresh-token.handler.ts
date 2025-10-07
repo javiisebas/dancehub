@@ -1,9 +1,9 @@
 import { Command } from '@api/common/abstract/application/commands.abstract';
 import { BusinessException } from '@api/common/exceptions/business.exception';
 import {
-    GetUserHandler,
-    GetUserQuery,
-} from '@api/modules/user/application/queries/get-user.handler';
+    GetUserByFieldHandler,
+    GetUserByFieldQuery,
+} from '@api/modules/user/application/queries/get-user-by-field.handler';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { LoginResponse } from '@repo/shared';
 import { AuthTokenService } from '../../domain/services/auth-token.service';
@@ -15,7 +15,7 @@ export class RefreshTokenCommand extends Command<{ refreshToken: string }> {}
 export class RefreshTokenHandler {
     constructor(
         private readonly authTokenService: AuthTokenService,
-        private readonly getUserHandler: GetUserHandler,
+        private readonly getUserByFieldHandler: GetUserByFieldHandler,
         private readonly loginHandler: LoginHandler,
     ) {}
 
@@ -24,7 +24,9 @@ export class RefreshTokenHandler {
 
         const payload = await this.authTokenService.verifyRefreshToken(refreshToken);
 
-        const user = await this.getUserHandler.execute(new GetUserQuery(payload.id));
+        const user = await this.getUserByFieldHandler.execute(
+            new GetUserByFieldQuery('id', payload.id),
+        );
 
         if (!user || user.refreshToken !== refreshToken) {
             throw new BusinessException({

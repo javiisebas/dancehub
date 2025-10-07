@@ -283,12 +283,8 @@ export class QueryBuilder<TTable extends PgTable, TField extends string = string
     private normalizeValue(
         value: string | number | boolean | Date,
     ): string | number | boolean | Date {
-        if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-            const date = new Date(value);
-            if (!isNaN(date.getTime())) {
-                return date;
-            }
-        }
+        // Only convert if already a Date object
+        // Do NOT auto-convert strings to dates to avoid type mismatches
         return value;
     }
 }

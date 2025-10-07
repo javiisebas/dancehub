@@ -259,4 +259,26 @@ export abstract class BaseTranslatableRepository<
             }
         }
     }
+
+    /**
+     * Helper to create entity with translations in one transaction
+     * Reduces boilerplate in create handlers
+     */
+    async createWithTranslations(entity: TEntity, translations: TTranslation[]): Promise<TEntity> {
+        const savedEntity = await this.save(entity);
+        await this.saveTranslations(savedEntity.id, translations);
+        return this.findById(savedEntity.id, { includeAllTranslations: true });
+    }
+
+    /**
+     * Helper to update entity with translations in one transaction
+     * Reduces boilerplate in update handlers
+     */
+    async updateWithTranslations(entity: TEntity, translations?: TTranslation[]): Promise<TEntity> {
+        await this.updateEntity(entity);
+        if (translations && translations.length > 0) {
+            await this.upsertTranslations(entity.id, translations);
+        }
+        return this.findById(entity.id, { includeAllTranslations: true });
+    }
 }

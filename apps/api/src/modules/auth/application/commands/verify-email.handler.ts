@@ -10,9 +10,9 @@ import {
     UpdateUserHandler,
 } from '@api/modules/user/application/commands/update-user.handler';
 import {
-    GetUserHandler,
-    GetUserQuery,
-} from '@api/modules/user/application/queries/get-user.handler';
+    GetUserByFieldHandler,
+    GetUserByFieldQuery,
+} from '@api/modules/user/application/queries/get-user-by-field.handler';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { PasswordResponse, UserStatusEnum } from '@repo/shared';
 
@@ -22,7 +22,7 @@ export class VerifyEmailCommand extends Command<{ token: string }> {}
 export class VerifyEmailHandler {
     constructor(
         private readonly cacheService: CacheService,
-        private readonly getUserHandler: GetUserHandler,
+        private readonly getUserByFieldHandler: GetUserByFieldHandler,
         private readonly updateUserHandler: UpdateUserHandler,
         private readonly translationService: TranslationService,
     ) {}
@@ -40,7 +40,9 @@ export class VerifyEmailHandler {
             });
         }
 
-        const user = await this.getUserHandler.execute(new GetUserQuery(userId));
+        const user = await this.getUserByFieldHandler.execute(
+            new GetUserByFieldQuery('id', userId),
+        );
 
         if (!user) {
             throw new NotFoundException('User');

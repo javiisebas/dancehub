@@ -8,7 +8,6 @@ extends BaseEntity { constructor( id: string,
         {{this.tsType}}{{#unless this.required}} | null{{/unless}},
     {{/each}}
 {{else}}
-    // TODO: Add your properties here
 {{/if}}
 createdAt: Date, updatedAt: Date, ) { super(id, createdAt, updatedAt); }
 
@@ -22,13 +21,10 @@ createdAt: Date, updatedAt: Date, ) { super(id, createdAt, updatedAt); }
         {{#if (eq this.tsType 'string')}}{{camelCase this.name}}{{#if this.required}}.trim(){{else}}
                 ?
                 {{camelCase this.name}}.trim() : null{{/if}}{{else}}{{camelCase this.name}}{{/if}};
-        }
-
+        this.updatedAt = new Date(); }
     {{/each}}
-{{else}}
-    // TODO: Add your update methods here
-
 {{/if}}
+
 static create( id: string,
 {{#if fields}}
     {{#each fields}}
@@ -36,7 +32,6 @@ static create( id: string,
         {{this.tsType}}{{#unless this.required}} | null{{/unless}},
     {{/each}}
 {{else}}
-    // TODO: Add your parameters here
 {{/if}}
 ):
 {{pascalCase name}}
@@ -49,6 +44,5 @@ static create( id: string,
                 {{camelCase this.name}}.trim() : null{{/if}}{{else}}{{camelCase this.name}}{{/if}},
     {{/each}}
 {{else}}
-    // TODO: Add your arguments here
 {{/if}}
 now, now, ); } }

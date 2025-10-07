@@ -19,28 +19,18 @@ export class UpdateDanceStyleHandler {
     async execute({ id, data }: UpdateDanceStyleCommand) {
         const danceStyle = await this.repository.findById(id);
 
-        if (data.slug) {
-            if (data.slug !== danceStyle.slug) {
-                const slugExists = await this.repository.slugExists(data.slug);
-                if (slugExists) {
-                    throw new ConflictException('Slug already exists');
-                }
+        if (data.slug && data.slug !== danceStyle.slug) {
+            const slugExists = await this.repository.slugExists(data.slug);
+            if (slugExists) {
+                throw new ConflictException('Slug already exists');
             }
             danceStyle.updateSlug(data.slug);
-            await this.repository.updateEntity(danceStyle);
         }
 
-        if (data.translations) {
-            await this.repository.upsertTranslations(
-                id,
-                data.translations.map((t) =>
-                    DanceStyleTranslation.create(randomUUID(), t.locale, t.name, t.description),
-                ),
-            );
-        }
+        const translations = data.translations?.map((t) =>
+            DanceStyleTranslation.create(randomUUID(), t.locale, t.name, t.description),
+        );
 
-        return this.repository.findById(id, {
-            includeAllTranslations: true,
-        });
+        return this.repository.updateWithTranslations(danceStyle, translations);
     }
 }

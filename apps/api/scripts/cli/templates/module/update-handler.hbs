@@ -1,29 +1,27 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { NotFoundException } from '@api/common/exceptions';
 
-import { Update{{pascalCase name}}Request } from '@repo/shared/dtos/{{kebabCase name}}';
+import { UpdateCommand } from '@api/common/abstract/application/commands.abstract';
+import { Update{{pascalCase name}}Request } from '@repo/shared';
 import { {{pascalCase name}} } from '../../domain/entities/{{kebabCase name}}.entity';
-import { I{{pascalCase name}}Repository } from '../../domain/repositories/i-{{kebabCase name}}.repository';
+import {
+    I{{pascalCase name}}Repository,
+    {{constantCase name}}_REPOSITORY,
+} from '../../domain/repositories/i-{{kebabCase name}}.repository';
 
-export class Update{{pascalCase name}}Command {
-    constructor(
-        public readonly id: string,
-        public readonly data: Update{{pascalCase name}}Request,
-    ) {}
-}
+export class Update{{pascalCase name}}Command extends UpdateCommand<Update{{pascalCase name}}Request> {}
 
 @CommandHandler(Update{{pascalCase name}}Command)
 export class Update{{pascalCase name}}Handler implements ICommandHandler<Update{{pascalCase name}}Command> {
     constructor(
-        @Inject('I{{pascalCase name}}Repository')
-        private readonly {{camelCase name}}Repository: I{{pascalCase name}}Repository,
+        @Inject({{constantCase name}}_REPOSITORY) private readonly repository: I{{pascalCase name}}Repository,
     ) {}
 
     async execute(command: Update{{pascalCase name}}Command): Promise<{{pascalCase name}}> {
         const { id, data } = command;
 
-        const {{camelCase name}} = await this.{{camelCase name}}Repository.findById(id);
+        const {{camelCase name}} = await this.repository.findById(id);
         if (!{{camelCase name}}) {
             throw new NotFoundException('{{pascalCase name}}');
         }
@@ -35,10 +33,8 @@ export class Update{{pascalCase name}}Handler implements ICommandHandler<Update{
         }
 {{/each}}
 {{else}}
-        // TODO: Add your field updates here
-        // Example: if (data.field !== undefined) { {{camelCase name}}.updateField(data.field); }
 {{/if}}
 
-        return await this.{{camelCase name}}Repository.update({{camelCase name}});
+        return await this.repository.save({{camelCase name}});
     }
 }

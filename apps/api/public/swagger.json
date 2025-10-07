@@ -400,16 +400,16 @@
         ]
       }
     },
-    "/api/users": {
+    "/api/artists": {
       "post": {
-        "operationId": "UserController_create",
+        "operationId": "ArtistController_create",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateUserRequest"
+                "$ref": "#/components/schemas/CreateArtistRequest"
               }
             }
           }
@@ -420,11 +420,11 @@
           }
         },
         "tags": [
-          "User"
+          "Artist"
         ]
       },
       "get": {
-        "operationId": "UserController_paginate",
+        "operationId": "ArtistController_paginate",
         "parameters": [],
         "responses": {
           "200": {
@@ -432,34 +432,13 @@
           }
         },
         "tags": [
-          "User"
+          "Artist"
         ]
       }
     },
-    "/api/users/{id}": {
-      "get": {
-        "operationId": "UserController_findById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      },
+    "/api/artists/{id}": {
       "patch": {
-        "operationId": "UserController_update",
+        "operationId": "ArtistController_update",
         "parameters": [
           {
             "name": "id",
@@ -475,7 +454,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateUserRequest"
+                "$ref": "#/components/schemas/UpdateArtistRequest"
               }
             }
           }
@@ -486,11 +465,11 @@
           }
         },
         "tags": [
-          "User"
+          "Artist"
         ]
       },
       "delete": {
-        "operationId": "UserController_delete",
+        "operationId": "ArtistController_delete",
         "parameters": [
           {
             "name": "id",
@@ -507,54 +486,39 @@
           }
         },
         "tags": [
-          "User"
-        ]
-      }
-    },
-    "/api/dance-styles": {
-      "post": {
-        "operationId": "DanceStyleController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateDanceStyleRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "DanceStyle"
+          "Artist"
         ]
       },
       "get": {
-        "operationId": "DanceStyleController_paginate",
-        "parameters": [],
+        "operationId": "ArtistController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
           }
         },
         "tags": [
-          "DanceStyle"
+          "Artist"
         ]
       }
     },
-    "/api/dance-styles/{id}/all-translations": {
+    "/api/artists/search": {
       "get": {
-        "operationId": "DanceStyleController_findByIdWithAllTranslations",
+        "operationId": "ArtistController_search",
         "parameters": [
           {
-            "name": "id",
+            "name": "limit",
             "required": true,
-            "in": "path",
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -566,16 +530,16 @@
           }
         },
         "tags": [
-          "DanceStyle"
+          "Artist"
         ]
       }
     },
-    "/api/dance-styles/{id}": {
+    "/api/artists/by-name/{name}": {
       "get": {
-        "operationId": "DanceStyleController_findById",
+        "operationId": "ArtistController_findByName",
         "parameters": [
           {
-            "name": "id",
+            "name": "name",
             "required": true,
             "in": "path",
             "schema": {
@@ -589,59 +553,7 @@
           }
         },
         "tags": [
-          "DanceStyle"
-        ]
-      },
-      "patch": {
-        "operationId": "DanceStyleController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDanceStyleRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "DanceStyle"
-        ]
-      },
-      "delete": {
-        "operationId": "DanceStyleController_delete",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "DanceStyle"
+          "Artist"
         ]
       }
     },
@@ -862,16 +774,16 @@
         ]
       }
     },
-    "/api/venues": {
+    "/api/users": {
       "post": {
-        "operationId": "VenueController_create",
+        "operationId": "UserController_create",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateVenueRequest"
+                "$ref": "#/components/schemas/CreateUserRequest"
               }
             }
           }
@@ -882,24 +794,103 @@
           }
         },
         "tags": [
-          "Venue"
+          "User"
+        ]
+      },
+      "get": {
+        "operationId": "UserController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
         ]
       }
     },
-    "/api/venues/{slug}": {
-      "get": {
-        "operationId": "VenueController_getBySlug",
+    "/api/users/{id}": {
+      "patch": {
+        "operationId": "UserController_update",
         "parameters": [
           {
-            "name": "slug",
+            "name": "id",
             "required": true,
             "in": "path",
             "schema": {
               "type": "string"
             }
-          },
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      },
+      "delete": {
+        "operationId": "UserController_delete",
+        "parameters": [
           {
-            "name": "includeRelations",
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      },
+      "get": {
+        "operationId": "UserController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/users/search": {
+      "get": {
+        "operationId": "UserController_search",
+        "parameters": [
+          {
+            "name": "limit",
             "required": true,
             "in": "query",
             "schema": {
@@ -913,13 +904,133 @@
           }
         },
         "tags": [
-          "Venue"
+          "User"
         ]
       }
     },
-    "/api/artists/{id}": {
+    "/api/users/by-email/{email}": {
       "get": {
-        "operationId": "ArtistController_getById",
+        "operationId": "UserController_findByEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/dance-styles": {
+      "post": {
+        "operationId": "DanceStyleController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDanceStyleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DanceStyle"
+        ]
+      },
+      "get": {
+        "operationId": "DanceStyleController_paginate",
+        "parameters": [
+          {
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DanceStyle"
+        ]
+      }
+    },
+    "/api/dance-styles/{id}": {
+      "patch": {
+        "operationId": "DanceStyleController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDanceStyleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DanceStyle"
+        ]
+      },
+      "delete": {
+        "operationId": "DanceStyleController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DanceStyle"
+        ]
+      },
+      "get": {
+        "operationId": "DanceStyleController_findById",
         "parameters": [
           {
             "name": "id",
@@ -930,7 +1041,15 @@
             }
           },
           {
-            "name": "includeRelations",
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeAllTranslations",
             "required": true,
             "in": "query",
             "schema": {
@@ -944,7 +1063,77 @@
           }
         },
         "tags": [
-          "Artist"
+          "DanceStyle"
+        ]
+      }
+    },
+    "/api/dance-styles/search": {
+      "get": {
+        "operationId": "DanceStyleController_search",
+        "parameters": [
+          {
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DanceStyle"
+        ]
+      }
+    },
+    "/api/dance-styles/by-slug/{slug}": {
+      "get": {
+        "operationId": "DanceStyleController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeAllTranslations",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DanceStyle"
         ]
       }
     }
@@ -974,19 +1163,15 @@
         "type": "object",
         "properties": {}
       },
+      "CreateArtistRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateArtistRequest": {
+        "type": "object",
+        "properties": {}
+      },
       "CreateUserRequest": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateUserRequest": {
-        "type": "object",
-        "properties": {}
-      },
-      "CreateDanceStyleRequest": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateDanceStyleRequest": {
         "type": "object",
         "properties": {}
       },
@@ -1002,7 +1187,15 @@
         "type": "object",
         "properties": {}
       },
-      "CreateVenueRequest": {
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateDanceStyleRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateDanceStyleRequest": {
         "type": "object",
         "properties": {}
       }

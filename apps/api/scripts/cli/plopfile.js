@@ -4,9 +4,57 @@ const {
     generateValidators,
     readSchemaFile,
     prepareTemplateData,
+    generateEnumFile,
 } = require('./schema-parser');
 const fs = require('fs');
 const path = require('path');
+
+function parseInlineFields(inlineFields) {
+    const fields = {};
+    const parts = inlineFields.split(',').map((p) => p.trim());
+
+    parts.forEach((part) => {
+        const [name, type, ...modifiers] = part.split(':').map((s) => s.trim());
+        let drizzleType = 'varchar';
+        let length = null;
+
+        if (type) {
+            const typeMatch = type.match(/(\w+)(?:\((\d+)\))?/);
+            if (typeMatch) {
+                drizzleType = typeMatch[1];
+                length = typeMatch[2] ? parseInt(typeMatch[2]) : null;
+            }
+        }
+
+        let definition = '';
+        if (drizzleType === 'varchar' || drizzleType === 'char') {
+            definition = `${drizzleType}('${name}', { length: ${length || 255} })`;
+        } else if (drizzleType === 'text') {
+            definition = `text('${name}')`;
+        } else if (drizzleType === 'integer' || drizzleType === 'bigint') {
+            definition = `${drizzleType}('${name}')`;
+        } else if (drizzleType === 'boolean') {
+            definition = `boolean('${name}')`;
+        } else if (drizzleType === 'timestamp') {
+            definition = `timestamp('${name}')`;
+        } else if (drizzleType === 'uuid') {
+            definition = `uuid('${name}')`;
+        } else {
+            definition = `${drizzleType}('${name}')`;
+        }
+
+        if (modifiers.includes('required')) {
+            definition += '.notNull()';
+        }
+        if (modifiers.includes('unique')) {
+            definition += '.unique()';
+        }
+
+        fields[name] = definition;
+    });
+
+    return { fields };
+}
 
 module.exports = function (plop) {
     plop.setActionType('prettier', function (answers, config, plop) {
@@ -94,13 +142,21 @@ module.exports = function (plop) {
             const modulePath = `src/modules/{{kebabCase name}}`;
             const isTranslatable = data.translatable;
 
-            // Si se proporciona un schema (archivo), parsearlo
             let schemaData = null;
 
             if (data.schemaFile && data.schemaFile.trim() !== '') {
                 try {
-                    const schemaPath = path.resolve(process.cwd(), data.schemaFile);
-                    const schemaDefinition = readSchemaFile(schemaPath);
+                    let schemaDefinition;
+
+                    if (data.schemaFile.includes(':')) {
+                        console.log('📝 Parsing inline fields...');
+                        schemaDefinition = parseInlineFields(data.schemaFile);
+                    } else {
+                        console.log('📂 Reading schema file...');
+                        const schemaPath = path.resolve(process.cwd(), data.schemaFile);
+                        schemaDefinition = readSchemaFile(schemaPath);
+                    }
+
                     schemaData = prepareTemplateData(
                         isTranslatable && schemaDefinition.entity
                             ? schemaDefinition.entity
@@ -108,8 +164,33 @@ module.exports = function (plop) {
                         data.name,
                         isTranslatable,
                     );
+
+                    if (schemaData.enums && schemaData.enums.length > 0) {
+                        console.log('🎨 Generating enums...');
+                        schemaData.enums.forEach((enumData) => {
+                            const enumPath = path.resolve(
+                                process.cwd(),
+                                `../../packages/shared/src/enums/${plop.getHelper('kebabCase')(enumData.name)}.enum.ts`,
+                            );
+                            generateEnumFile(enumData, enumPath);
+                        });
+                    }
+
+                    if (schemaData.relations && schemaData.relations.length > 0) {
+                        console.log(
+                            '🔗 Found relations:',
+                            schemaData.relations.map((r) => r.name).join(', '),
+                        );
+                    }
+
+                    if (schemaData.foreignKeys && schemaData.foreignKeys.length > 0) {
+                        console.log(
+                            '🔑 Found foreign keys:',
+                            schemaData.foreignKeys.map((fk) => fk.name).join(', '),
+                        );
+                    }
                 } catch (error) {
-                    console.warn(`Warning: Could not read schema file: ${error.message}`);
+                    console.warn(`⚠️  Warning: Could not read schema file: ${error.message}`);
                     console.warn('Generating module with TODO comments instead.');
                 }
             }
@@ -188,17 +269,18 @@ module.exports = function (plop) {
                 },
                 {
                     type: 'add',
-                    path: `${modulePath}/application/queries/get-{{kebabCase name}}.handler.ts`,
-                    templateFile: isTranslatable
-                        ? 'templates/module/get-handler.translatable.hbs'
-                        : 'templates/module/get-handler.hbs',
+                    path: `${modulePath}/application/queries/get-{{kebabCase name}}-by-field.handler.ts`,
+                    templateFile: 'templates/module/get-by-field-handler.hbs',
+                },
+                {
+                    type: 'add',
+                    path: `${modulePath}/application/queries/find-many-{{pluralize (kebabCase name)}}.handler.ts`,
+                    templateFile: 'templates/module/find-many-handler.hbs',
                 },
                 {
                     type: 'add',
                     path: `${modulePath}/application/queries/get-paginated-{{pluralize (kebabCase name)}}.handler.ts`,
-                    templateFile: isTranslatable
-                        ? 'templates/module/paginate-handler.translatable.hbs'
-                        : 'templates/module/paginate-handler.hbs',
+                    templateFile: 'templates/module/get-paginated-handler.hbs',
                 },
             );
 
@@ -417,13 +499,21 @@ module.exports = function (plop) {
             const modulePath = `src/modules/{{kebabCase module}}`;
             const isTranslatable = data.translatable;
 
-            // Si se proporciona un schema (archivo), parsearlo
             let schemaData = null;
 
             if (data.schemaFile && data.schemaFile.trim() !== '') {
                 try {
-                    const schemaPath = path.resolve(process.cwd(), data.schemaFile);
-                    const schemaDefinition = readSchemaFile(schemaPath);
+                    let schemaDefinition;
+
+                    if (data.schemaFile.includes(':')) {
+                        console.log('📝 Parsing inline fields...');
+                        schemaDefinition = parseInlineFields(data.schemaFile);
+                    } else {
+                        console.log('📂 Reading schema file...');
+                        const schemaPath = path.resolve(process.cwd(), data.schemaFile);
+                        schemaDefinition = readSchemaFile(schemaPath);
+                    }
+
                     schemaData = prepareTemplateData(
                         isTranslatable && schemaDefinition.entity
                             ? schemaDefinition.entity
@@ -431,8 +521,33 @@ module.exports = function (plop) {
                         data.name,
                         isTranslatable,
                     );
+
+                    if (schemaData.enums && schemaData.enums.length > 0) {
+                        console.log('🎨 Generating enums...');
+                        schemaData.enums.forEach((enumData) => {
+                            const enumPath = path.resolve(
+                                process.cwd(),
+                                `../../packages/shared/src/enums/${plop.getHelper('kebabCase')(enumData.name)}.enum.ts`,
+                            );
+                            generateEnumFile(enumData, enumPath);
+                        });
+                    }
+
+                    if (schemaData.relations && schemaData.relations.length > 0) {
+                        console.log(
+                            '🔗 Found relations:',
+                            schemaData.relations.map((r) => r.name).join(', '),
+                        );
+                    }
+
+                    if (schemaData.foreignKeys && schemaData.foreignKeys.length > 0) {
+                        console.log(
+                            '🔑 Found foreign keys:',
+                            schemaData.foreignKeys.map((fk) => fk.name).join(', '),
+                        );
+                    }
                 } catch (error) {
-                    console.warn(`Warning: Could not read schema file: ${error.message}`);
+                    console.warn(`⚠️  Warning: Could not read schema file: ${error.message}`);
                     console.warn('Generating entity with TODO comments instead.');
                 }
             }
@@ -544,7 +659,7 @@ module.exports = function (plop) {
                 path: `${modulePath}/{{kebabCase module}}.module.ts`,
                 pattern: /(providers: \[[\s\S]*?)(])/,
                 template:
-                    '$1        {\n            provide: {{constantCase name}}_REPOSITORY,\n            useClass: {{pascalCase name}}RepositoryImpl,\n        },\n        Create{{pascalCase name}}Handler,\n        Update{{pascalCase name}}Handler,\n        Delete{{pascalCase name}}Handler,\n        Get{{pascalCase name}}Handler,\n        GetPaginated{{pascalCase (pluralize name)}}Handler,\n$2',
+                    '$1        {\n            provide: {{constantCase name}}_REPOSITORY,\n            useClass: {{pascalCase name}}RepositoryImpl,\n        },\n        Create{{pascalCase name}}Handler,\n        Update{{pascalCase name}}Handler,\n        Delete{{pascalCase name}}Handler,\n        Get{{pascalCase name}}ByFieldHandler,\n        FindMany{{pascalCase (pluralize name)}}Handler,\n        GetPaginated{{pascalCase (pluralize name)}}Handler,\n$2',
             });
 
             actions.push({
@@ -584,7 +699,8 @@ module.exports = function (plop) {
                     "import { Create{{pascalCase name}}Handler } from './application/commands/create-{{kebabCase name}}.handler';\n" +
                     "import { Update{{pascalCase name}}Handler } from './application/commands/update-{{kebabCase name}}.handler';\n" +
                     "import { Delete{{pascalCase name}}Handler } from './application/commands/delete-{{kebabCase name}}.handler';\n" +
-                    "import { Get{{pascalCase name}}Handler } from './application/queries/get-{{kebabCase name}}.handler';\n" +
+                    "import { Get{{pascalCase name}}ByFieldHandler } from './application/queries/get-{{kebabCase name}}-by-field.handler';\n" +
+                    "import { FindMany{{pascalCase (pluralize name)}}Handler } from './application/queries/find-many-{{pluralize (kebabCase name)}}.handler';\n" +
                     "import { GetPaginated{{pascalCase (pluralize name)}}Handler } from './application/queries/get-paginated-{{pluralize (kebabCase name)}}.handler';\n",
             });
 

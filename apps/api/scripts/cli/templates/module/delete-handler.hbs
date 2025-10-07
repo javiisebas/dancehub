@@ -1,15 +1,19 @@
 import { DeleteCommand } from '@api/common/abstract/application/commands.abstract';
 import { Inject, Injectable } from '@nestjs/common';
-import { I{{pascalCase name}}Repository, {{constantCase name}}_REPOSITORY } from '../../domain/repositories/i-{{kebabCase name}}.repository';
+import {
+    I{{pascalCase name}}Repository,
+    {{constantCase name}}_REPOSITORY,
+} from '../../domain/repositories/i-{{kebabCase name}}.repository';
 
 export class Delete{{pascalCase name}}Command extends DeleteCommand {}
 
 @Injectable()
 export class Delete{{pascalCase name}}Handler {
-    constructor(@Inject({{constantCase name}}_REPOSITORY) private readonly repository: I{{pascalCase name}}Repository) {}
+    constructor(
+        @Inject({{constantCase name}}_REPOSITORY) private readonly repository: I{{pascalCase name}}Repository,
+    ) {}
 
     async execute({ id }: Delete{{pascalCase name}}Command): Promise<void> {
-        await this.repository.findById(id);
         await this.repository.delete(id);
     }
 }

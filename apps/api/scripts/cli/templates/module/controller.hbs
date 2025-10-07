@@ -20,10 +20,17 @@ import {
     Update{{pascalCase name}}Handler,
 } from '../../application/commands/update-{{kebabCase name}}.handler';
 import {
+    FindMany{{pascalCase (pluralize name)}}Handler,
+    FindMany{{pascalCase (pluralize name)}}Query,
+} from '../../application/queries/find-many-{{pluralize (kebabCase name)}}.handler';
+import {
     GetPaginated{{pascalCase (pluralize name)}}Handler,
     GetPaginated{{pascalCase (pluralize name)}}Query,
 } from '../../application/queries/get-paginated-{{pluralize (kebabCase name)}}.handler';
-import { Get{{pascalCase name}}Handler, Get{{pascalCase name}}Query } from '../../application/queries/get-{{kebabCase name}}.handler';
+import {
+    Get{{pascalCase name}}ByFieldHandler,
+    Get{{pascalCase name}}ByFieldQuery,
+} from '../../application/queries/get-{{kebabCase name}}-by-field.handler';
 
 @Controller('{{pluralize (kebabCase name)}}')
 export class {{pascalCase name}}Controller {
@@ -31,8 +38,9 @@ export class {{pascalCase name}}Controller {
         private readonly create{{pascalCase name}}Handler: Create{{pascalCase name}}Handler,
         private readonly update{{pascalCase name}}Handler: Update{{pascalCase name}}Handler,
         private readonly delete{{pascalCase name}}Handler: Delete{{pascalCase name}}Handler,
-        private readonly get{{pascalCase name}}Handler: Get{{pascalCase name}}Handler,
-        private readonly paginate{{pascalCase (pluralize name)}}Handler: GetPaginated{{pascalCase (pluralize name)}}Handler,
+        private readonly get{{pascalCase name}}ByFieldHandler: Get{{pascalCase name}}ByFieldHandler,
+        private readonly findMany{{pascalCase (pluralize name)}}Handler: FindMany{{pascalCase (pluralize name)}}Handler,
+        private readonly getPaginated{{pascalCase (pluralize name)}}Handler: GetPaginated{{pascalCase (pluralize name)}}Handler,
     ) {}
 
     @Post()
@@ -40,20 +48,6 @@ export class {{pascalCase name}}Controller {
     async create(@Body() dto: Create{{pascalCase name}}Request) {
         const command = new Create{{pascalCase name}}Command(dto);
         return this.create{{pascalCase name}}Handler.execute(command);
-    }
-
-    @Get()
-    @Serialize({{pascalCase name}}PaginatedResponse)
-    async paginate(@Query() dto: Paginated{{pascalCase name}}Request) {
-        const query = new GetPaginated{{pascalCase (pluralize name)}}Query(dto);
-        return this.paginate{{pascalCase (pluralize name)}}Handler.execute(query);
-    }
-
-    @Get(':id')
-    @Serialize({{pascalCase name}}Response)
-    async findById(@Param('id') id: string) {
-        const query = new Get{{pascalCase name}}Query(id);
-        return this.get{{pascalCase name}}Handler.execute(query);
     }
 
     @Patch(':id')
@@ -67,5 +61,28 @@ export class {{pascalCase name}}Controller {
     async delete(@Param('id') id: string): Promise<void> {
         const command = new Delete{{pascalCase name}}Command(id);
         await this.delete{{pascalCase name}}Handler.execute(command);
+    }
+
+    @Get('search')
+    @Serialize({{pascalCase name}}Response)
+    async search(@Query('limit') limit?: string) {
+        const query = new FindMany{{pascalCase (pluralize name)}}Query({
+            limit: limit ? parseInt(limit) : undefined,
+        });
+        return this.findMany{{pascalCase (pluralize name)}}Handler.execute(query);
+    }
+
+    @Get()
+    @Serialize({{pascalCase name}}PaginatedResponse)
+    async paginate(@Query() dto: Paginated{{pascalCase name}}Request) {
+        const query = new GetPaginated{{pascalCase (pluralize name)}}Query(dto);
+        return this.getPaginated{{pascalCase (pluralize name)}}Handler.execute(query);
+    }
+
+    @Get(':id')
+    @Serialize({{pascalCase name}}Response)
+    async findById(@Param('id') id: string) {
+        const query = new Get{{pascalCase name}}ByFieldQuery('id', id);
+        return this.get{{pascalCase name}}ByFieldHandler.execute(query);
     }
 }
