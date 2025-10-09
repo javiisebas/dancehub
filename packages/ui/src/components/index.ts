@@ -62,10 +62,11 @@ export {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from './dropdown-menu';
-export { FileUploadButton } from './file-upload-button';
-export { FileUploadDialog } from './file-upload-dialog';
-export { FileUploader } from './file-uploader';
-export { FileViewerDialog } from './file-viewer-dialog';
+// Client-only components - import from './client-only' instead
+// export { FileUploadButton } from './file-upload-button';
+// export { FileUploadDialog } from './file-upload-dialog';
+// export { FileUploader } from './file-uploader';
+// export { FileViewerDialog } from './file-viewer-dialog';
 export {
     Form,
     FormControl,
@@ -80,14 +81,16 @@ export { FormRichTextField } from './form-rich-text-field';
 export { Input } from './input';
 export { Label } from './label';
 export { Link } from './link';
-export { MediaGallery } from './media-gallery';
-export { PaymentCardForm } from './payment-card-form';
-export { PDFViewer as PdfViewer } from './pdf-viewer';
+// Client-only components - import from './client-only' instead
+// export { MediaGallery } from './media-gallery';
+// export { PaymentCardForm } from './payment-card-form';
+// PDFViewer is client-only, import from './client-only' instead
 export { Popover, PopoverContent, PopoverTrigger } from './popover';
 export { Progress } from './progress';
 export { RadioGroup, RadioGroupItem } from './radio-group';
 export { ScrollArea, ScrollBar } from './scroll-area';
-export { Search } from './search';
+// Client-only component - import from './client-only' instead
+// export { Search } from './search';
 export {
     Select,
     SelectContent,
@@ -140,7 +143,8 @@ export {
     useSidebar,
 } from './sidebar';
 export { Skeleton } from './skeleton';
-export { SubscriptionCard } from './subscription-card';
+// Client-only component - import from './client-only' instead
+// export { SubscriptionCard } from './subscription-card';
 export { Switch } from './switch';
 export {
     Table,
@@ -165,7 +169,17 @@ export {
 } from './toast';
 export { Toaster } from './toaster';
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
+export { FileDropzone, FileList, FileUploadZone, ImageUploadZone, VideoUploadZone } from './upload';
+export type {
+    FileDropzoneProps,
+    FileItem,
+    FileListProps,
+    FileUploadZoneProps,
+    ImageUploadZoneProps,
+    VideoUploadZoneProps,
+} from './upload';
 export * from './upload-progress';
-export { VideoPlayer } from './video-player';
-export { VideoPlayerCard } from './video-player-card';
+// Client-only components - import from './client-only' instead
+// export { VideoPlayer } from './video-player';
+// export { VideoPlayerCard } from './video-player-card';
 export * from './video-upload-progress';

@@ -33,6 +33,7 @@ import {
     UpdateStorageCommand,
     UpdateStorageHandler,
 } from '../../application/commands/update-storage.handler';
+import { STORAGE_CONSTANTS } from '../../application/constants/storage.constants';
 import {
     GetPaginatedStoragesHandler,
     GetPaginatedStoragesQuery,
@@ -63,7 +64,7 @@ export class StorageController {
     async uploadFile(
         @UploadedFile(
             new FileValidationPipe({
-                maxSizeInBytes: 50 * 1024 * 1024, // 50MB max
+                maxSizeInBytes: STORAGE_CONSTANTS.FILE_SIZE_LIMITS.DEFAULT,
                 required: true,
             }),
         )
@@ -71,7 +72,8 @@ export class StorageController {
         @Body() dto: UploadFileRequest,
         @CurrentUser('id') userId?: string,
     ) {
-        return this.storageService.uploadFile(file, userId ?? null, dto);
+        const uploadId = dto.metadata?.uploadId as string | undefined;
+        return this.storageService.uploadFile(file, userId ?? null, dto, uploadId);
     }
 
     @Post('upload/image')
@@ -82,7 +84,7 @@ export class StorageController {
     async uploadImage(
         @UploadedFile(
             new FileValidationPipe({
-                maxSizeInBytes: 5 * 1024 * 1024, // 5MB for images
+                maxSizeInBytes: STORAGE_CONSTANTS.FILE_SIZE_LIMITS.IMAGE,
                 allowedMimeTypes: FileTypeValidator.IMAGE_MIME_TYPES,
                 allowedExtensions: FileTypeValidator.IMAGE_EXTENSIONS,
                 required: true,
@@ -92,7 +94,8 @@ export class StorageController {
         @Body() dto: UploadFileRequest,
         @CurrentUser('id') userId?: string,
     ) {
-        return this.storageService.uploadFile(file, userId ?? null, dto);
+        const uploadId = dto.metadata?.uploadId as string | undefined;
+        return this.storageService.uploadFile(file, userId ?? null, dto, uploadId);
     }
 
     @Post('upload/document')
@@ -103,7 +106,7 @@ export class StorageController {
     async uploadDocument(
         @UploadedFile(
             new FileValidationPipe({
-                maxSizeInBytes: 10 * 1024 * 1024, // 10MB for documents
+                maxSizeInBytes: STORAGE_CONSTANTS.FILE_SIZE_LIMITS.DOCUMENT,
                 allowedMimeTypes: FileTypeValidator.DOCUMENT_MIME_TYPES,
                 allowedExtensions: FileTypeValidator.DOCUMENT_EXTENSIONS,
                 required: true,
@@ -113,7 +116,8 @@ export class StorageController {
         @Body() dto: UploadFileRequest,
         @CurrentUser('id') userId?: string,
     ) {
-        return this.storageService.uploadFile(file, userId ?? null, dto);
+        const uploadId = dto.metadata?.uploadId as string | undefined;
+        return this.storageService.uploadFile(file, userId ?? null, dto, uploadId);
     }
 
     @Post('upload/video')
@@ -124,7 +128,7 @@ export class StorageController {
     async uploadVideo(
         @UploadedFile(
             new FileValidationPipe({
-                maxSizeInBytes: 1000 * 1024 * 1024, // 100MB for videos
+                maxSizeInBytes: STORAGE_CONSTANTS.FILE_SIZE_LIMITS.VIDEO,
                 allowedMimeTypes: FileTypeValidator.VIDEO_MIME_TYPES,
                 allowedExtensions: FileTypeValidator.VIDEO_EXTENSIONS,
                 required: true,

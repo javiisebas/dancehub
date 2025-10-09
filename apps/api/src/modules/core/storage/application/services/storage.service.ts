@@ -14,7 +14,6 @@ import {
     STORAGE_REPOSITORY,
 } from '../../domain/repositories/i-storage.repository';
 import { FileTypeValidator } from '../../infrastructure/validators/file-type.validator';
-import { STORAGE_CONSTANTS } from '../constants/storage.constants';
 import { ImageOptimizerService } from './image-optimizer.service';
 import { StorageProgressService } from './storage-progress.service';
 import { IStorageProvider } from './storage-provider.interface';
@@ -42,8 +41,19 @@ export class StorageService {
     ): Promise<Storage> {
         const trackingId = uploadId || randomUUID();
 
+        console.log('='.repeat(80));
+        console.log(`[StorageService] Upload started`);
+        console.log(`  File: ${file.originalname}`);
+        console.log(`  Size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        console.log(`  MIME: ${file.mimetype}`);
+        console.log(`  User ID: ${userId || 'anonymous'}`);
+        console.log(`  Upload ID: ${trackingId}`);
+        console.log(`  Provided Upload ID: ${uploadId || 'none (generated)'}`);
+        console.log('='.repeat(80));
+
         try {
             if (userId) {
+                console.log(`[StorageService] Emitting upload start event to user ${userId}`);
                 this.progressService.emitUploadStart(userId, trackingId, file.originalname);
             }
 
@@ -53,6 +63,7 @@ export class StorageService {
             let videoMetadata = null;
 
             if (this.imageOptimizer.isImageOptimizable(file.mimetype)) {
+                console.log('[StorageService] Processing image optimization...');
                 if (userId) {
                     this.progressService.emitProcessingStart(userId, trackingId, 'image');
                 }
@@ -68,23 +79,15 @@ export class StorageService {
                 };
                 finalExtension = optimized.format;
                 finalMimeType = `image/${optimized.format}`;
-
-                if (userId) {
-                    this.progressService.emitProcessingProgress(
-                        userId,
-                        trackingId,
-                        STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.PROCESSING_COMPLETE,
-                        'Image optimized',
-                    );
-                }
+                console.log('[StorageService] Image optimization complete');
             }
 
             if (this.videoProcessor.isVideoOptimizable(file.mimetype)) {
+                console.log('[StorageService] Extracting video metadata...');
                 if (userId) {
                     this.progressService.emitProcessingStart(userId, trackingId, 'video');
                 }
 
-                // Extract metadata without optimization for faster processing
                 try {
                     const metadata = await this.videoProcessor.getMetadata(file.buffer);
                     videoMetadata = {
@@ -96,22 +99,12 @@ export class StorageService {
                         fps: metadata.fps,
                     };
 
-                    // Keep original video for faster upload (optimization can be done async later)
                     processedFile = file;
                     finalExtension = 'mp4';
                     finalMimeType = 'video/mp4';
-
-                    if (userId) {
-                        this.progressService.emitProcessingProgress(
-                            userId,
-                            trackingId,
-                            STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.PROCESSING_COMPLETE,
-                            'Video metadata extracted',
-                        );
-                    }
+                    console.log('[StorageService] Video metadata extracted:', videoMetadata);
                 } catch (error) {
-                    console.error('Failed to extract video metadata:', error);
-                    // Continue without metadata if extraction fails
+                    console.error('[StorageService] Failed to extract video metadata:', error);
                     processedFile = file;
                     finalExtension = extname(file.originalname).slice(1);
                     finalMimeType = file.mimetype;
@@ -121,36 +114,23 @@ export class StorageService {
             const filename = this.generateFilename(processedFile, finalExtension);
             const path = this.generatePath(userId, filename);
 
-            if (userId) {
-                this.progressService.emitProcessingProgress(
-                    userId,
-                    trackingId,
-                    STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_START,
-                    'Subiendo a R2 storage...',
-                );
-            }
+            console.log('[StorageService] Starting R2 upload...');
+            console.log(`  Target path: ${path}`);
 
             const uploadResult = await this.storageProvider.upload(
                 processedFile,
                 path,
                 (progress) => {
                     if (userId) {
-                        const progressRange =
-                            STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_END -
-                            STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_START;
-                        const adjustedProgress =
-                            STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_START +
-                            Math.round((progress * progressRange) / 100);
-
-                        this.progressService.emitR2UploadProgress(
-                            userId,
-                            trackingId,
-                            adjustedProgress,
-                            progress,
+                        console.log(
+                            `[StorageService] R2 progress callback: ${progress}% (uploadId: ${trackingId})`,
                         );
+                        this.progressService.emitR2UploadProgress(userId, trackingId, progress);
                     }
                 },
             );
+
+            console.log('[StorageService] R2 upload complete');
 
             const storage = Storage.create(
                 randomUUID(),
@@ -169,8 +149,10 @@ export class StorageService {
             );
 
             const savedStorage = await this.repository.save(storage);
+            console.log('[StorageService] Storage entity saved:', savedStorage.id);
 
             if (FileTypeValidator.isImage(file.mimetype)) {
+                console.log('[StorageService] Generating image thumbnails...');
                 if (userId) {
                     this.progressService.emitThumbnailGeneration(userId, trackingId);
                 }
@@ -178,11 +160,16 @@ export class StorageService {
                 await this.thumbnailService
                     .generateAndSaveThumbnails(savedStorage.id, processedFile.buffer, path)
                     .catch((error) => {
-                        console.error('Failed to generate image thumbnails:', error);
+                        console.error(
+                            '[StorageService] Failed to generate image thumbnails:',
+                            error,
+                        );
                     });
+                console.log('[StorageService] Image thumbnails generated');
             }
 
             if (FileTypeValidator.isVideo(file.mimetype)) {
+                console.log('[StorageService] Generating video thumbnails...');
                 if (userId) {
                     this.progressService.emitThumbnailGeneration(userId, trackingId);
                 }
@@ -190,16 +177,25 @@ export class StorageService {
                 await this.videoThumbnailService
                     .generateAndSaveVideoThumbnails(savedStorage.id, file.buffer, path)
                     .catch((error) => {
-                        console.error('Failed to generate video thumbnails:', error);
+                        console.error(
+                            '[StorageService] Failed to generate video thumbnails:',
+                            error,
+                        );
                     });
+                console.log('[StorageService] Video thumbnails generated');
             }
 
             if (userId) {
+                console.log('[StorageService] Emitting complete event');
                 this.progressService.emitComplete(userId, trackingId, savedStorage.id);
             }
 
+            console.log('[StorageService] Upload flow complete ✓');
+            console.log('='.repeat(80));
+
             return savedStorage;
         } catch (error) {
+            console.error('[StorageService] Upload failed:', error);
             if (userId) {
                 const errorMessage = error instanceof Error ? error.message : 'Upload failed';
                 this.progressService.emitError(userId, trackingId, errorMessage);

@@ -14,10 +14,25 @@ import {
     LayoutList,
     PenTool,
     PlayCircle,
+    Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 
 const demos = [
+    {
+        title: 'Components Showcase',
+        description:
+            'Nuevos componentes modernos: Tablas mejoradas y sistema de upload modular con variantes',
+        icon: Sparkles,
+        href: '/demo/components-showcase',
+        features: [
+            'Tablas con diseño moderno',
+            'Upload Base (3 variantes)',
+            'Componentes especializados',
+            'Inspirado en Untitled UI',
+        ],
+        featured: true,
+    },
     {
         title: 'File Upload',
         description:
@@ -102,14 +117,31 @@ export default function DemoPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {demos.map((demo) => {
                     const Icon = demo.icon;
+                    const isFeatured = 'featured' in demo && demo.featured;
                     return (
-                        <Card key={demo.href} className="flex flex-col">
+                        <Card
+                            key={demo.href}
+                            className={`flex flex-col ${isFeatured ? 'border-primary/50 bg-gradient-to-br from-primary/5 to-purple-500/5 shadow-lg' : ''}`}
+                        >
                             <CardHeader>
                                 <div className="mb-2 flex items-center gap-3">
-                                    <div className="rounded-lg bg-primary/10 p-2">
-                                        <Icon className="h-6 w-6 text-primary" />
+                                    <div
+                                        className={`rounded-lg p-2 ${isFeatured ? 'bg-gradient-to-br from-primary/20 to-purple-500/20' : 'bg-primary/10'}`}
+                                    >
+                                        <Icon
+                                            className={`h-6 w-6 ${isFeatured ? 'text-primary' : 'text-primary'}`}
+                                        />
                                     </div>
-                                    <CardTitle>{demo.title}</CardTitle>
+                                    <div className="flex-1">
+                                        <CardTitle className="flex items-center gap-2">
+                                            {demo.title}
+                                            {isFeatured && (
+                                                <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                                                    Nuevo
+                                                </span>
+                                            )}
+                                        </CardTitle>
+                                    </div>
                                 </div>
                                 <CardDescription>{demo.description}</CardDescription>
                             </CardHeader>
@@ -120,13 +152,20 @@ export default function DemoPage() {
                                             key={feature}
                                             className="flex items-start gap-2 text-sm"
                                         >
-                                            <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary" />
+                                            <span
+                                                className={`mt-0.5 h-1.5 w-1.5 rounded-full ${isFeatured ? 'bg-primary' : 'bg-primary'}`}
+                                            />
                                             <span className="text-muted-foreground">{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
                                 <Link href={demo.href} className="w-full">
-                                    <Button className="w-full">Ver Demo</Button>
+                                    <Button
+                                        className="w-full"
+                                        variant={isFeatured ? 'default' : 'default'}
+                                    >
+                                        {isFeatured ? 'Ver Nuevos Componentes ✨' : 'Ver Demo'}
+                                    </Button>
                                 </Link>
                             </CardContent>
                         </Card>

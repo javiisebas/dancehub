@@ -105,13 +105,13 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="space-y-4">
-            <div className="rounded-md border bg-background">
+            <div className="overflow-hidden rounded-lg border border-border/50 bg-background shadow-sm">
                 <Table>
                     <TableHeader>
                         {headerGroups.map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
+                            <TableRow key={headerGroup.id} className="border-0">
                                 {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id} className="bg-muted/50">
+                                    <TableHead key={header.id}>
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -125,11 +125,13 @@ export function DataTable<TData, TValue>({
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
-                            <TableRow>
+                            <TableRow className="hover:bg-transparent">
                                 <TableCell colSpan={columns.length} className="h-32 text-center">
-                                    <div className="flex flex-col items-center justify-center gap-2">
-                                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                                        <p className="text-sm text-muted-foreground">
+                                    <div className="flex flex-col items-center justify-center gap-3">
+                                        <div className="relative h-8 w-8">
+                                            <div className="absolute inset-0 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                                        </div>
+                                        <p className="text-sm font-medium text-muted-foreground">
                                             Cargando datos...
                                         </p>
                                     </div>
@@ -140,10 +142,7 @@ export function DataTable<TData, TValue>({
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && 'selected'}
-                                    className={cn(
-                                        'transition-colors',
-                                        enableRowSelection && 'cursor-pointer hover:bg-muted/50',
-                                    )}
+                                    className={cn(enableRowSelection && 'cursor-pointer')}
                                     onClick={
                                         enableRowSelection ? () => row.toggleSelected() : undefined
                                     }
@@ -159,13 +158,30 @@ export function DataTable<TData, TValue>({
                                 </TableRow>
                             ))
                         ) : (
-                            <TableRow>
+                            <TableRow className="hover:bg-transparent">
                                 <TableCell colSpan={columns.length} className="h-32 text-center">
                                     <div className="flex flex-col items-center justify-center gap-2">
-                                        <p className="text-sm font-medium">No hay resultados</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            Intenta ajustar los filtros de búsqueda
-                                        </p>
+                                        <div className="rounded-full bg-muted p-3">
+                                            <svg
+                                                className="h-6 w-6 text-muted-foreground"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-medium">No hay resultados</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Intenta ajustar los filtros de búsqueda
+                                            </p>
+                                        </div>
                                     </div>
                                 </TableCell>
                             </TableRow>

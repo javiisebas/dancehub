@@ -51,8 +51,8 @@ extends BaseEntity {
     {{/each}}
 {{/if}}
 
-private constructor(props:
-{{pascalCase name}}Props, id: string, createdAt: Date, updatedAt: Date) { super(id, createdAt,
+private constructor( props:
+{{pascalCase name}}Props, id: string, createdAt: Date, updatedAt: Date ) { super(id, createdAt,
 updatedAt);
 {{#if fields}}
     {{#each fields}}

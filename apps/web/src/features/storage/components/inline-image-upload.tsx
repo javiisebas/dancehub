@@ -2,38 +2,33 @@
 
 import { UPLOAD_CONFIG } from '@/config/upload.config';
 import { StorageVisibilityEnum, UploadFileResponse } from '@repo/shared';
-import { FileItem, FileUploadZone } from '@repo/ui/components';
+import { FileItem, ImageUploadZone } from '@repo/ui/components';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Accept } from 'react-dropzone';
 import { useFileUpload } from '../hooks/use-file-upload.hook';
 
-export interface InlineFileUploadProps {
+export interface InlineImageUploadProps {
     onFilesUploaded?: (results: UploadFileResponse[]) => void;
     maxFiles?: number;
     maxSize?: number;
-    accept?: Accept;
+    acceptedFormats?: string[];
     multiple?: boolean;
     visibility?: StorageVisibilityEnum;
     metadata?: Record<string, unknown>;
-    showPreview?: boolean;
     className?: string;
     variant?: 'default' | 'compact';
-    dropzoneVariant?: 'default' | 'compact' | 'minimal';
 }
 
-export function InlineFileUpload({
+export function InlineImageUpload({
     onFilesUploaded,
     maxFiles = 10,
-    maxSize = UPLOAD_CONFIG.MAX_FILE_SIZE,
-    accept,
+    maxSize = UPLOAD_CONFIG.MAX_IMAGE_SIZE,
+    acceptedFormats,
     multiple = true,
     visibility = StorageVisibilityEnum.PRIVATE,
     metadata,
-    showPreview = true,
     className,
     variant = 'default',
-    dropzoneVariant,
-}: InlineFileUploadProps) {
+}: InlineImageUploadProps) {
     const previewUrlsRef = useRef<Map<string, string>>(new Map());
     const onFilesUploadedRef = useRef(onFilesUploaded);
 
@@ -115,19 +110,17 @@ export function InlineFileUpload({
     );
 
     return (
-        <FileUploadZone
+        <ImageUploadZone
             files={fileItems}
             onFilesSelected={handleFilesSelected}
             onFileRemove={handleFileRemove}
             maxFiles={maxFiles}
             maxSize={maxSize}
-            accept={accept}
+            acceptedFormats={acceptedFormats}
             multiple={multiple}
             disabled={isUploading}
-            showPreview={showPreview}
             className={className}
             variant={variant}
-            dropzoneVariant={dropzoneVariant}
         />
     );
 }

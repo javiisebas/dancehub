@@ -1,10 +1,11 @@
-import { StorageVisibilityEnum, UploadFileResponse } from '@repo/shared';
+import { StorageVisibilityEnum, UploadFileResponse, UploadProgressEvent } from '@repo/shared';
 import { useMutation } from '@tanstack/react-query';
 import { useUploadProgress } from '@web/hooks/use-upload-progress.hook';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { StorageService, UploadOptions } from '../api/storage.service';
+import { formatUploadProgress } from '../utils/upload-progress-formatter';
 
 export interface FileUploadState {
     uploadId: string;
@@ -18,7 +19,7 @@ export interface FileUploadState {
 
 export interface UseFileUploadOptions {
     visibility?: StorageVisibilityEnum;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     onSuccess?: (result: UploadFileResponse) => void;
     onError?: (error: Error) => void;
 }
@@ -27,51 +28,109 @@ export const useFileUpload = (options: UseFileUploadOptions = {}) => {
     const { data: session } = useSession();
     const [uploads, setUploads] = useState<Record<string, FileUploadState>>({});
 
-    const { uploadProgress, isConnected } = useUploadProgress({
-        userId: (session?.user as any)?.id,
-        onProgress: (event) => {
-            setUploads((prev) => {
-                const upload = prev[event.uploadId];
-                if (!upload) return prev;
+    const handleProgress = useCallback((event: UploadProgressEvent) => {
+        console.log(`[Frontend] Progress event for ${event.uploadId}:`, {
+            type: event.type,
+            phase: event.phase,
+            progress: event.progress,
+        });
 
-                return {
-                    ...prev,
-                    [event.uploadId]: {
-                        ...upload,
-                        progress: event.progress,
-                        status:
-                            event.type === 'upload'
-                                ? 'uploading'
-                                : event.type === 'processing' || event.type === 'thumbnail'
-                                  ? 'processing'
-                                  : event.type === 'complete'
-                                    ? 'complete'
-                                    : 'error',
-                        message: event.message,
-                    },
-                };
-            });
-        },
-        onComplete: (storageId, url) => {
-            const upload = Object.values(uploads).find(
-                (u) => u.result?.id === storageId || u.status === 'processing',
-            );
-            if (upload) {
-                setUploads((prev) => ({
-                    ...prev,
-                    [upload.uploadId]: {
-                        ...upload,
-                        status: 'complete',
-                        progress: 100,
-                        message: 'Upload complete!',
-                    },
-                }));
+        setUploads((prev) => {
+            const upload = prev[event.uploadId];
+            if (!upload) {
+                console.warn(`[Frontend] Received progress for unknown upload: ${event.uploadId}`);
+                console.log('  Known uploads:', Object.keys(prev));
+                return prev;
             }
-        },
-        onError: (error) => {
-            toast.error(error);
-        },
+
+            const newStatus =
+                event.type === 'upload'
+                    ? 'uploading'
+                    : event.type === 'processing' || event.type === 'thumbnail'
+                      ? 'processing'
+                      : event.type === 'complete'
+                        ? 'complete'
+                        : 'error';
+
+            const formatted = formatUploadProgress(event);
+            const displayMessage = `${formatted.title} ${formatted.subtitle}`;
+
+            const hasChanged =
+                upload.progress !== event.progress ||
+                upload.status !== newStatus ||
+                upload.message !== displayMessage;
+
+            if (!hasChanged) {
+                console.log(`[Frontend] No state change for ${event.uploadId}`);
+                return prev;
+            }
+
+            console.log(`[Frontend] Updating state for ${event.uploadId}:`, {
+                oldProgress: upload.progress,
+                newProgress: event.progress,
+                oldStatus: upload.status,
+                newStatus,
+            });
+
+            return {
+                ...prev,
+                [event.uploadId]: {
+                    ...upload,
+                    progress: event.progress,
+                    status: newStatus,
+                    message: displayMessage,
+                },
+            };
+        });
+    }, []);
+
+    const handleComplete = useCallback((event: UploadProgressEvent) => {
+        const uploadId = event.uploadId;
+
+        setUploads((prev) => {
+            const upload = prev[uploadId];
+            if (!upload) return prev;
+
+            const formatted = formatUploadProgress(event);
+            const displayMessage = `${formatted.title} ${formatted.subtitle}`;
+
+            const hasChanged =
+                upload.status !== 'complete' ||
+                upload.progress !== 100 ||
+                upload.message !== displayMessage;
+
+            if (!hasChanged) return prev;
+
+            return {
+                ...prev,
+                [uploadId]: {
+                    ...upload,
+                    status: 'complete',
+                    progress: 100,
+                    message: displayMessage,
+                },
+            };
+        });
+    }, []);
+
+    const handleError = useCallback((error: string) => {
+        toast.error(error);
+    }, []);
+
+    const { isConnected } = useUploadProgress({
+        userId: (session?.user as { id: string })?.id,
+        onProgress: handleProgress,
+        onComplete: handleComplete,
+        onError: handleError,
     });
+
+    const handleProgressRef = useRef(handleProgress);
+    const handleCompleteRef = useRef(handleComplete);
+
+    useEffect(() => {
+        handleProgressRef.current = handleProgress;
+        handleCompleteRef.current = handleComplete;
+    }, [handleProgress, handleComplete]);
 
     const mutation = useMutation({
         mutationFn: async ({ file, uploadId }: { file: File; uploadId: string }) => {
@@ -86,13 +145,15 @@ export const useFileUpload = (options: UseFileUploadOptions = {}) => {
                         const current = prev[uploadId];
                         if (!current) return prev;
 
+                        const localProgress = Math.min(progressEvent.percentage, 10);
+
                         return {
                             ...prev,
                             [uploadId]: {
                                 ...current,
-                                progress: progressEvent.percentage,
+                                progress: localProgress,
                                 status: 'uploading' as const,
-                                message: `Uploading... ${progressEvent.percentage}%`,
+                                message: `Uploading to server (${progressEvent.percentage}%)`,
                             },
                         };
                     });
@@ -102,9 +163,16 @@ export const useFileUpload = (options: UseFileUploadOptions = {}) => {
             return StorageService.uploadFile(file, uploadOptions);
         },
         onSuccess: (result, { uploadId }) => {
+            console.log(`[Frontend] Mutation success for ${uploadId}`);
+            console.log(`  Storage ID: ${result.id}`);
+            console.log(`  Now waiting for WebSocket events...`);
+
             setUploads((prev) => {
                 const current = prev[uploadId];
-                if (!current) return prev;
+                if (!current) {
+                    console.warn(`[Frontend] Upload ${uploadId} not found in state`);
+                    return prev;
+                }
 
                 return {
                     ...prev,
@@ -112,7 +180,8 @@ export const useFileUpload = (options: UseFileUploadOptions = {}) => {
                         ...current,
                         result,
                         status: 'processing' as const,
-                        message: 'Processing...',
+                        progress: 10,
+                        message: 'File received, starting cloud upload...',
                     },
                 };
             });
@@ -141,6 +210,15 @@ export const useFileUpload = (options: UseFileUploadOptions = {}) => {
     const uploadFile = async (file: File) => {
         const uploadId = `upload-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
+        console.log('='.repeat(80));
+        console.log('[Frontend] Starting file upload');
+        console.log(`  File: ${file.name}`);
+        console.log(`  Size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        console.log(`  Type: ${file.type}`);
+        console.log(`  Upload ID: ${uploadId}`);
+        console.log(`  WebSocket connected: ${isConnected}`);
+        console.log('='.repeat(80));
+
         setUploads((prev) => ({
             ...prev,
             [uploadId]: {
@@ -153,9 +231,10 @@ export const useFileUpload = (options: UseFileUploadOptions = {}) => {
         }));
 
         try {
+            console.log(`[Frontend] Calling mutation for ${uploadId}`);
             await mutation.mutateAsync({ file, uploadId });
         } catch (error) {
-            console.error('Upload error:', error);
+            console.error('[Frontend] Upload error:', error);
         }
     };
 
@@ -165,6 +244,7 @@ export const useFileUpload = (options: UseFileUploadOptions = {}) => {
 
     const clearUpload = (uploadId: string) => {
         setUploads((prev) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { [uploadId]: _, ...rest } = prev;
             return rest;
         });

@@ -2,11 +2,11 @@ import { ThumbnailSizeEnum } from '@repo/shared';
 
 export const STORAGE_CONSTANTS = {
     FILE_SIZE_LIMITS: {
-        IMAGE: 5 * 1024 * 1024, // 5MB
-        VIDEO: 1000 * 1024 * 1024, // 100MB
-        DOCUMENT: 10 * 1024 * 1024, // 10MB
-        AUDIO: 20 * 1024 * 1024, // 20MB
-        DEFAULT: 10 * 1024 * 1024, // 10MB
+        IMAGE: 50 * 1024 * 1024, // 50MB
+        VIDEO: 2000 * 1024 * 1024, // 2GB
+        DOCUMENT: 50 * 1024 * 1024, // 50MB
+        AUDIO: 100 * 1024 * 1024, // 100MB
+        DEFAULT: 200 * 1024 * 1024, // 200MB
     },
 
     THUMBNAIL_SIZES: {
@@ -36,11 +36,12 @@ export const STORAGE_CONSTANTS = {
 
     PROGRESS_PERCENTAGES: {
         UPLOAD_START: 0,
+        SERVER_RECEIVED: 10,
         PROCESSING_START: 10,
-        PROCESSING_COMPLETE: 60,
-        UPLOAD_TO_STORAGE_START: 65,
-        UPLOAD_TO_STORAGE_END: 90,
-        THUMBNAIL_GENERATION: 95,
+        PROCESSING_COMPLETE: 15,
+        UPLOAD_TO_STORAGE_START: 15,
+        UPLOAD_TO_STORAGE_END: 85,
+        THUMBNAIL_GENERATION: 90,
         COMPLETE: 100,
     },
 

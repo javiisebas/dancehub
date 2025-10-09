@@ -1,0 +1,46 @@
+{
+    "fields": [
+        {
+            "name": "orderNumber",
+            "type": "varchar(50)",
+            "required": true,
+            "unique": true,
+            "validators": ["IsNotEmpty", "IsString", "MaxLength:50"]
+        },
+        {
+            "name": "totalAmount",
+            "type": "numeric(10,2)",
+            "required": true,
+            "validators": ["IsNotEmpty", "IsNumber", "Min:0"]
+        },
+        {
+            "name": "status",
+            "type": "varchar(20)",
+            "required": true,
+            "default": "pending",
+            "isEnum": true,
+            "enumName": "OrderStatus",
+            "validators": ["IsNotEmpty", "IsEnum:OrderStatus"]
+        },
+        {
+            "name": "notes",
+            "type": "text",
+            "required": false,
+            "validators": ["IsOptional", "IsString"]
+        }
+    ],
+    "enums": [
+        {
+            "name": "OrderStatus",
+            "values": ["pending", "processing", "completed", "cancelled"]
+        }
+    ],
+    "foreignKeys": [
+        {
+            "name": "customerId",
+            "refTable": "users",
+            "onDelete": "cascade"
+        }
+    ]
+}
+

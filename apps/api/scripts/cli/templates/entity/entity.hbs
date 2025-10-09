@@ -1,7 +1,104 @@
-import { BaseEntity } from '@api/common/abstract/domain'; export class
+import { BaseEntity } from '@api/common/abstract/domain';
+{{#if fields}}
+    {{#each fields}}
+        {{#if isEnum}}
+            import {
+            {{enumName}}
+            } from '@repo/shared';
+        {{/if}}
+    {{/each}}
+{{/if}}
+
+interface
+{{pascalCase name}}Props {
+{{#if fields}}
+    {{#each fields}}
+        {{camelCase this.name}}:
+        {{this.tsType}}{{#unless this.required}} | null{{/unless}};
+    {{/each}}
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        {{camelCase this.name}}: string;
+    {{/each}}
+{{/if}}
+} interface Create{{pascalCase name}}Props { id: string;
+{{#if fields}}
+    {{#each fields}}
+        {{camelCase this.name}}:
+        {{this.tsType}}{{#unless this.required}} | null{{/unless}};
+    {{/each}}
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        {{camelCase this.name}}: string;
+    {{/each}}
+{{/if}}
+} export class
 {{pascalCase name}}
-extends BaseEntity { constructor( id: string, createdAt: Date, updatedAt: Date, ) { super(id,
-createdAt, updatedAt); } static create(id: string):
+extends BaseEntity {
+{{#if fields}}
+    {{#each fields}}
+        public
+        {{camelCase this.name}}:
+        {{this.tsType}}{{#unless this.required}} | null{{/unless}};
+    {{/each}}
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        public
+        {{camelCase this.name}}: string;
+    {{/each}}
+{{/if}}
+
+private constructor( props:
+{{pascalCase name}}Props, id: string, createdAt: Date, updatedAt: Date ) { super(id, createdAt,
+updatedAt);
+{{#if fields}}
+    {{#each fields}}
+        this.{{camelCase this.name}}
+        = props.{{camelCase this.name}};
+    {{/each}}
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        this.{{camelCase this.name}}
+        = props.{{camelCase this.name}};
+    {{/each}}
+{{/if}}
+} static create(props: Create{{pascalCase name}}Props):
 {{pascalCase name}}
 { const now = new Date(); return new
-{{pascalCase name}}(id, now, now); } }
+{{pascalCase name}}( {
+{{#if fields}}
+    {{#each fields}}
+        {{camelCase this.name}}:
+        {{#if (eq this.tsType 'string')}}props.{{camelCase this.name}}{{#if
+                this.required
+            }}.trim(){{else}}
+                ? props.{{camelCase this.name}}.trim() : null{{/if}}{{else}}props.{{camelCase
+                this.name
+            }}{{/if}},
+    {{/each}}
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        {{camelCase this.name}}: props.{{camelCase this.name}},
+    {{/each}}
+{{/if}}
+}, props.id, now, now, ); } static fromPersistence( props:
+{{pascalCase name}}Props & { id: string; createdAt: Date; updatedAt: Date }, ):
+{{pascalCase name}}
+{ return new
+{{pascalCase name}}( {
+{{#if fields}}
+    {{#each fields}}
+        {{camelCase this.name}}: props.{{camelCase this.name}},
+    {{/each}}
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        {{camelCase this.name}}: props.{{camelCase this.name}},
+    {{/each}}
+{{/if}}
+}, props.id, props.createdAt, props.updatedAt, ); } }

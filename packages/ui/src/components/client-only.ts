@@ -1,5 +1,6 @@
 'use client';
 
+// All client-only components with browser APIs, external libraries, or 'use client' directive
 export { CalendarDatePicker } from './calendar-date-picker';
 export { ConnectedAccountForm } from './connected-account-form';
 export { CountryDropdown } from './country-dropdown';

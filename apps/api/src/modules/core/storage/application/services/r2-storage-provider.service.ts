@@ -62,6 +62,11 @@ export class R2StorageProviderService implements IStorageProvider {
             const CHUNK_SIZE = 5 * 1024 * 1024;
             const useMultipart = file.size > CHUNK_SIZE;
 
+            this.logger.log(
+                `Starting upload: ${file.originalname} (${(file.size / 1024 / 1024).toFixed(2)}MB) - Multipart: ${useMultipart}`,
+                'R2StorageProviderService',
+            );
+
             if (useMultipart) {
                 return await this.uploadMultipart(file, path, onProgress);
             }
@@ -78,9 +83,22 @@ export class R2StorageProviderService implements IStorageProvider {
                 },
             });
 
-            if (onProgress) onProgress(0);
+            if (onProgress) {
+                onProgress(0);
+                this.logger.debug('R2 upload progress: 0%', 'R2StorageProviderService');
+            }
+
             await this.client.send(command);
-            if (onProgress) onProgress(100);
+
+            if (onProgress) {
+                onProgress(100);
+                this.logger.debug('R2 upload progress: 100%', 'R2StorageProviderService');
+            }
+
+            this.logger.log(
+                `Successfully uploaded ${file.originalname} to ${path}`,
+                'R2StorageProviderService',
+            );
 
             return {
                 path,
@@ -106,6 +124,11 @@ export class R2StorageProviderService implements IStorageProvider {
         const CHUNK_SIZE = 5 * 1024 * 1024;
         const chunks = Math.ceil(file.size / CHUNK_SIZE);
 
+        this.logger.log(
+            `Initiating multipart upload: ${chunks} chunks for ${file.originalname}`,
+            'R2StorageProviderService',
+        );
+
         const createCommand = new CreateMultipartUploadCommand({
             Bucket: this.bucket,
             Key: path,
@@ -123,13 +146,27 @@ export class R2StorageProviderService implements IStorageProvider {
             throw new Error('Failed to initiate multipart upload');
         }
 
+        this.logger.log(
+            `Multipart upload initiated with ID: ${UploadId}`,
+            'R2StorageProviderService',
+        );
+
         try {
             const uploadedParts: { ETag: string | undefined; PartNumber: number }[] = [];
+
+            if (onProgress) {
+                onProgress(0);
+            }
 
             for (let i = 0; i < chunks; i++) {
                 const start = i * CHUNK_SIZE;
                 const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunk = file.buffer.slice(start, end);
+
+                this.logger.debug(
+                    `Uploading part ${i + 1}/${chunks} (${(chunk.length / 1024 / 1024).toFixed(2)}MB)`,
+                    'R2StorageProviderService',
+                );
 
                 const uploadPartCommand = new UploadPartCommand({
                     Bucket: this.bucket,
@@ -149,8 +186,14 @@ export class R2StorageProviderService implements IStorageProvider {
                 const progress = Math.round(((i + 1) / chunks) * 100);
                 if (onProgress) {
                     onProgress(progress);
+                    this.logger.debug(
+                        `Part ${i + 1}/${chunks} uploaded - Progress: ${progress}%`,
+                        'R2StorageProviderService',
+                    );
                 }
             }
+
+            this.logger.log('Completing multipart upload...', 'R2StorageProviderService');
 
             const completeCommand = new CompleteMultipartUploadCommand({
                 Bucket: this.bucket,
@@ -163,10 +206,12 @@ export class R2StorageProviderService implements IStorageProvider {
 
             await this.client.send(completeCommand);
 
-            if (onProgress) onProgress(100);
+            if (onProgress) {
+                onProgress(100);
+            }
 
             this.logger.log(
-                `Successfully uploaded ${file.size} bytes in ${chunks} chunks to ${path}`,
+                `Successfully uploaded ${(file.size / 1024 / 1024).toFixed(2)}MB in ${chunks} chunks to ${path}`,
                 'R2StorageProviderService',
             );
 

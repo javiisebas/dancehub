@@ -1,22 +1,15 @@
-import { pgTable, text, timestamp, unique, uuid, varchar } from 'drizzle-orm/pg-core';
-import { {{camelCase (pluralize name)}} } from './{{kebabCase name}}.schema';
-
-export const {{camelCase name}}Translations = pgTable(
-    '{{snakeCase name}}_translations',
-    {
-        id: uuid('id').primaryKey().defaultRandom(),
-        {{camelCase name}}Id: uuid('{{snakeCase name}}_id')
-            .notNull()
-            .references(() => {{camelCase (pluralize name)}}.id, { onDelete: 'cascade' }),
-        locale: varchar('locale', { length: 10 }).notNull(),
-        name: varchar('name', { length: 255 }).notNull(),
-        createdAt: timestamp('created_at').notNull().defaultNow(),
-        updatedAt: timestamp('updated_at').notNull().defaultNow(),
-    },
-    (table) => ({
-        unique{{pascalCase name}}Locale: unique().on(table.{{camelCase name}}Id, table.locale),
-    }),
-);
-
-export type {{pascalCase name}}TranslationSchema = typeof {{camelCase name}}Translations.$inferSelect;
-export type New{{pascalCase name}}TranslationSchema = typeof {{camelCase name}}Translations.$inferInsert;
+import { pgTable, text, timestamp, unique, uuid, varchar } from 'drizzle-orm/pg-core'; import {
+{{camelCase (pluralize name)}}
+} from './{{kebabCase name}}.schema'; export const
+{{camelCase name}}Translations = pgTable( '{{snakeCase name}}_translations', { id:
+uuid('id').primaryKey().defaultRandom(),
+{{camelCase name}}Id: uuid('{{snakeCase name}}_id') .notNull() .references(() =>
+{{camelCase (pluralize name)}}.id, { onDelete: 'cascade' }), locale: varchar('locale', { length: 10
+}).notNull(), name: varchar('name', { length: 255 }).notNull(), description: text('description'),
+createdAt: timestamp('created_at').notNull().defaultNow(), updatedAt:
+timestamp('updated_at').notNull().defaultNow(), }, (table) => ({ unique{{pascalCase name}}Locale:
+unique().on(table.{{camelCase name}}Id, table.locale), }), ); export type
+{{pascalCase name}}TranslationSchema = typeof
+{{camelCase name}}Translations.$inferSelect; export type New{{pascalCase name}}TranslationSchema =
+typeof
+{{camelCase name}}Translations.$inferInsert;

@@ -2,7 +2,8 @@
 
 import { MediaFile, MediaGallery } from '@repo/ui/components/media-gallery';
 import { useCallback, useState } from 'react';
-import { useStorageFileDelete, useStorageList } from '../hooks/use-storage-list.hook';
+import { useStorageFileDelete } from '../hooks/use-storage-file.hook';
+import { useStorageList } from '../hooks/use-storage-list.hook';
 
 export interface StorageMediaGalleryProps {
     allowDelete?: boolean;

@@ -15,7 +15,7 @@ export class FileValidationPipe implements PipeTransform {
     private readonly required: boolean;
 
     constructor(options: FileValidationOptions = {}) {
-        this.maxSize = options.maxSizeInBytes || 10 * 1024 * 1024; // 10MB default
+        this.maxSize = options.maxSizeInBytes || 200 * 1024 * 1024; // 200MB default
         this.allowedMimeTypes = options.allowedMimeTypes || [];
         this.allowedExtensions = options.allowedExtensions || [];
         this.required = options.required !== undefined ? options.required : true;

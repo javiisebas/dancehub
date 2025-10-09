@@ -7,16 +7,8 @@ import {
     WebSocketGateway,
     WebSocketServer,
 } from '@nestjs/websockets';
-import { UploadProgressTypeEnum } from '@repo/shared';
+import { UploadProgressEvent } from '@repo/shared';
 import { Server, Socket } from 'socket.io';
-
-export interface UploadProgressEvent {
-    uploadId: string;
-    type: UploadProgressTypeEnum;
-    progress: number;
-    message: string;
-    data?: any;
-}
 
 @WebSocketGateway({
     cors: {
@@ -37,17 +29,20 @@ export class StorageProgressGateway
     constructor(private readonly logger: LogService) {}
 
     afterInit(server: Server) {
-        this.logger.log('Storage WebSocket Gateway initialized', 'StorageProgressGateway');
+        this.logger.log('Storage Progress WebSocket Gateway initialized', 'StorageProgressGateway');
+        console.log('[WebSocket] Storage Progress Gateway initialized and ready');
     }
 
     handleConnection(client: Socket) {
         const userId = client.handshake.query.userId as string;
+        console.log('[WebSocket] Connection attempt:', { clientId: client.id, userId });
 
         if (!userId) {
             this.logger.warn(
                 `Client ${client.id} connected without userId`,
                 'StorageProgressGateway',
             );
+            console.warn('[WebSocket] Rejected connection - no userId provided');
             client.disconnect();
             return;
         }
@@ -57,12 +52,15 @@ export class StorageProgressGateway
         }
 
         this.userSockets.get(userId)!.add(client.id);
-
         client.join(`user:${userId}`);
 
+        const activeConnections = this.userSockets.get(userId)!.size;
         this.logger.log(
-            `Client ${client.id} connected for user ${userId}`,
+            `Client ${client.id} connected for user ${userId} (${activeConnections} active)`,
             'StorageProgressGateway',
+        );
+        console.log(
+            `[WebSocket] ✓ Client connected - User: ${userId}, Active connections: ${activeConnections}`,
         );
     }
 
@@ -72,22 +70,39 @@ export class StorageProgressGateway
         if (userId && this.userSockets.has(userId)) {
             this.userSockets.get(userId)!.delete(client.id);
 
-            if (this.userSockets.get(userId)!.size === 0) {
+            const activeConnections = this.userSockets.get(userId)!.size;
+            if (activeConnections === 0) {
                 this.userSockets.delete(userId);
             }
-        }
 
-        this.logger.log(
-            `Client ${client.id} disconnected for user ${userId}`,
-            'StorageProgressGateway',
-        );
+            this.logger.log(
+                `Client ${client.id} disconnected for user ${userId} (${activeConnections} remaining)`,
+                'StorageProgressGateway',
+            );
+            console.log(
+                `[WebSocket] Client disconnected - User: ${userId}, Remaining: ${activeConnections}`,
+            );
+        } else {
+            console.log('[WebSocket] Client disconnected - No userId found');
+        }
     }
 
     emitProgress(userId: string, event: UploadProgressEvent) {
-        this.server.to(`user:${userId}`).emit('upload-progress', event);
+        const room = `user:${userId}`;
+        const clientsInRoom = this.server.sockets.adapter.rooms.get(room)?.size || 0;
+
+        console.log(
+            `[WebSocket] Emitting progress to ${clientsInRoom} client(s) in room '${room}'`,
+        );
+        console.log(`  ├─ UploadId: ${event.uploadId}`);
+        console.log(`  ├─ Type: ${event.type}`);
+        console.log(`  ├─ Phase: ${event.phase}`);
+        console.log(`  └─ Progress: ${event.progress}%`);
+
+        this.server.to(room).emit('upload-progress', event);
 
         this.logger.debug(
-            `Progress emitted to user ${userId}: ${event.type} - ${event.progress}%`,
+            `Progress emitted to user ${userId}: ${event.type} - ${event.progress}% (${clientsInRoom} clients)`,
             'StorageProgressGateway',
         );
     }

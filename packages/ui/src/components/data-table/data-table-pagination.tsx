@@ -17,21 +17,23 @@ export function DataTablePagination({ table, isLoading }: DataTablePaginationPro
             <div className="flex-1 text-sm text-muted-foreground">
                 {selectedRowsCount > 0 ? (
                     <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-primary" />
-                        <span className="font-medium">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10">
+                            <div className="h-2 w-2 rounded-full bg-primary" />
+                        </div>
+                        <span className="font-medium text-foreground">
                             {selectedRowsCount} de {totalRowsCount}{' '}
                             {totalRowsCount === 1 ? 'fila seleccionada' : 'filas seleccionadas'}
                         </span>
                     </div>
                 ) : (
-                    <span>
+                    <span className="font-medium">
                         {totalRowsCount} {totalRowsCount === 1 ? 'resultado' : 'resultados'}
                     </span>
                 )}
             </div>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:space-x-6 lg:space-x-8">
-                <div className="flex items-center space-x-2">
-                    <p className="text-sm font-medium">Filas por página</p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-muted-foreground">Filas</p>
                     <Select
                         value={`${pageSize}`}
                         onValueChange={(value) => {
@@ -39,7 +41,7 @@ export function DataTablePagination({ table, isLoading }: DataTablePaginationPro
                         }}
                         disabled={isLoading}
                     >
-                        <SelectTrigger className="h-8 w-[70px]">
+                        <SelectTrigger className="h-9 w-[75px] border-border/50 shadow-sm">
                             <SelectValue placeholder={pageSize} />
                         </SelectTrigger>
                         <SelectContent side="top">
@@ -51,14 +53,16 @@ export function DataTablePagination({ table, isLoading }: DataTablePaginationPro
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="flex items-center justify-center text-sm font-medium min-w-[120px]">
-                    Página {currentPage} de {totalPages}
+                <div className="flex items-center justify-center text-sm font-medium text-muted-foreground min-w-[110px]">
+                    <span className="text-foreground">{currentPage}</span>
+                    <span className="mx-1.5">/</span>
+                    <span>{totalPages}</span>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-1">
                     <Button
                         variant="outline"
                         size="icon"
-                        className="hidden h-8 w-8 lg:flex"
+                        className="hidden h-9 w-9 border-border/50 shadow-sm lg:flex"
                         onClick={() => table.setPageIndex(0)}
                         disabled={!table.getCanPreviousPage() || isLoading}
                         title="Primera página"
@@ -68,7 +72,7 @@ export function DataTablePagination({ table, isLoading }: DataTablePaginationPro
                     <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-9 w-9 border-border/50 shadow-sm"
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage() || isLoading}
                         title="Página anterior"
@@ -78,7 +82,7 @@ export function DataTablePagination({ table, isLoading }: DataTablePaginationPro
                     <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-9 w-9 border-border/50 shadow-sm"
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage() || isLoading}
                         title="Página siguiente"
@@ -88,7 +92,7 @@ export function DataTablePagination({ table, isLoading }: DataTablePaginationPro
                     <Button
                         variant="outline"
                         size="icon"
-                        className="hidden h-8 w-8 lg:flex"
+                        className="hidden h-9 w-9 border-border/50 shadow-sm lg:flex"
                         onClick={() => table.setPageIndex(totalPages - 1)}
                         disabled={!table.getCanNextPage() || isLoading}
                         title="Última página"

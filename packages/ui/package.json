@@ -11,6 +11,7 @@
         "./components/data-table": "./src/components/data-table/index.ts",
         "./components/rich-text-editor": "./src/components/rich-text-editor/index.ts",
         "./components/feedback": "./src/components/feedback/index.ts",
+        "./components/upload": "./src/components/upload/index.ts",
         "./components/*": "./src/components/*.tsx",
         "./hooks": "./src/hooks/index.ts",
         "./hooks/*": "./src/hooks/*.ts",

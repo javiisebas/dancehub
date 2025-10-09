@@ -8,7 +8,7 @@ import { createAxiosInstance } from '@web/config/axios.config';
 
 export interface UploadOptions {
     visibility?: StorageVisibilityEnum;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     onUploadProgress?: (progressEvent: {
         loaded: number;
         total?: number;

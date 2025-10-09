@@ -1,0 +1,44 @@
+{
+    "fields": [
+        {
+            "name": "make",
+            "type": "varchar(100)",
+            "required": true,
+            "validators": ["IsNotEmpty", "IsString", "MaxLength:100"]
+        },
+        {
+            "name": "model",
+            "type": "varchar(100)",
+            "required": true,
+            "validators": ["IsNotEmpty", "IsString", "MaxLength:100"]
+        },
+        {
+            "name": "year",
+            "type": "integer",
+            "required": true,
+            "validators": ["IsNotEmpty", "IsInt", "Min:1900", "Max:2100"]
+        },
+        {
+            "name": "type",
+            "type": "varchar(20)",
+            "required": true,
+            "default": "sedan",
+            "isEnum": true,
+            "enumName": "VehicleType",
+            "validators": ["IsNotEmpty", "IsEnum:VehicleType"]
+        },
+        {
+            "name": "price",
+            "type": "numeric(10,2)",
+            "required": true,
+            "validators": ["IsNotEmpty", "IsNumber", "Min:0"]
+        }
+    ],
+    "enums": [
+        {
+            "name": "VehicleType",
+            "values": ["sedan", "suv", "truck", "coupe", "convertible"]
+        }
+    ]
+}
+

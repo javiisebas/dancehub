@@ -1,6 +1,6 @@
 'use client';
 
-import { InlineFileUpload } from '@/features/storage/components/inline-file-upload';
+import { InlineFileUpload, InlineImageUpload, InlineVideoUpload } from '@/features/storage';
 import { StorageVisibilityEnum, UploadFileResponse } from '@repo/shared';
 import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
@@ -117,20 +117,10 @@ export default function FileUploadDemoPage() {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <InlineFileUpload
+                                    <InlineImageUpload
                                         onFilesUploaded={handleUploadComplete}
                                         maxFiles={5}
                                         maxSize={10 * 1024 * 1024}
-                                        accept={{
-                                            'image/*': [
-                                                '.png',
-                                                '.jpg',
-                                                '.jpeg',
-                                                '.gif',
-                                                '.webp',
-                                                '.svg',
-                                            ],
-                                        }}
                                         multiple={true}
                                         visibility={StorageVisibilityEnum.PUBLIC}
                                     />
@@ -177,13 +167,10 @@ export default function FileUploadDemoPage() {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <InlineFileUpload
+                                    <InlineVideoUpload
                                         onFilesUploaded={handleUploadComplete}
                                         maxFiles={3}
                                         maxSize={100 * 1024 * 1024}
-                                        accept={{
-                                            'video/*': ['.mp4', '.webm', '.mov', '.avi'],
-                                        }}
                                         multiple={true}
                                         visibility={StorageVisibilityEnum.PRIVATE}
                                     />
