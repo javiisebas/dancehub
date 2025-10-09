@@ -1,0 +1,66 @@
+{
+    "fields": [
+        {
+            "name": "name",
+            "type": "varchar(255)",
+            "required": true,
+            "validators": {
+                "create": ["IsString", "IsNotEmpty", "MaxLength:255"],
+                "update": ["IsString", "IsOptional", "MaxLength:255"]
+            }
+        },
+        {
+            "name": "description",
+            "type": "text",
+            "required": false,
+            "validators": {
+                "create": ["IsString", "IsOptional"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "content",
+            "type": "text",
+            "required": false,
+            "validators": {
+                "create": ["IsString", "IsOptional"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "videoUrl",
+            "type": "text",
+            "required": false,
+            "validators": {
+                "create": ["IsString", "IsOptional"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "duration",
+            "type": "integer",
+            "required": false,
+            "validators": {
+                "create": ["IsInt", "IsOptional", "Min:0"],
+                "update": ["IsInt", "IsOptional", "Min:0"]
+            }
+        },
+        {
+            "name": "order",
+            "type": "integer",
+            "required": true,
+            "default": "0",
+            "validators": {
+                "create": ["IsInt", "IsNotEmpty", "Min:0"],
+                "update": ["IsInt", "IsOptional", "Min:0"]
+            }
+        }
+    ],
+    "foreignKeys": [
+        {
+            "name": "moduleId",
+            "refTable": "course_modules",
+            "onDelete": "cascade"
+        }
+    ]
+}

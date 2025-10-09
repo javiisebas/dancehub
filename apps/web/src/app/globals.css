@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+        --primary: 262 83% 58%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 262 83% 58%;
+        --chart-1: 262 83% 58%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+        --radius: 0.5rem;
+    }
+    .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 263 70% 60%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 263 70% 60%;
+        --chart-1: 263 70% 60%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    .plyr {
+        --plyr-color-main: hsl(var(--primary));
+        --plyr-video-background: #000;
+        --plyr-menu-background: hsl(var(--popover));
+        --plyr-menu-color: hsl(var(--popover-foreground));
+        --plyr-menu-border-color: hsl(var(--border));
+        --plyr-menu-border-shadow-color: rgba(0, 0, 0, 0.1);
+        --plyr-control-icon-size: 18px;
+        --plyr-control-spacing: 12px;
+        --plyr-control-radius: 6px;
+        --plyr-range-track-height: 5px;
+        --plyr-range-thumb-height: 15px;
+        --plyr-range-thumb-active-shadow-width: 3px;
+        --plyr-font-family: inherit;
+        --plyr-font-size-base: 14px;
+        --plyr-font-size-small: 12px;
+        --plyr-font-size-large: 16px;
+    }
+
+    .plyr__control--overlaid {
+        @apply bg-primary/90 text-primary-foreground backdrop-blur-sm;
+        @apply transition-all duration-200 hover:scale-110 hover:bg-primary;
+        @apply shadow-lg shadow-primary/20;
+    }
+
+    .plyr__control:hover {
+        @apply bg-primary/10;
+    }
+
+    .plyr__control[data-plyr='play']:hover {
+        @apply bg-primary/20;
+    }
+
+    .plyr__menu__container {
+        @apply rounded-lg border border-border shadow-xl backdrop-blur-md;
+        @apply bg-popover/95;
+    }
+
+    .plyr__menu__container .plyr__control[role='menuitemradio'][aria-checked='true']::before {
+        @apply bg-primary;
+    }
+
+    .plyr--video {
+        @apply overflow-hidden rounded-xl;
+    }
+
+    .plyr__poster {
+        @apply bg-black;
+    }
+
+    .plyr__progress__container {
+        @apply transition-all duration-300;
+    }
+
+    .plyr__progress input[type='range'] {
+        @apply cursor-pointer;
+    }
+
+    .plyr__progress input[type='range']::-webkit-slider-thumb {
+        @apply transition-transform duration-200;
+    }
+
+    .plyr__progress input[type='range']::-webkit-slider-thumb:hover {
+        @apply scale-125;
+    }
+
+    .plyr__volume input[type='range'] {
+        @apply cursor-pointer;
+    }
+
+    .plyr__controls {
+        @apply bg-gradient-to-t from-black/90 via-black/50 to-transparent;
+        @apply transition-opacity duration-300;
+    }
+
+    .plyr__time {
+        @apply font-medium;
+    }
+
+    .plyr__tooltip {
+        @apply rounded-md bg-popover text-popover-foreground shadow-lg;
+        @apply border border-border;
+    }
+
+    .plyr--full-ui.plyr--video .plyr__control--overlaid {
+        @apply transform transition-all duration-300;
+    }
+
+    .plyr--playing .plyr__control--overlaid {
+        @apply opacity-0;
+    }
+}

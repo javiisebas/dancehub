@@ -1,0 +1,239 @@
+{
+    "entity": "Event",
+    "table": "events",
+    "description": "Sistema de eventos de baile",
+    "fields": [
+        {
+            "name": "title",
+            "type": "varchar(255)",
+            "required": true,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsNotEmpty", "IsString", "MaxLength:255"],
+                "update": ["IsOptional", "IsString", "MaxLength:255"]
+            }
+        },
+        {
+            "name": "slug",
+            "type": "varchar(255)",
+            "required": true,
+            "unique": true,
+            "default": null,
+            "validators": {
+                "create": ["IsNotEmpty", "IsString", "MaxLength:255"],
+                "update": ["IsOptional", "IsString", "MaxLength:255"]
+            }
+        },
+        {
+            "name": "description",
+            "type": "text",
+            "required": false,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsOptional", "IsString"],
+                "update": ["IsOptional", "IsString"]
+            }
+        },
+        {
+            "name": "startDate",
+            "type": "timestamp",
+            "required": true,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsNotEmpty", "IsDate"],
+                "update": ["IsOptional", "IsDate"]
+            }
+        },
+        {
+            "name": "endDate",
+            "type": "timestamp",
+            "required": true,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsNotEmpty", "IsDate"],
+                "update": ["IsOptional", "IsDate"]
+            }
+        },
+        {
+            "name": "status",
+            "type": "varchar(20)",
+            "required": true,
+            "unique": false,
+            "default": "draft",
+            "isEnum": true,
+            "enumName": "EventStatus",
+            "validators": {
+                "create": ["IsNotEmpty", "IsEnum:EventStatus"],
+                "update": ["IsOptional", "IsEnum:EventStatus"]
+            }
+        },
+        {
+            "name": "category",
+            "type": "varchar(50)",
+            "required": true,
+            "unique": false,
+            "default": null,
+            "isEnum": true,
+            "enumName": "EventCategory",
+            "validators": {
+                "create": ["IsNotEmpty", "IsEnum:EventCategory"],
+                "update": ["IsOptional", "IsEnum:EventCategory"]
+            }
+        },
+        {
+            "name": "maxAttendees",
+            "type": "integer",
+            "required": false,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsOptional", "IsInt", "Min:1"],
+                "update": ["IsOptional", "IsInt", "Min:1"]
+            }
+        },
+        {
+            "name": "price",
+            "type": "numeric(10,2)",
+            "required": false,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsOptional", "IsNumber", "Min:0"],
+                "update": ["IsOptional", "IsNumber", "Min:0"]
+            }
+        },
+        {
+            "name": "isFeatured",
+            "type": "boolean",
+            "required": true,
+            "unique": false,
+            "default": false,
+            "validators": {
+                "create": ["IsBoolean"],
+                "update": ["IsOptional", "IsBoolean"]
+            }
+        },
+        {
+            "name": "imageUrl",
+            "type": "varchar(500)",
+            "required": false,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsOptional", "IsString", "MaxLength:500"],
+                "update": ["IsOptional", "IsString", "MaxLength:500"]
+            }
+        },
+        {
+            "name": "location",
+            "type": "varchar(255)",
+            "required": false,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsOptional", "IsString", "MaxLength:255"],
+                "update": ["IsOptional", "IsString", "MaxLength:255"]
+            }
+        }
+    ],
+    "enums": [
+        {
+            "name": "EventStatus",
+            "values": ["draft", "published", "cancelled", "completed"],
+            "description": "Estado del evento"
+        },
+        {
+            "name": "EventCategory",
+            "values": ["workshop", "social", "performance", "competition", "festival"],
+            "description": "Categoría del evento"
+        }
+    ],
+    "foreignKeys": [
+        {
+            "name": "organizerId",
+            "type": "uuid",
+            "refTable": "users",
+            "refColumn": "id",
+            "onDelete": "cascade",
+            "onUpdate": "cascade",
+            "required": true
+        },
+        {
+            "name": "venueId",
+            "type": "uuid",
+            "refTable": "venues",
+            "refColumn": "id",
+            "onDelete": "set null",
+            "onUpdate": "cascade",
+            "required": false
+        },
+        {
+            "name": "danceStyleId",
+            "type": "uuid",
+            "refTable": "dance_styles",
+            "refColumn": "id",
+            "onDelete": "cascade",
+            "onUpdate": "cascade",
+            "required": true
+        }
+    ],
+    "relations": [
+        {
+            "name": "organizer",
+            "type": "one",
+            "entity": "User",
+            "table": "users",
+            "fields": ["organizerId"],
+            "references": ["id"]
+        },
+        {
+            "name": "venue",
+            "type": "one",
+            "entity": "Venue",
+            "table": "venues",
+            "fields": ["venueId"],
+            "references": ["id"]
+        },
+        {
+            "name": "danceStyle",
+            "type": "one",
+            "entity": "DanceStyle",
+            "table": "dance_styles",
+            "fields": ["danceStyleId"],
+            "references": ["id"]
+        },
+        {
+            "name": "tickets",
+            "type": "many",
+            "entity": "Ticket",
+            "table": "tickets"
+        },
+        {
+            "name": "attendees",
+            "type": "many",
+            "entity": "EventAttendee",
+            "table": "event_attendees"
+        }
+    ],
+    "indexes": [
+        {
+            "name": "event_slug_idx",
+            "fields": ["slug"],
+            "unique": true
+        },
+        {
+            "name": "event_status_date_idx",
+            "fields": ["status", "startDate"],
+            "unique": false
+        },
+        {
+            "name": "event_organizer_idx",
+            "fields": ["organizerId"],
+            "unique": false
+        }
+    ]
+}

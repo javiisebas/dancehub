@@ -1,0 +1,104 @@
+{
+    "fields": [
+        {
+            "name": "title",
+            "type": "varchar(255)",
+            "required": true,
+            "validators": {
+                "create": ["IsString", "IsNotEmpty", "MaxLength:255"],
+                "update": ["IsString", "IsOptional", "MaxLength:255"]
+            }
+        },
+        {
+            "name": "description",
+            "type": "text",
+            "required": true,
+            "validators": {
+                "create": ["IsString", "IsNotEmpty"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "summary",
+            "type": "text",
+            "required": false,
+            "validators": {
+                "create": ["IsString", "IsOptional"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "thumbnail",
+            "type": "text",
+            "required": false,
+            "validators": {
+                "create": ["IsString", "IsOptional"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "price",
+            "type": "decimal",
+            "required": true,
+            "validators": {
+                "create": ["IsNumber", "IsNotEmpty", "Min:0"],
+                "update": ["IsNumber", "IsOptional", "Min:0"]
+            }
+        },
+        {
+            "name": "currency",
+            "type": "varchar(3)",
+            "required": true,
+            "default": "usd",
+            "validators": {
+                "create": ["IsString", "IsNotEmpty"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "tags",
+            "type": "text",
+            "required": false,
+            "validators": {
+                "create": ["IsString", "IsOptional"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "isPublished",
+            "type": "boolean",
+            "required": true,
+            "default": "false",
+            "validators": {
+                "create": ["IsBoolean", "IsOptional"],
+                "update": ["IsBoolean", "IsOptional"]
+            }
+        },
+        {
+            "name": "level",
+            "type": "varchar(50)",
+            "required": false,
+            "validators": {
+                "create": ["IsString", "IsOptional"],
+                "update": ["IsString", "IsOptional"]
+            }
+        }
+    ],
+    "foreignKeys": [
+        {
+            "name": "artistId",
+            "refTable": "users",
+            "onDelete": "cascade"
+        }
+    ],
+    "enums": [
+        {
+            "name": "PriceType",
+            "values": ["one-time", "subscription"]
+        },
+        {
+            "name": "CourseLevel",
+            "values": ["beginner", "intermediate", "advanced", "all-levels"]
+        }
+    ]
+}

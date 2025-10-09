@@ -148,7 +148,7 @@ export class FileUploadPipeline {
             this.progressService.emitProcessingProgress(
                 userId,
                 uploadId,
-                STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE,
+                STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_START,
                 'Uploading to storage...',
             );
         }

@@ -73,4 +73,22 @@ export class StorageProgressService {
             data: { error },
         });
     }
+
+    emitR2UploadProgress(
+        userId: string,
+        uploadId: string,
+        overallProgress: number,
+        r2Progress: number,
+    ) {
+        this.gateway.emitProgress(userId, {
+            uploadId,
+            type: UploadProgressTypeEnum.PROCESSING,
+            progress: overallProgress,
+            message: `Subiendo a R2 storage... ${r2Progress}%`,
+            data: {
+                r2Progress,
+                phase: 'r2-upload',
+            },
+        });
+    }
 }

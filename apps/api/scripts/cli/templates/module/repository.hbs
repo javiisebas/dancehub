@@ -1,37 +1,79 @@
-import { BaseRepository } from '@api/modules/core/database/base';
+import { BaseRepository{{#if relations}}, defineRelations, relation{{/if}} } from '@api/modules/core/database/base';
 import { Injectable } from '@nestjs/common';
 import { {{pascalCase name}} } from '../../domain/entities/{{kebabCase name}}.entity';
 import { I{{pascalCase name}}Repository } from '../../domain/repositories/i-{{kebabCase name}}.repository';
 import { {{camelCase name}}s } from '../schemas/{{kebabCase name}}.schema';
+{{#if fields}}
+{{#each fields}}
+{{#if isEnum}}
+import { {{enumName}} } from '@repo/shared';
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if relations}}
+{{#each relations}}
+import { {{entity}} } from '../../../{{kebabCase (singularize table)}}/domain/entities/{{kebabCase (singularize table)}}.entity';
+import { {{camelCase table}} } from '../../../{{kebabCase (singularize table)}}/infrastructure/schemas/{{kebabCase (singularize table)}}.schema';
+{{/each}}
+{{/if}}
 
+{{#if relations}}
+const {{camelCase name}}Relations = defineRelations({
+{{#each relations}}
+    {{name}}: relation.{{#if (eq type 'one')}}manyToOne{{else}}oneToMany{{/if}}({
+        entity: {{entity}},
+        table: {{camelCase table}},
+        foreignKey: '{{#if (eq type 'one')}}{{fields.[0]}}{{else}}{{@root.name}}Id{{/if}}',
+    }),
+{{/each}}
+});
+
+{{/if}}
 @Injectable()
 export class {{pascalCase name}}RepositoryImpl
-    extends BaseRepository<{{pascalCase name}}, typeof {{camelCase name}}s>
+    extends BaseRepository<{{pascalCase name}}, typeof {{camelCase name}}s{{#if relations}}, typeof {{camelCase name}}Relations{{/if}}>
     implements I{{pascalCase name}}Repository
 {
     protected readonly table = {{camelCase name}}s;
     protected readonly entityName = '{{pascalCase name}}';
+    {{#if relations}}
+    protected readonly relations = {{camelCase name}}Relations;
+    {{/if}}
 
     protected toDomain(schema: typeof {{camelCase name}}s.$inferSelect): {{pascalCase name}} {
-        return new {{pascalCase name}}(
-            schema.id,
-            {{#each fields}}
-            schema.{{camelCase name}},
-            {{/each}}
-            schema.createdAt,
-            schema.updatedAt,
-        );
+        return {{pascalCase name}}.fromPersistence({
+            id: schema.id,
+{{#if fields}}
+{{#each fields}}
+            {{camelCase name}}: {{#if (eq drizzleType 'numeric')}}schema.{{camelCase name}} ? parseFloat(schema.{{camelCase name}}) : null{{else}}schema.{{camelCase name}}{{#if isEnum}} as {{tsType}}{{/if}}{{/if}},
+{{/each}}
+{{/if}}
+{{#if foreignKeys}}
+{{#each foreignKeys}}
+            {{camelCase name}}: schema.{{camelCase name}},
+{{/each}}
+{{/if}}
+            createdAt: schema.createdAt,
+            updatedAt: schema.updatedAt,
+        });
     }
 
     protected toSchema(entity: {{pascalCase name}}): any {
         return {
-            {{#each fields}}
-            {{#if required}}
+{{#if fields}}
+{{#each fields}}
+{{#if required}}
+            {{camelCase name}}: {{#if (eq drizzleType 'numeric')}}entity.{{camelCase name}}.toString(){{else}}entity.{{camelCase name}}{{/if}},
+{{else}}
+            ...(entity.{{camelCase name}} !== undefined && { {{camelCase name}}: {{#if (eq drizzleType 'numeric')}}entity.{{camelCase name}}.toString(){{else}}entity.{{camelCase name}}{{/if}} }),
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if foreignKeys}}
+{{#each foreignKeys}}
             {{camelCase name}}: entity.{{camelCase name}},
-            {{else}}
-            ...(entity.{{camelCase name}} && { {{camelCase name}}: entity.{{camelCase name}} }),
-            {{/if}}
-            {{/each}}
+{{/each}}
+{{/if}}
         };
     }
 }

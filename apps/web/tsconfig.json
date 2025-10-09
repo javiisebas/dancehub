@@ -5,7 +5,22 @@
             {
                 "name": "next"
             }
-        ]
+        ],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "baseUrl": ".",
+        "paths": {
+            "@web/*": ["./src/*"],
+            "@web/features/*": ["./src/features/*"],
+            "@web/components/*": ["./src/components/*"],
+            "@web/providers/*": ["./src/providers/*"],
+            "@web/config/*": ["./src/config/*"],
+            "@web/hooks/*": ["./src/hooks/*"],
+            "@web/api/*": ["./src/api/*"],
+            "@web/utils/*": ["./src/utils/*"],
+            "@web/types/*": ["./src/types/*"],
+            "@/*": ["./src/*"]
+        }
     },
     "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", "next.config.js", ".next/types/**/*.ts"],
     "exclude": ["node_modules"]

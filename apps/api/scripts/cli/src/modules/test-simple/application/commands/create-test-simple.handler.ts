@@ -17,9 +17,7 @@ export class CreateTestSimpleHandler {
     ) {}
 
     async execute({ data }: CreateTestSimpleCommand) {
-        const testSimple = TestSimple.create(
-            randomUUID(),
-        );
+        const testSimple = TestSimple.create(randomUUID());
 
         return this.repository.save(testSimple);
     }

@@ -1,8 +1,71 @@
-import { BaseTranslatableEntity } from '@api/common/abstract/domain'; export class
-{{pascalCase name}}
-extends BaseTranslatableEntity { constructor( id: string, public slug: string, createdAt: Date,
-updatedAt: Date, ) { super(id, createdAt, updatedAt); } updateSlug(slug: string): void { this.slug =
-slug.toLowerCase().trim(); } static create(id: string, slug: string):
-{{pascalCase name}}
-{ const now = new Date(); return new
-{{pascalCase name}}(id, slug.toLowerCase().trim(), now, now); } }
+import { BaseTranslatableEntity } from '@api/common/abstract/domain';
+import { {{pascalCase name}}Translation } from './{{kebabCase name}}-translation.entity';
+{{#if fields}}
+{{#each fields}}
+{{#if isEnum}}
+import { {{enumName}} } from '@repo/shared';
+{{/if}}
+{{/each}}
+{{/if}}
+
+export class {{pascalCase name}} extends BaseTranslatableEntity<{{pascalCase name}}Translation> {
+    constructor(
+        id: string,
+        public slug: string,
+{{#if fields}}
+{{#each fields}}
+        public {{camelCase name}}: {{tsType}}{{#unless required}} | null{{/unless}},
+{{/each}}
+{{/if}}
+{{#if foreignKeys}}
+{{#each foreignKeys}}
+        public {{camelCase name}}: string{{#unless required}} | null{{/unless}},
+{{/each}}
+{{/if}}
+        createdAt: Date,
+        updatedAt: Date,
+    ) {
+        super(id, createdAt, updatedAt);
+    }
+
+    updateSlug(slug: string): void {
+        this.slug = slug.toLowerCase().trim();
+    }
+
+{{#if fields}}
+{{#each fields}}
+    update{{pascalCase name}}({{camelCase name}}: {{tsType}}{{#unless required}} | null{{/unless}}): void {
+        this.{{camelCase name}} = {{#if (eq tsType 'string')}}{{camelCase name}}{{#if required}}.trim(){{else}} ? {{camelCase name}}.trim() : null{{/if}}{{else}}{{camelCase name}}{{/if}};
+    }
+
+{{/each}}
+{{/if}}
+    static create(
+        id: string,
+        slug: string{{#if fields}},
+{{#each fields}}
+        {{camelCase name}}{{#unless required}}?{{/unless}}: {{tsType}}{{#unless required}} | null{{/unless}}{{#unless @last}},{{/unless}}
+{{/each}}{{/if}}{{#if foreignKeys}},
+{{#each foreignKeys}}
+        {{camelCase name}}{{#unless required}}?{{/unless}}: string{{#unless required}} | null{{/unless}}{{#unless @last}},{{/unless}}
+{{/each}}{{/if}}
+    ): {{pascalCase name}} {
+        const now = new Date();
+        return new {{pascalCase name}}(
+            id,
+            slug.toLowerCase().trim(),
+{{#if fields}}
+{{#each fields}}
+            {{#if (eq tsType 'string')}}{{camelCase name}}{{#if required}}.trim(){{else}} ? {{camelCase name}}.trim() : null{{/if}}{{else}}{{camelCase name}}{{#if required}}{{else}} || null{{/if}}{{/if}},
+{{/each}}
+{{/if}}
+{{#if foreignKeys}}
+{{#each foreignKeys}}
+            {{camelCase name}}{{#if required}}{{else}} || null{{/if}},
+{{/each}}
+{{/if}}
+            now,
+            now,
+        );
+    }
+}

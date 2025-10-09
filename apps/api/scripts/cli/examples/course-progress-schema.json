@@ -1,0 +1,55 @@
+{
+    "fields": [
+        {
+            "name": "completed",
+            "type": "boolean",
+            "required": true,
+            "default": "false",
+            "validators": {
+                "create": ["IsBoolean", "IsOptional"],
+                "update": ["IsBoolean", "IsOptional"]
+            }
+        },
+        {
+            "name": "progressPercentage",
+            "type": "integer",
+            "required": true,
+            "default": "0",
+            "validators": {
+                "create": ["IsInt", "IsOptional", "Min:0", "Max:100"],
+                "update": ["IsInt", "IsOptional", "Min:0", "Max:100"]
+            }
+        },
+        {
+            "name": "lastWatchedAt",
+            "type": "timestamp",
+            "required": false,
+            "validators": {
+                "create": ["IsDate", "IsOptional"],
+                "update": ["IsDate", "IsOptional"]
+            }
+        },
+        {
+            "name": "watchTimeSeconds",
+            "type": "integer",
+            "required": true,
+            "default": "0",
+            "validators": {
+                "create": ["IsInt", "IsOptional", "Min:0"],
+                "update": ["IsInt", "IsOptional", "Min:0"]
+            }
+        }
+    ],
+    "foreignKeys": [
+        {
+            "name": "userId",
+            "refTable": "users",
+            "onDelete": "cascade"
+        },
+        {
+            "name": "lessonId",
+            "refTable": "lessons",
+            "onDelete": "cascade"
+        }
+    ]
+}

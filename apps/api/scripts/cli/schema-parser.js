@@ -1,6 +1,113 @@
 const fs = require('fs');
 const path = require('path');
 
+function processFieldDef(fieldDef) {
+    const typeMapping = {
+        varchar: 'string',
+        text: 'string',
+        char: 'string',
+        integer: 'number',
+        smallint: 'number',
+        bigint: 'number',
+        serial: 'number',
+        decimal: 'number',
+        numeric: 'number',
+        real: 'number',
+        double: 'number',
+        boolean: 'boolean',
+        timestamp: 'Date',
+        date: 'Date',
+        time: 'Date',
+        uuid: 'string',
+        json: 'any',
+        jsonb: 'any',
+    };
+
+    // Parse type string like "varchar(255)" or "integer" or "numeric(10,2)"
+    const typeMatch = fieldDef.type.match(
+        /^(varchar|text|char|integer|smallint|bigint|serial|decimal|numeric|real|double|boolean|timestamp|date|time|uuid|json|jsonb)/,
+    );
+    const drizzleType = typeMatch ? typeMatch[1] : 'varchar';
+    const enumNameWithSuffix =
+        fieldDef.enumName && !fieldDef.enumName.endsWith('Enum')
+            ? `${fieldDef.enumName}Enum`
+            : fieldDef.enumName;
+    const tsType =
+        fieldDef.isEnum && enumNameWithSuffix
+            ? enumNameWithSuffix
+            : typeMapping[drizzleType] || 'any';
+
+    // Build drizzleDefinition
+    let drizzleDefinition = '';
+    if (drizzleType === 'varchar' || drizzleType === 'char') {
+        const lengthMatch = fieldDef.type.match(/\((\d+)\)/);
+        const length = lengthMatch ? lengthMatch[1] : '255';
+        drizzleDefinition = `${drizzleType}('${camelToSnakeCase(fieldDef.name)}', { length: ${length} })`;
+    } else if (drizzleType === 'numeric' || drizzleType === 'decimal') {
+        const precisionMatch = fieldDef.type.match(/\((\d+),(\d+)\)/);
+        if (precisionMatch) {
+            drizzleDefinition = `${drizzleType}('${camelToSnakeCase(fieldDef.name)}', { precision: ${precisionMatch[1]}, scale: ${precisionMatch[2]} })`;
+        } else {
+            drizzleDefinition = `${drizzleType}('${camelToSnakeCase(fieldDef.name)}')`;
+        }
+    } else if (drizzleType === 'text') {
+        drizzleDefinition = `text('${camelToSnakeCase(fieldDef.name)}')`;
+    } else if (
+        drizzleType === 'integer' ||
+        drizzleType === 'smallint' ||
+        drizzleType === 'bigint'
+    ) {
+        drizzleDefinition = `integer('${camelToSnakeCase(fieldDef.name)}')`;
+    } else if (drizzleType === 'timestamp') {
+        drizzleDefinition = `timestamp('${camelToSnakeCase(fieldDef.name)}')`;
+    } else {
+        drizzleDefinition = `${drizzleType}('${camelToSnakeCase(fieldDef.name)}')`;
+    }
+
+    if (fieldDef.required) {
+        drizzleDefinition += '.notNull()';
+    }
+
+    if (fieldDef.unique) {
+        drizzleDefinition += '.unique()';
+    }
+
+    if (fieldDef.default !== null && fieldDef.default !== undefined) {
+        let defaultValue;
+        if (drizzleType === 'boolean') {
+            // For boolean, use true/false without quotes
+            defaultValue =
+                fieldDef.default === 'true' || fieldDef.default === true ? 'true' : 'false';
+        } else if (typeof fieldDef.default === 'string' && fieldDef.default.startsWith("'")) {
+            defaultValue = fieldDef.default;
+        } else {
+            defaultValue = `'${fieldDef.default}'`;
+        }
+        drizzleDefinition += `.default(${defaultValue})`;
+    }
+
+    return {
+        name: fieldDef.name,
+        type: fieldDef.type,
+        drizzleType,
+        tsType,
+        drizzleDefinition,
+        required: fieldDef.required || false,
+        unique: fieldDef.unique || false,
+        default: fieldDef.default || null,
+        isEnum: fieldDef.isEnum || false,
+        enumName: enumNameWithSuffix || null,
+        validators: fieldDef.validators || [],
+    };
+}
+
+function camelToSnakeCase(str) {
+    return str
+        .replace(/([A-Z])/g, '_$1')
+        .toLowerCase()
+        .replace(/^_/, '');
+}
+
 function parseField(fieldName, fieldDefinition) {
     const field = {
         name: fieldName,
@@ -120,13 +227,11 @@ function parseEnum(enumDef) {
     const enumData = {
         name: null,
         values: [],
-        description: null,
     };
 
     if (typeof enumDef === 'object' && enumDef.name && enumDef.values) {
         enumData.name = enumDef.name;
         enumData.values = Array.isArray(enumDef.values) ? enumDef.values : [];
-        enumData.description = enumDef.description || null;
     } else if (typeof enumDef === 'string') {
         const match = enumDef.match(/pgEnum\('(\w+)',\s*\[([^\]]+)\]\)/);
         if (match) {
@@ -145,6 +250,7 @@ function parseForeignKey(fkDef) {
         refColumn: 'id',
         onDelete: 'cascade',
         onUpdate: 'cascade',
+        required: false,
     };
 
     if (typeof fkDef === 'object') {
@@ -153,6 +259,7 @@ function parseForeignKey(fkDef) {
         foreignKey.refColumn = fkDef.refColumn || 'id';
         foreignKey.onDelete = fkDef.onDelete || 'cascade';
         foreignKey.onUpdate = fkDef.onUpdate || 'cascade';
+        foreignKey.required = fkDef.required !== undefined ? fkDef.required : false;
     }
 
     return foreignKey;
@@ -213,25 +320,53 @@ function parseSchemaEnhanced(schemaDefinition) {
     };
 
     if (schemaDefinition.fields) {
-        for (const [fieldName, fieldDef] of Object.entries(schemaDefinition.fields)) {
-            if (['id', 'createdAt', 'updatedAt'].includes(fieldName)) {
-                continue;
-            }
+        if (Array.isArray(schemaDefinition.fields)) {
+            schemaDefinition.fields.forEach((fieldDef) => {
+                if (['id', 'createdAt', 'updatedAt'].includes(fieldDef.name)) {
+                    return;
+                }
 
-            const field = parseField(fieldName, fieldDef);
-            result.fields.push(field);
+                // Process type field to generate drizzleType, tsType, and drizzleDefinition
+                const field = processFieldDef(fieldDef);
+                result.fields.push(field);
 
-            if (field.drizzleType) {
-                result.imports.add(field.drizzleType);
+                if (field.drizzleType) {
+                    result.imports.add(field.drizzleType);
+                }
+
+                if (field.isEnum && field.enumName) {
+                    result.imports.add(field.enumName);
+                }
+            });
+        } else {
+            for (const [fieldName, fieldDef] of Object.entries(schemaDefinition.fields)) {
+                if (['id', 'createdAt', 'updatedAt'].includes(fieldName)) {
+                    continue;
+                }
+
+                const field = parseField(fieldName, fieldDef);
+                result.fields.push(field);
+
+                if (field.drizzleType) {
+                    result.imports.add(field.drizzleType);
+                }
             }
         }
     }
 
     if (schemaDefinition.relations) {
-        for (const [relationName, relationDef] of Object.entries(schemaDefinition.relations)) {
-            const relation = parseRelation(relationName, relationDef);
-            if (relation.type) {
-                result.relations.push(relation);
+        if (Array.isArray(schemaDefinition.relations)) {
+            schemaDefinition.relations.forEach((relationDef) => {
+                if (relationDef.name) {
+                    result.relations.push(relationDef);
+                }
+            });
+        } else {
+            for (const [relationName, relationDef] of Object.entries(schemaDefinition.relations)) {
+                const relation = parseRelation(relationName, relationDef);
+                if (relation.type) {
+                    result.relations.push(relation);
+                }
             }
         }
     }
@@ -269,6 +404,42 @@ function parseSchemaEnhanced(schemaDefinition) {
         ...result,
         imports: Array.from(result.imports).sort(),
     };
+}
+
+function processValidatorString(validatorStr, enumName = null) {
+    // Process validators from JSON format (e.g., "IsNotEmpty", "IsString", "MaxLength:255")
+    const match = validatorStr.match(/^([A-Za-z]+)(?::(.+))?$/);
+    if (!match) return `@${validatorStr}()`;
+
+    const [, name, arg] = match;
+
+    switch (name) {
+        case 'IsNotEmpty':
+        case 'IsString':
+        case 'IsBoolean':
+        case 'IsOptional':
+        case 'IsInt':
+        case 'IsEmail':
+        case 'IsUrl':
+        case 'IsUUID':
+        case 'IsArray':
+            return `@${name}()`;
+        case 'IsNumber':
+            return `@IsNumber()`;
+        case 'IsDate':
+            return `@IsDate()`;
+        case 'IsEnum':
+            return `@IsEnum(${arg || enumName}Enum)`;
+        case 'Min':
+        case 'Max':
+        case 'MinLength':
+        case 'MaxLength':
+        case 'ArrayMinSize':
+        case 'ArrayMaxSize':
+            return `@${name}(${arg})`;
+        default:
+            return `@${name}()`;
+    }
 }
 
 function generateValidators(field, isUpdate = false) {
@@ -355,35 +526,67 @@ function prepareTemplateData(schemaDefinition, name, translatable = false) {
         result = parseSchema(schemaDefinition);
     }
 
-    const fieldsWithValidators = result.fields.map((field) => ({
-        ...field,
-        validators: generateValidators(field, false),
-        validatorsUpdate: generateValidators(field, true),
-    }));
+    const fieldsWithValidators = result.fields.map((field) => {
+        // Si validators es un objeto con create/update, usarlo
+        if (
+            field.validators &&
+            typeof field.validators === 'object' &&
+            !Array.isArray(field.validators)
+        ) {
+            return {
+                ...field,
+                validators: field.validators.create
+                    ? field.validators.create.map((v) => processValidatorString(v, field.enumName))
+                    : [],
+                validatorsUpdate: field.validators.update
+                    ? field.validators.update.map((v) => processValidatorString(v, field.enumName))
+                    : [],
+            };
+        }
+        // Si no, generar automáticamente
+        return {
+            ...field,
+            validators: field.validators || generateValidators(field, false),
+            validatorsUpdate: generateValidators(field, true),
+        };
+    });
 
     return {
         name,
         translatable,
+        entity: schemaDefinition.entity || name,
+        table: schemaDefinition.table || `${name}s`,
         fields: fieldsWithValidators,
         relations: result.relations || [],
         enums: result.enums || [],
         foreignKeys: result.foreignKeys || [],
+        indexes: schemaDefinition.indexes || [],
         imports: result.imports,
     };
 }
 
 function generateEnumFile(enumData, targetPath) {
-    const pascalCase = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+    const pascalCase = (str) => {
+        return str
+            .replace(/[-_](\w)/g, (_, c) => c.toUpperCase())
+            .replace(/^(\w)/, (_, c) => c.toUpperCase());
+    };
 
-    const content = `export enum ${pascalCase(enumData.name)} {
-${enumData.values.map((v) => `    ${v.toUpperCase()} = '${v}',`).join('\n')}
+    const enumName = enumData.name;
+    const pascalEnumName = pascalCase(enumName);
+    const enumNameWithSuffix = pascalEnumName.endsWith('Enum')
+        ? pascalEnumName
+        : `${pascalEnumName}Enum`;
+
+    const content = `export enum ${enumNameWithSuffix} {
+${enumData.values.map((v) => `    ${v.toUpperCase().replace(/[-]/g, '_')} = '${v}',`).join('\n')}
 }
 `;
 
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
     fs.writeFileSync(targetPath, content, 'utf-8');
 
-    console.log(`✅ Enum ${pascalCase(enumData.name)} created at ${targetPath}`);
+    console.log(`✅ Enum ${enumNameWithSuffix} created at ${targetPath}`);
 }
 
 module.exports = {

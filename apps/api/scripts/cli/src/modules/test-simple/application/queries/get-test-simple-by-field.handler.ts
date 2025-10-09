@@ -8,10 +8,17 @@ import {
     TestSimpleRelations,
 } from '../../domain/repositories/i-test-simple.repository';
 
-export class GetTestSimpleByFieldQuery extends GetByFieldQuery<TestSimpleField, TestSimpleRelations> {}
+export class GetTestSimpleByFieldQuery extends GetByFieldQuery<
+    TestSimpleField,
+    TestSimpleRelations
+> {}
 
 @Injectable()
-export class GetTestSimpleByFieldHandler extends BaseGetByFieldHandler<TestSimple, TestSimpleField, TestSimpleRelations> {
+export class GetTestSimpleByFieldHandler extends BaseGetByFieldHandler<
+    TestSimple,
+    TestSimpleField,
+    TestSimpleRelations
+> {
     constructor(@Inject(TEST_SIMPLE_REPOSITORY) repository: ITestSimpleRepository) {
         super(repository);
     }

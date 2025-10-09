@@ -1,10 +1,13 @@
 import { TypedConfigService } from '@api/modules/core/config/config.service';
 import { LogService } from '@api/modules/core/logger/services/logger.service';
 import {
+    CompleteMultipartUploadCommand,
+    CreateMultipartUploadCommand,
     DeleteObjectCommand,
     GetObjectCommand,
     PutObjectCommand,
     S3Client,
+    UploadPartCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
@@ -50,16 +53,34 @@ export class R2StorageProviderService implements IStorageProvider {
         this.logger.log('R2 storage provider initialized', 'R2StorageProviderService');
     }
 
-    async upload(file: Express.Multer.File, path: string): Promise<UploadResult> {
+    async upload(
+        file: Express.Multer.File,
+        path: string,
+        onProgress?: (progress: number) => void,
+    ): Promise<UploadResult> {
         try {
+            const CHUNK_SIZE = 5 * 1024 * 1024;
+            const useMultipart = file.size > CHUNK_SIZE;
+
+            if (useMultipart) {
+                return await this.uploadMultipart(file, path, onProgress);
+            }
+
             const command = new PutObjectCommand({
                 Bucket: this.bucket,
                 Key: path,
                 Body: file.buffer,
                 ContentType: file.mimetype,
+                CacheControl: 'public, max-age=31536000, immutable',
+                Metadata: {
+                    'original-name': file.originalname,
+                    'content-length': file.size.toString(),
+                },
             });
 
+            if (onProgress) onProgress(0);
             await this.client.send(command);
+            if (onProgress) onProgress(100);
 
             return {
                 path,
@@ -71,6 +92,92 @@ export class R2StorageProviderService implements IStorageProvider {
             this.logger.error(
                 `Failed to upload file to R2: ${errorMessage}`,
                 errorStack,
+                'R2StorageProviderService',
+            );
+            throw error;
+        }
+    }
+
+    private async uploadMultipart(
+        file: Express.Multer.File,
+        path: string,
+        onProgress?: (progress: number) => void,
+    ): Promise<UploadResult> {
+        const CHUNK_SIZE = 5 * 1024 * 1024;
+        const chunks = Math.ceil(file.size / CHUNK_SIZE);
+
+        const createCommand = new CreateMultipartUploadCommand({
+            Bucket: this.bucket,
+            Key: path,
+            ContentType: file.mimetype,
+            CacheControl: 'public, max-age=31536000, immutable',
+            Metadata: {
+                'original-name': file.originalname,
+                'content-length': file.size.toString(),
+            },
+        });
+
+        const { UploadId } = await this.client.send(createCommand);
+
+        if (!UploadId) {
+            throw new Error('Failed to initiate multipart upload');
+        }
+
+        try {
+            const uploadedParts: { ETag: string | undefined; PartNumber: number }[] = [];
+
+            for (let i = 0; i < chunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.buffer.slice(start, end);
+
+                const uploadPartCommand = new UploadPartCommand({
+                    Bucket: this.bucket,
+                    Key: path,
+                    UploadId,
+                    PartNumber: i + 1,
+                    Body: chunk,
+                });
+
+                const partResult = await this.client.send(uploadPartCommand);
+
+                uploadedParts.push({
+                    ETag: partResult.ETag,
+                    PartNumber: i + 1,
+                });
+
+                const progress = Math.round(((i + 1) / chunks) * 100);
+                if (onProgress) {
+                    onProgress(progress);
+                }
+            }
+
+            const completeCommand = new CompleteMultipartUploadCommand({
+                Bucket: this.bucket,
+                Key: path,
+                UploadId,
+                MultipartUpload: {
+                    Parts: uploadedParts,
+                },
+            });
+
+            await this.client.send(completeCommand);
+
+            if (onProgress) onProgress(100);
+
+            this.logger.log(
+                `Successfully uploaded ${file.size} bytes in ${chunks} chunks to ${path}`,
+                'R2StorageProviderService',
+            );
+
+            return {
+                path,
+                size: file.size,
+            };
+        } catch (error) {
+            this.logger.error(
+                `Multipart upload failed, aborting: ${error instanceof Error ? error.message : String(error)}`,
+                error instanceof Error ? error.stack || '' : '',
                 'R2StorageProviderService',
             );
             throw error;
@@ -102,9 +209,15 @@ export class R2StorageProviderService implements IStorageProvider {
             const command = new GetObjectCommand({
                 Bucket: this.bucket,
                 Key: path,
+                ResponseCacheControl: 'public, max-age=31536000, immutable',
+                ResponseContentDisposition: 'inline',
             });
 
-            return await getSignedUrl(this.client, command, { expiresIn });
+            const url = await getSignedUrl(this.client, command, {
+                expiresIn,
+            });
+
+            return url;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             const errorStack = error instanceof Error ? error.stack || '' : '';

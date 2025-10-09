@@ -27,7 +27,7 @@ export class Create{{pascalCase name}}Handler {
         const saved{{pascalCase name}} = await this.repository.save({{camelCase name}});
 
         const translations = data.translations.map((t) =>
-            {{pascalCase name}}Translation.create(randomUUID(), t.locale, t.name, t.description),
+            {{pascalCase name}}Translation.create(randomUUID(), t.locale, t.name),
         );
 
         await this.repository.saveTranslations(saved{{pascalCase name}}.id, translations);

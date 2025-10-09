@@ -1,9 +1,54 @@
-import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'; export const
-{{camelCase (pluralize name)}}
-= pgTable('{{snakeCase (pluralize name)}}', { id: uuid('id').primaryKey().defaultRandom(), slug:
-varchar('slug', { length: 255 }).notNull().unique(), createdAt:
-timestamp('created_at').notNull().defaultNow(), updatedAt:
-timestamp('updated_at').notNull().defaultNow(), }); export type
-{{pascalCase name}}Schema = typeof
-{{camelCase (pluralize name)}}.$inferSelect; export type New{{pascalCase name}}Schema = typeof
-{{camelCase (pluralize name)}}.$inferInsert;
+import {
+    pgTable,
+    timestamp,
+    uuid,
+    varchar,
+{{#if indexes}}
+    index,
+    uniqueIndex,
+{{/if}}
+{{#each (uniqueDrizzleTypes fields)}}
+{{#unless (eq this 'varchar')}}
+    {{this}},
+{{/unless}}
+{{/each}}
+} from 'drizzle-orm/pg-core';
+{{#if relations}}
+import { relations } from 'drizzle-orm';
+{{/if}}
+{{#each foreignKeys}}
+import { {{camelCase refTable}} } from '../../../{{kebabCase (singularize refTable)}}/infrastructure/schemas/{{kebabCase (singularize refTable)}}.schema';
+{{/each}}
+
+export const {{camelCase (pluralize name)}} = pgTable('{{snakeCase (pluralize name)}}', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    slug: varchar('slug', { length: 255 }).notNull().unique(),
+{{#each fields}}
+    {{camelCase name}}: {{{drizzleDefinition}}},
+{{/each}}
+{{#each foreignKeys}}
+    {{camelCase name}}: uuid('{{snakeCase name}}'){{#if required}}
+        .notNull(){{/if}}
+        .references(() => {{camelCase refTable}}.id, { onDelete: '{{onDelete}}' }),
+{{/each}}
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}{{#if indexes}}, (table) => ({
+{{#each indexes}}
+    {{camelCase name}}Idx: {{#if unique}}uniqueIndex{{else}}index{{/if}}('{{name}}').on({{#each fields}}table.{{camelCase this}}{{#unless @last}}, {{/unless}}{{/each}}),
+{{/each}}
+}){{/if}});
+
+export type {{pascalCase name}}Schema = typeof {{camelCase (pluralize name)}}.$inferSelect;
+export type New{{pascalCase name}}Schema = typeof {{camelCase (pluralize name)}}.$inferInsert;
+{{#if relations}}
+
+export const {{camelCase (pluralize name)}}Relations = relations({{camelCase (pluralize name)}}, ({ one, many }) => ({
+{{#each relations}}
+    {{name}}: {{#if (eq type 'one')}}one({{camelCase table}}, {
+        fields: [{{#each fields}}{{camelCase (pluralize @root.name)}}.{{camelCase this}}{{#unless @last}}, {{/unless}}{{/each}}],
+        references: [{{#each references}}{{camelCase ../table}}.{{camelCase this}}{{#unless @last}}, {{/unless}}{{/each}}],
+    }){{else}}many({{camelCase table}}){{/if}},
+{{/each}}
+}));
+{{/if}}

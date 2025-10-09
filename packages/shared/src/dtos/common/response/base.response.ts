@@ -1,25 +1,12 @@
-import { Exclude, Expose, Transform } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
-@Exclude()
 export abstract class BaseResponse {
     @Expose()
-    id!: string;
+    id: string;
 
     @Expose()
-    @Transform(({ value }) => {
-        if (!value) return value;
-        if (value instanceof Date) return value.toISOString();
-        if (typeof value === 'string') return value;
-        return value;
-    })
-    createdAt!: string;
+    createdAt: string;
 
     @Expose()
-    @Transform(({ value }) => {
-        if (!value) return value;
-        if (value instanceof Date) return value.toISOString();
-        if (typeof value === 'string') return value;
-        return value;
-    })
-    updatedAt!: string;
+    updatedAt: string;
 }

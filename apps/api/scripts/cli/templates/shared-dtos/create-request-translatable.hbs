@@ -1,12 +1,44 @@
 import { Type } from 'class-transformer'; import { ArrayMinSize, IsArray, IsNotEmpty, IsString,
-Matches, MaxLength, MinLength, ValidateNested, } from 'class-validator'; import {
-{{pascalCase name}}TranslationDto } from './{{kebabCase name}}-translation.dto'; export class Create{{pascalCase
-    name
-}}Request { @IsString({ message: 'Slug must be a string' }) @IsNotEmpty({ message: 'Slug cannot be
-empty' }) @MinLength(2, { message: 'Slug must be at least 2 characters long' }) @MaxLength(255, {
-message: 'Slug cannot exceed 255 characters' }) @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message:
-'Slug must be lowercase, alphanumeric and can contain hyphens', }) slug!: string; @IsArray({
-message: 'Translations must be an array' }) @ValidateNested({ each: true }) @ArrayMinSize(1, {
-message: 'At least one translation is required' }) @Type(() =>
+IsNumber, IsBoolean, IsDate, IsEnum, IsInt, Matches, MaxLength, MinLength, Min, Max, ValidateNested,
+} from 'class-validator'; import {
+{{pascalCase name}}TranslationDto } from './{{kebabCase name}}-translation.dto';
+{{#if fields}}
+    {{#each fields}}
+        {{#if isEnum}}
+            import {
+            {{enumName}}
+            } from '../../../enums/{{enumFileName enumName}}.enum';
+        {{/if}}
+    {{/each}}
+{{/if}}
+
+export class Create{{pascalCase name}}Request { @IsString({ message: 'Slug must be a string' })
+@IsNotEmpty({ message: 'Slug cannot be empty' }) @MinLength(2, { message: 'Slug must be at least 2
+characters long' }) @MaxLength(255, { message: 'Slug cannot exceed 255 characters' })
+@Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: 'Slug must be lowercase, alphanumeric and can
+contain hyphens', }) slug!: string;
+
+{{#if fields}}
+    {{#each fields}}
+        {{#each this.validators}}
+            {{{this}}}
+        {{/each}}
+        {{#if (eq this.tsType 'Date')}}
+            @Type(() => Date)
+        {{/if}}
+        {{camelCase this.name}}{{#unless this.required}}?{{/unless}}:
+        {{this.tsType}};
+
+    {{/each}}
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        @IsString() @IsNotEmpty()
+        {{camelCase this.name}}: string;
+
+    {{/each}}
+{{/if}}
+@IsArray({ message: 'Translations must be an array' }) @ValidateNested({ each: true })
+@ArrayMinSize(1, { message: 'At least one translation is required' }) @Type(() =>
 {{pascalCase name}}TranslationDto) translations!:
 {{pascalCase name}}TranslationDto[]; }

@@ -1,0 +1,63 @@
+{
+    "fields": [
+        {
+            "name": "enrolledAt",
+            "type": "timestamp",
+            "required": true,
+            "validators": {
+                "create": ["IsDate", "IsOptional"],
+                "update": ["IsDate", "IsOptional"]
+            }
+        },
+        {
+            "name": "expiresAt",
+            "type": "timestamp",
+            "required": false,
+            "validators": {
+                "create": ["IsDate", "IsOptional"],
+                "update": ["IsDate", "IsOptional"]
+            }
+        },
+        {
+            "name": "paymentId",
+            "type": "varchar(255)",
+            "required": false,
+            "validators": {
+                "create": ["IsString", "IsOptional"],
+                "update": ["IsString", "IsOptional"]
+            }
+        },
+        {
+            "name": "addedByArtist",
+            "type": "boolean",
+            "required": true,
+            "default": "false",
+            "validators": {
+                "create": ["IsBoolean", "IsOptional"],
+                "update": ["IsBoolean", "IsOptional"]
+            }
+        }
+    ],
+    "foreignKeys": [
+        {
+            "name": "userId",
+            "refTable": "users",
+            "onDelete": "cascade"
+        },
+        {
+            "name": "courseId",
+            "refTable": "courses",
+            "onDelete": "cascade"
+        }
+    ],
+    "enums": [
+        {
+            "name": "EnrollmentStatus",
+            "values": ["active", "expired", "canceled"]
+        },
+        {
+            "name": "PaymentType",
+            "values": ["one-time", "subscription"]
+        }
+    ]
+}

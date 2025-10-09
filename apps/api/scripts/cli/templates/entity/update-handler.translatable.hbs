@@ -27,7 +27,7 @@ export class Update{{pascalCase name}}Handler {
 
         if (data.translations) {
             const translations = data.translations.map((t) =>
-                {{pascalCase name}}Translation.create(randomUUID(), t.locale, t.name, t.description),
+                {{pascalCase name}}Translation.create(randomUUID(), t.locale, t.name),
             );
 
             await this.repository.saveTranslations(updated{{pascalCase name}}.id, translations);

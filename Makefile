@@ -39,6 +39,12 @@ help:
 	@echo "  make logs           - Ver logs de servicios"
 	@echo "  make clean          - Limpiar proyecto"
 	@echo ""
+	@echo "☁️  Storage & CORS:"
+	@echo "  make cors-setup       - Configurar CORS en R2"
+	@echo "  make cors-verify      - Verificar configuración CORS"
+	@echo "  make storage-verify   - Verificar configuración storage"
+	@echo "  make streaming-verify - Verificar video streaming"
+	@echo ""
 
 setup:
 	@echo "🚀 Configurando DanceHub..."
@@ -169,3 +175,20 @@ docker-reset:
 	@sleep 5
 	cd apps/api && pnpm db:push
 	@echo "✅ Docker reseteado"
+
+cors-setup:
+	@echo "☁️  Configurando CORS en R2..."
+	bash scripts/setup-r2-cors.sh
+	@echo "✅ CORS configurado"
+
+cors-verify:
+	@echo "🔍 Verificando configuración CORS..."
+	cd apps/api && pnpm cors:verify
+
+storage-verify:
+	@echo "🔍 Verificando configuración storage..."
+	cd apps/api && pnpm storage:verify
+
+streaming-verify:
+	@echo "🎬 Verificando video streaming..."
+	cd apps/api && pnpm streaming:verify

@@ -1,6 +1,17 @@
-import { Expose } from 'class-transformer'; export class
-{{pascalCase name}}Response { @Expose() id: string;
+import { Expose } from 'class-transformer'; import { BaseResponse } from
+'../../common/response/base.response';
+{{#if fields}}
+    {{#each fields}}
+        {{#if isEnum}}
+            import {
+            {{enumName}}
+            } from '../../../enums/{{enumFileName enumName}}.enum';
+        {{/if}}
+    {{/each}}
+{{/if}}
 
+export class
+{{pascalCase name}}Response extends BaseResponse {
 {{#if fields}}
     {{#each fields}}
         @Expose()
@@ -8,8 +19,12 @@ import { Expose } from 'class-transformer'; export class
         {{this.tsType}};
 
     {{/each}}
-{{else}}
-    // TODO: Add your fields here // Example: // @Expose() // fieldName: string;
-
 {{/if}}
-@Expose() createdAt: Date; @Expose() updatedAt: Date; }
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        @Expose()
+        {{camelCase this.name}}: string;
+
+    {{/each}}
+{{/if}}
+}

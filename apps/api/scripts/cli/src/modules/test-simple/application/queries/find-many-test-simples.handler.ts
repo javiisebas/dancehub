@@ -11,7 +11,11 @@ import {
 export class FindManyTestSimplesQuery extends FindManyQuery<TestSimpleField, TestSimpleRelations> {}
 
 @Injectable()
-export class FindManyTestSimplesHandler extends BaseFindManyHandler<TestSimple, TestSimpleField, TestSimpleRelations> {
+export class FindManyTestSimplesHandler extends BaseFindManyHandler<
+    TestSimple,
+    TestSimpleField,
+    TestSimpleRelations
+> {
     constructor(@Inject(TEST_SIMPLE_REPOSITORY) repository: ITestSimpleRepository) {
         super(repository);
     }

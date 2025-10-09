@@ -1,12 +1,41 @@
 import { Expose, Transform, Type } from 'class-transformer'; import { BaseResponse } from
 '../../common'; import {
-{{pascalCase name}}TranslationResponse } from './{{kebabCase name}}-translation.response'; export
-class
+{{pascalCase name}}TranslationResponse } from './{{kebabCase name}}-translation.response';
+{{#if fields}}
+    {{#each fields}}
+        {{#if isEnum}}
+            import {
+            {{enumName}}
+            } from '../../../enums/{{enumFileName enumName}}.enum';
+        {{/if}}
+    {{/each}}
+{{/if}}
+
+export class
 {{pascalCase name}}Response extends BaseResponse { @Expose() @Transform(({ obj }) => obj.entity?.id
 || obj.id) declare id: string; @Expose() @Transform(({ obj }) => obj.entity?.slug || obj.slug)
-slug!: string; @Expose() @Transform(({ obj }) => obj.entity?.createdAt || obj.createdAt) declare
-createdAt: string; @Expose() @Transform(({ obj }) => obj.entity?.updatedAt || obj.updatedAt) declare
-updatedAt: string; @Expose() @Type(() =>
+slug!: string;
+
+{{#if fields}}
+    {{#each fields}}
+        @Expose() @Transform(({ obj }) => obj.entity?.{{camelCase name}}
+        || obj.{{camelCase name}})
+        {{camelCase name}}{{#unless required}}?{{/unless}}:
+        {{tsType}};
+
+    {{/each}}
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        @Expose() @Transform(({ obj }) => obj.entity?.{{camelCase name}}
+        || obj.{{camelCase name}})
+        {{camelCase name}}{{#unless required}}?{{/unless}}: string;
+
+    {{/each}}
+{{/if}}
+@Expose() @Transform(({ obj }) => obj.entity?.createdAt || obj.createdAt) declare createdAt: string;
+@Expose() @Transform(({ obj }) => obj.entity?.updatedAt || obj.updatedAt) declare updatedAt: string;
+@Expose() @Type(() =>
 {{pascalCase name}}TranslationResponse) translation?:
 {{pascalCase name}}TranslationResponse; @Expose() @Type(() =>
 {{pascalCase name}}TranslationResponse) translations?:

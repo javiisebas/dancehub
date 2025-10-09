@@ -23,15 +23,20 @@ export class Create{{pascalCase name}}Handler {
             throw new ConflictException('Slug already exists');
         }
 
-        const {{camelCase name}} = {{pascalCase name}}.create(randomUUID(), data.slug);
-        const saved{{pascalCase name}} = await this.repository.save({{camelCase name}});
-
+        const {{camelCase name}} = {{pascalCase name}}.create(
+            randomUUID(),
+            data.slug{{#if fields}},
+{{#each fields}}
+            data.{{camelCase name}}{{#unless @last}},{{/unless}}
+{{/each}}{{/if}}{{#if foreignKeys}},
+{{#each foreignKeys}}
+            data.{{camelCase name}}{{#unless @last}},{{/unless}}
+{{/each}}{{/if}}
+        );
         const translations = data.translations.map((t) =>
             {{pascalCase name}}Translation.create(randomUUID(), t.locale, t.name, t.description),
         );
 
-        await this.repository.saveTranslations(saved{{pascalCase name}}.id, translations);
-
-        return this.repository.findByIdWithTranslations(saved{{pascalCase name}}.id);
+        return this.repository.createWithTranslations({{camelCase name}}, translations);
     }
 }

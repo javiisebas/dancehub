@@ -1,5 +1,5 @@
 import { UpdateCommand } from '@api/common/abstract/application/commands.abstract';
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { Update{{pascalCase name}}Request } from '@repo/shared';
 import { randomUUID } from 'crypto';
 import { {{pascalCase name}}Translation } from '../../domain/entities/{{kebabCase name}}-translation.entity';
@@ -19,20 +19,29 @@ export class Update{{pascalCase name}}Handler {
     async execute({ id, data }: Update{{pascalCase name}}Command) {
         const {{camelCase name}} = await this.repository.findById(id);
 
-        if (data.slug) {
+        if (data.slug && data.slug !== {{camelCase name}}.slug) {
+            const slugExists = await this.repository.slugExists(data.slug);
+            if (slugExists) {
+                throw new ConflictException('Slug already exists');
+            }
             {{camelCase name}}.updateSlug(data.slug);
         }
 
-        const updated{{pascalCase name}} = await this.repository.update({{camelCase name}}.id, {{camelCase name}});
+{{#if fields}}
+{{#each fields}}
+        if (data.{{camelCase name}} !== undefined) {{camelCase ../name}}.update{{pascalCase name}}(data.{{camelCase name}});
+{{/each}}
+{{/if}}
+{{#if foreignKeys}}
+{{#each foreignKeys}}
+        if (data.{{camelCase name}} !== undefined) {{camelCase ../name}}.{{camelCase name}} = data.{{camelCase name}};
+{{/each}}
+{{/if}}
 
-        if (data.translations) {
-            const translations = data.translations.map((t) =>
-                {{pascalCase name}}Translation.create(randomUUID(), t.locale, t.name, t.description),
-            );
+        const translations = data.translations?.map((t) =>
+            {{pascalCase name}}Translation.create(randomUUID(), t.locale, t.name, t.description),
+        );
 
-            await this.repository.saveTranslations(updated{{pascalCase name}}.id, translations);
-        }
-
-        return this.repository.findByIdWithTranslations(updated{{pascalCase name}}.id);
+        return this.repository.updateWithTranslations({{camelCase name}}, translations);
     }
 }

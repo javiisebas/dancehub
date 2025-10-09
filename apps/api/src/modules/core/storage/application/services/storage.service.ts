@@ -84,46 +84,73 @@ export class StorageService {
                     this.progressService.emitProcessingStart(userId, trackingId, 'video');
                 }
 
-                const optimized = await this.videoProcessor.optimizeVideo(file.buffer);
-                processedFile = {
-                    ...file,
-                    buffer: optimized.buffer,
-                    size: optimized.optimizedSize,
-                };
-                finalExtension = 'mp4';
-                finalMimeType = 'video/mp4';
-                videoMetadata = {
-                    duration: optimized.metadata.duration,
-                    width: optimized.metadata.width,
-                    height: optimized.metadata.height,
-                    codec: optimized.metadata.codec,
-                    bitrate: optimized.metadata.bitrate,
-                    fps: optimized.metadata.fps,
-                };
+                // Extract metadata without optimization for faster processing
+                try {
+                    const metadata = await this.videoProcessor.getMetadata(file.buffer);
+                    videoMetadata = {
+                        duration: metadata.duration,
+                        width: metadata.width,
+                        height: metadata.height,
+                        codec: metadata.codec,
+                        bitrate: metadata.bitrate,
+                        fps: metadata.fps,
+                    };
 
-                if (userId) {
-                    this.progressService.emitProcessingProgress(
-                        userId,
-                        trackingId,
-                        STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.PROCESSING_COMPLETE,
-                        'Video optimized',
-                    );
+                    // Keep original video for faster upload (optimization can be done async later)
+                    processedFile = file;
+                    finalExtension = 'mp4';
+                    finalMimeType = 'video/mp4';
+
+                    if (userId) {
+                        this.progressService.emitProcessingProgress(
+                            userId,
+                            trackingId,
+                            STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.PROCESSING_COMPLETE,
+                            'Video metadata extracted',
+                        );
+                    }
+                } catch (error) {
+                    console.error('Failed to extract video metadata:', error);
+                    // Continue without metadata if extraction fails
+                    processedFile = file;
+                    finalExtension = extname(file.originalname).slice(1);
+                    finalMimeType = file.mimetype;
                 }
-            }
-
-            if (userId) {
-                this.progressService.emitProcessingProgress(
-                    userId,
-                    trackingId,
-                    STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE,
-                    'Uploading to storage...',
-                );
             }
 
             const filename = this.generateFilename(processedFile, finalExtension);
             const path = this.generatePath(userId, filename);
 
-            const uploadResult = await this.storageProvider.upload(processedFile, path);
+            if (userId) {
+                this.progressService.emitProcessingProgress(
+                    userId,
+                    trackingId,
+                    STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_START,
+                    'Subiendo a R2 storage...',
+                );
+            }
+
+            const uploadResult = await this.storageProvider.upload(
+                processedFile,
+                path,
+                (progress) => {
+                    if (userId) {
+                        const progressRange =
+                            STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_END -
+                            STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_START;
+                        const adjustedProgress =
+                            STORAGE_CONSTANTS.PROGRESS_PERCENTAGES.UPLOAD_TO_STORAGE_START +
+                            Math.round((progress * progressRange) / 100);
+
+                        this.progressService.emitR2UploadProgress(
+                            userId,
+                            trackingId,
+                            adjustedProgress,
+                            progress,
+                        );
+                    }
+                },
+            );
 
             const storage = Storage.create(
                 randomUUID(),

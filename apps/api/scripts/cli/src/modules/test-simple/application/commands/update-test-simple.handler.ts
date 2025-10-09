@@ -1,6 +1,6 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, Injectable } from '@nestjs/common';
 import { NotFoundException } from '@api/common/exceptions';
+import { Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { UpdateCommand } from '@api/common/abstract/application/commands.abstract';
 import { UpdateTestSimpleRequest } from '@repo/shared';
@@ -25,7 +25,6 @@ export class UpdateTestSimpleHandler implements ICommandHandler<UpdateTestSimple
         if (!testSimple) {
             throw new NotFoundException('TestSimple');
         }
-
 
         return await this.repository.save(testSimple);
     }

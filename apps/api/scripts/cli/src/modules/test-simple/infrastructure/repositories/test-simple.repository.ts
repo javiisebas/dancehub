@@ -13,15 +13,10 @@ export class TestSimpleRepositoryImpl
     protected readonly entityName = 'TestSimple';
 
     protected toDomain(schema: typeof testSimples.$inferSelect): TestSimple {
-        return new TestSimple(
-            schema.id,
-            schema.createdAt,
-            schema.updatedAt,
-        );
+        return new TestSimple(schema.id, schema.createdAt, schema.updatedAt);
     }
 
     protected toSchema(entity: TestSimple): any {
-        return {
-        };
+        return {};
     }
 }

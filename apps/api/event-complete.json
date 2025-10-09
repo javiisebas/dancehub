@@ -1,0 +1,67 @@
+{
+  "fields": [
+    {
+      "name": "title",
+      "type": "varchar(255)",
+      "required": true,
+      "validators": ["IsNotEmpty", "IsString", "MaxLength:255"]
+    },
+    {
+      "name": "description",
+      "type": "text",
+      "required": false,
+      "validators": ["IsOptional", "IsString"]
+    },
+    {
+      "name": "startDate",
+      "type": "timestamp",
+      "required": true,
+      "validators": ["IsNotEmpty", "IsDate"]
+    },
+    {
+      "name": "endDate",
+      "type": "timestamp",
+      "required": true,
+      "validators": ["IsNotEmpty", "IsDate"]
+    },
+    {
+      "name": "status",
+      "type": "varchar(20)",
+      "required": true,
+      "default": "draft",
+      "isEnum": true,
+      "enumName": "EventStatus",
+      "validators": ["IsNotEmpty", "IsEnum:EventStatus"]
+    },
+    {
+      "name": "maxAttendees",
+      "type": "integer",
+      "required": false,
+      "validators": ["IsOptional", "IsInt", "Min:1"]
+    },
+    {
+      "name": "price",
+      "type": "numeric(10,2)",
+      "required": false,
+      "validators": ["IsOptional", "IsNumber"]
+    }
+  ],
+  "enums": [
+    {
+      "name": "EventStatus",
+      "values": ["draft", "published", "cancelled", "completed"]
+    }
+  ],
+  "foreignKeys": [
+    {
+      "name": "organizerId",
+      "refTable": "users",
+      "onDelete": "cascade"
+    },
+    {
+      "name": "danceStyleId",
+      "refTable": "dance_styles",
+      "onDelete": "cascade"
+    }
+  ]
+}

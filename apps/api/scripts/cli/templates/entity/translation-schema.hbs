@@ -10,7 +10,6 @@ export const {{camelCase name}}Translations = pgTable(
             .references(() => {{camelCase (pluralize name)}}.id, { onDelete: 'cascade' }),
         locale: varchar('locale', { length: 10 }).notNull(),
         name: varchar('name', { length: 255 }).notNull(),
-        description: text('description'),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },

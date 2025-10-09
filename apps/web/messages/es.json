@@ -1,0 +1,103 @@
+{
+    "Index": {
+        "title": "Inicio",
+        "loggedIn": "Sesión iniciada como {username}",
+        "loggedOut": "Has cerrado sesión.",
+        "login": "Iniciar sesión",
+        "logout": "Cerrar sesión",
+        "secret": "Página secreta para usuarios con sesión iniciada"
+    },
+    "Home": {
+        "title": "Bienvenido/a"
+    },
+    "Login": {
+        "title": "Bienvenido/a",
+        "subtitle": "Por favor, inicia sesión para continuar"
+    },
+    "Register": {
+        "title": "Registrarse",
+        "subtitle": "Crear una cuenta nueva",
+        "terms": "Al hacer clic en 'Continuar' aceptas los ",
+        "termsLink": "Términos de uso",
+        "privacy": " y la ",
+        "privacyLink": "Política de privacidad",
+        "continue": "Continuar",
+        "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+        "login": "Iniciar sesión",
+        "successMessage": "¡Registro exitoso! Redirigiendo...",
+        "errorMessage": "Algo salió mal. Por favor, inténtalo de nuevo.",
+        "passwordsMustMatch": "Las contraseñas deben coincidir."
+    },
+    "Recover": {
+        "title": "Recuperar contraseña",
+        "subtitle": "Introduce el correo electrónico asociado a tu cuenta",
+        "continue": "Continuar",
+        "successMessage": "Si el correo electrónico está registrado, recibirás un enlace de recuperación.",
+        "errorMessage": "Algo salió mal. Por favor, inténtalo de nuevo.",
+        "backToLogin": "Volver a Iniciar sesión",
+        "resendWait": "Reenviar nuevo correo electrónico en",
+        "checkEmail": "¡Revisa tu correo electrónico!",
+        "seconds": "segundos"
+    },
+    "ResetPassword": {
+        "title": "Restablecer contraseña",
+        "subtitle": "Introduce tu nueva contraseña",
+        "continue": "Continuar",
+        "successMessage": "¡Contraseña restablecida con éxito! Redirigiendo...",
+        "errorMessage": "Algo salió mal. Por favor, inténtalo de nuevo.",
+        "backToLogin": "Volver a Iniciar sesión"
+    },
+    "NewPassword": {
+        "title": "Restablecer tu contraseña",
+        "subtitle": "Introduce una nueva contraseña para tu cuenta",
+        "confirm": "Confirmar",
+        "successMessage": "¡Tu contraseña se ha actualizado correctamente! Redirigiendo...",
+        "errorMessage": "Algo salió mal. Por favor, inténtalo de nuevo.",
+        "missingToken": "Token de restablecimiento inválido o faltante.",
+        "backToLogin": "Volver a Iniciar sesión"
+    },
+
+    "VerifyEmail": {
+        "title": "Verifica tu correo electrónico",
+        "loading": "Estamos verificando tu cuenta. Por favor, espera...",
+        "successMessage": "¡Tu cuenta ha sido verificada exitosamente!",
+        "errorMessage": "No pudimos verificar tu cuenta. Puede que este enlace haya expirado o ya haya sido usado.",
+        "invalidToken": "Token inválido o faltante.",
+        "goToLogin": "Ir a Iniciar sesión",
+        "toastError": "Ocurrió un error al verificar tu correo electrónico."
+    },
+
+    "Error": {
+        "apiGeneric": "Ocurrió un error. Por favor, inténtalo de nuevo más tarde."
+    },
+
+    "Forms": {
+        "errors": {
+            "required": "Este campo es requerido",
+            "invalidEmail": "Dirección de correo electrónico inválida",
+            "minLength": "Debe tener al menos {min} caracteres",
+            "passwordsMustMatch": "Las contraseñas deben coincidir"
+        },
+
+        "firstName": { "label": "Nombre", "placeholder": "Ingresa tu nombre" },
+        "lastName": { "label": "Apellido", "placeholder": "Ingresa tu apellido" },
+        "email": { "label": "Correo electrónico", "placeholder": "Ingresa tu correo electrónico" },
+        "password": { "label": "Contraseña", "placeholder": "Ingresa tu contraseña" },
+        "confirmPassword": {
+            "label": "Confirmar contraseña",
+            "placeholder": "Confirma tu contraseña"
+        }
+    },
+
+    "SocialLogin": {
+        "title": "Inicio de sesión social",
+        "subtitle": "Inicia sesión con tu cuenta de redes sociales",
+        "google": "Continuar con Google",
+        "or": "o",
+        "email": "Continuar con correo electrónico"
+    },
+
+    "LocaleSwitcher": {
+        "switchLocale": "Cambiar a {locale, select, de {Alemán} en {Inglés} other {Desconocido}}"
+    }
+}

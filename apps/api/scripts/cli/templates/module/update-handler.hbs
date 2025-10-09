@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject, Injectable } from '@nestjs/common';
-import { NotFoundException } from '@api/common/exceptions';
+import { NotFoundException } from '@api/common/exceptions/not-found.exception';
 
 import { UpdateCommand } from '@api/common/abstract/application/commands.abstract';
 import { Update{{pascalCase name}}Request } from '@repo/shared';
@@ -29,12 +29,18 @@ export class Update{{pascalCase name}}Handler implements ICommandHandler<Update{
 {{#if fields}}
 {{#each fields}}
         if (data.{{camelCase this.name}} !== undefined) {
-            {{camelCase @root.name}}.update{{pascalCase this.name}}(data.{{camelCase this.name}});
+            {{camelCase @root.name}}.{{camelCase this.name}} = data.{{camelCase this.name}};
         }
 {{/each}}
-{{else}}
+{{/if}}
+{{#if foreignKeys}}
+{{#each foreignKeys}}
+        if (data.{{camelCase this.name}} !== undefined) {
+            {{camelCase @root.name}}.{{camelCase this.name}} = data.{{camelCase this.name}};
+        }
+{{/each}}
 {{/if}}
 
-        return await this.repository.save({{camelCase name}});
+        return await this.repository.update(id, {{camelCase name}});
     }
 }

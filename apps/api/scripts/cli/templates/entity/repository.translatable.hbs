@@ -53,7 +53,6 @@ export class {{pascalCase name}}RepositoryImpl
             schema.id,
             schema.locale,
             schema.name,
-            schema.description,
             schema.createdAt,
             schema.updatedAt,
         );
@@ -67,7 +66,6 @@ export class {{pascalCase name}}RepositoryImpl
             {{camelCase name}}Id: entityId,
             locale: translation.locale,
             name: translation.name,
-            description: translation.description || undefined,
         } as Partial<typeof {{camelCase name}}Translations.$inferInsert>;
     }
 

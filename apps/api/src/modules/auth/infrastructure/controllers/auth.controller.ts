@@ -28,6 +28,7 @@ import {
     PasswordResponse,
     PasswordValuesRequest,
     ResetPasswordRequest,
+    SocialLoginRequest,
     UserResponse,
     UserStatusEnum,
 } from '@repo/shared';
@@ -146,6 +147,12 @@ export class AuthController {
                 ...passwordValues,
             }),
         );
+    }
+
+    @HttpCode(200)
+    @Post('social/login')
+    async socialLogin(@Body() socialLoginData: SocialLoginRequest): Promise<LoginResponse> {
+        return this.socialLoginHandler.execute(new SocialLoginCommand(socialLoginData));
     }
 
     @Get('google')

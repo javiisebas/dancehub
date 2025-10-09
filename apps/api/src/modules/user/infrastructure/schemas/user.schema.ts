@@ -2,6 +2,7 @@ import { pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-
 
 export const providerEnum = pgEnum('provider', ['local', 'google', 'facebook', 'apple']);
 export const userStatusEnum = pgEnum('user_status', ['pending', 'verified', 'suspended']);
+export const userRoleEnum = pgEnum('user_role', ['client', 'artist', 'admin']);
 
 export const users = pgTable('users', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -10,6 +11,7 @@ export const users = pgTable('users', {
     password: text('password'),
     refreshToken: text('refresh_token'),
     status: userStatusEnum('status').notNull().default('pending'),
+    role: userRoleEnum('role').notNull().default('client'),
     provider: providerEnum('provider').notNull().default('local'),
     providerId: varchar('provider_id', { length: 255 }),
     firstName: varchar('first_name', { length: 255 }),

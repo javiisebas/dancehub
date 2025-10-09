@@ -169,6 +169,320 @@
         ]
       }
     },
+    "/api/payment/intent": {
+      "post": {
+        "operationId": "PaymentController_createPaymentIntent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentIntentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/payment/subscription": {
+      "post": {
+        "operationId": "PaymentController_createSubscription",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/payment/subscription/{id}/cancel": {
+      "post": {
+        "operationId": "PaymentController_cancelSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/payment/checkout": {
+      "post": {
+        "operationId": "PaymentController_createCheckoutSession",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCheckoutSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/payment/connect/account": {
+      "post": {
+        "operationId": "PaymentController_createConnectedAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConnectedAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/payment/marketplace": {
+      "post": {
+        "operationId": "PaymentController_createMarketplacePayment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMarketplacePaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/payment/webhook": {
+      "post": {
+        "operationId": "PaymentController_handleWebhook",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/users": {
+      "post": {
+        "operationId": "UserController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      },
+      "get": {
+        "operationId": "UserController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "patch": {
+        "operationId": "UserController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      },
+      "delete": {
+        "operationId": "UserController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      },
+      "get": {
+        "operationId": "UserController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/users/search": {
+      "get": {
+        "operationId": "UserController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/users/by-email/{email}": {
+      "get": {
+        "operationId": "UserController_findByEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
     "/api/storage/upload": {
       "post": {
         "operationId": "StorageController_uploadFile",
@@ -365,6 +679,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "expiresIn",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
           }
         ],
         "responses": {
@@ -557,6 +879,274 @@
         ]
       }
     },
+    "/api/albums": {
+      "post": {
+        "operationId": "AlbumController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAlbumRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Album"
+        ]
+      },
+      "get": {
+        "operationId": "AlbumController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Album"
+        ]
+      }
+    },
+    "/api/albums/{id}": {
+      "patch": {
+        "operationId": "AlbumController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAlbumRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Album"
+        ]
+      },
+      "delete": {
+        "operationId": "AlbumController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Album"
+        ]
+      },
+      "get": {
+        "operationId": "AlbumController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Album"
+        ]
+      }
+    },
+    "/api/albums/search": {
+      "get": {
+        "operationId": "AlbumController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Album"
+        ]
+      }
+    },
+    "/api/songs": {
+      "post": {
+        "operationId": "SongController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSongRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Song"
+        ]
+      },
+      "get": {
+        "operationId": "SongController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Song"
+        ]
+      }
+    },
+    "/api/songs/{id}": {
+      "patch": {
+        "operationId": "SongController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSongRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Song"
+        ]
+      },
+      "delete": {
+        "operationId": "SongController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Song"
+        ]
+      },
+      "get": {
+        "operationId": "SongController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Song"
+        ]
+      }
+    },
+    "/api/songs/search": {
+      "get": {
+        "operationId": "SongController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Song"
+        ]
+      }
+    },
     "/api/auth/local/register": {
       "post": {
         "operationId": "AuthController_register",
@@ -746,6 +1336,30 @@
         ]
       }
     },
+    "/api/auth/social/login": {
+      "post": {
+        "operationId": "AuthController_socialLogin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocialLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/auth/google": {
       "get": {
         "operationId": "AuthController_googleAuth",
@@ -771,163 +1385,6 @@
         },
         "tags": [
           "auth"
-        ]
-      }
-    },
-    "/api/users": {
-      "post": {
-        "operationId": "UserController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      },
-      "get": {
-        "operationId": "UserController_paginate",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      }
-    },
-    "/api/users/{id}": {
-      "patch": {
-        "operationId": "UserController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      },
-      "delete": {
-        "operationId": "UserController_delete",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      },
-      "get": {
-        "operationId": "UserController_findById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      }
-    },
-    "/api/users/search": {
-      "get": {
-        "operationId": "UserController_search",
-        "parameters": [
-          {
-            "name": "limit",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
-        ]
-      }
-    },
-    "/api/users/by-email/{email}": {
-      "get": {
-        "operationId": "UserController_findByEmail",
-        "parameters": [
-          {
-            "name": "email",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "User"
         ]
       }
     },
@@ -1136,6 +1593,1150 @@
           "DanceStyle"
         ]
       }
+    },
+    "/api/events": {
+      "post": {
+        "operationId": "EventController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Event"
+        ]
+      },
+      "get": {
+        "operationId": "EventController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Event"
+        ]
+      }
+    },
+    "/api/events/{id}": {
+      "patch": {
+        "operationId": "EventController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Event"
+        ]
+      },
+      "delete": {
+        "operationId": "EventController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Event"
+        ]
+      },
+      "get": {
+        "operationId": "EventController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Event"
+        ]
+      }
+    },
+    "/api/events/search": {
+      "get": {
+        "operationId": "EventController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Event"
+        ]
+      }
+    },
+    "/api/course-modules": {
+      "post": {
+        "operationId": "CourseModuleController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseModuleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseModule"
+        ]
+      },
+      "get": {
+        "operationId": "CourseModuleController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseModule"
+        ]
+      }
+    },
+    "/api/course-modules/{id}": {
+      "patch": {
+        "operationId": "CourseModuleController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseModuleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseModule"
+        ]
+      },
+      "delete": {
+        "operationId": "CourseModuleController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseModule"
+        ]
+      },
+      "get": {
+        "operationId": "CourseModuleController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseModule"
+        ]
+      }
+    },
+    "/api/course-modules/search": {
+      "get": {
+        "operationId": "CourseModuleController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseModule"
+        ]
+      }
+    },
+    "/api/lessons": {
+      "post": {
+        "operationId": "LessonController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLessonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lesson"
+        ]
+      },
+      "get": {
+        "operationId": "LessonController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lesson"
+        ]
+      }
+    },
+    "/api/lessons/{id}": {
+      "patch": {
+        "operationId": "LessonController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLessonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lesson"
+        ]
+      },
+      "delete": {
+        "operationId": "LessonController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lesson"
+        ]
+      },
+      "get": {
+        "operationId": "LessonController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lesson"
+        ]
+      }
+    },
+    "/api/lessons/search": {
+      "get": {
+        "operationId": "LessonController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lesson"
+        ]
+      }
+    },
+    "/api/lesson-attachments": {
+      "post": {
+        "operationId": "LessonAttachmentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLessonAttachmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonAttachment"
+        ]
+      },
+      "get": {
+        "operationId": "LessonAttachmentController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonAttachment"
+        ]
+      }
+    },
+    "/api/lesson-attachments/{id}": {
+      "patch": {
+        "operationId": "LessonAttachmentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLessonAttachmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonAttachment"
+        ]
+      },
+      "delete": {
+        "operationId": "LessonAttachmentController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonAttachment"
+        ]
+      },
+      "get": {
+        "operationId": "LessonAttachmentController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonAttachment"
+        ]
+      }
+    },
+    "/api/lesson-attachments/search": {
+      "get": {
+        "operationId": "LessonAttachmentController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonAttachment"
+        ]
+      }
+    },
+    "/api/enrollments": {
+      "post": {
+        "operationId": "EnrollmentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEnrollmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Enrollment"
+        ]
+      },
+      "get": {
+        "operationId": "EnrollmentController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Enrollment"
+        ]
+      }
+    },
+    "/api/enrollments/{id}": {
+      "patch": {
+        "operationId": "EnrollmentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEnrollmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Enrollment"
+        ]
+      },
+      "delete": {
+        "operationId": "EnrollmentController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Enrollment"
+        ]
+      },
+      "get": {
+        "operationId": "EnrollmentController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Enrollment"
+        ]
+      }
+    },
+    "/api/enrollments/search": {
+      "get": {
+        "operationId": "EnrollmentController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Enrollment"
+        ]
+      }
+    },
+    "/api/course-progresses": {
+      "post": {
+        "operationId": "CourseProgressController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseProgressRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseProgress"
+        ]
+      },
+      "get": {
+        "operationId": "CourseProgressController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseProgress"
+        ]
+      }
+    },
+    "/api/course-progresses/{id}": {
+      "patch": {
+        "operationId": "CourseProgressController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseProgressRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseProgress"
+        ]
+      },
+      "delete": {
+        "operationId": "CourseProgressController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseProgress"
+        ]
+      },
+      "get": {
+        "operationId": "CourseProgressController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseProgress"
+        ]
+      }
+    },
+    "/api/course-progresses/search": {
+      "get": {
+        "operationId": "CourseProgressController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CourseProgress"
+        ]
+      }
+    },
+    "/api/lesson-comments": {
+      "post": {
+        "operationId": "LessonCommentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLessonCommentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonComment"
+        ]
+      },
+      "get": {
+        "operationId": "LessonCommentController_paginate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonComment"
+        ]
+      }
+    },
+    "/api/lesson-comments/{id}": {
+      "patch": {
+        "operationId": "LessonCommentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLessonCommentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonComment"
+        ]
+      },
+      "delete": {
+        "operationId": "LessonCommentController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonComment"
+        ]
+      },
+      "get": {
+        "operationId": "LessonCommentController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonComment"
+        ]
+      }
+    },
+    "/api/lesson-comments/search": {
+      "get": {
+        "operationId": "LessonCommentController_search",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LessonComment"
+        ]
+      }
+    },
+    "/api/courses": {
+      "post": {
+        "operationId": "CourseController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Course"
+        ]
+      },
+      "get": {
+        "operationId": "CourseController_paginate",
+        "parameters": [
+          {
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Course"
+        ]
+      }
+    },
+    "/api/courses/{id}": {
+      "patch": {
+        "operationId": "CourseController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Course"
+        ]
+      },
+      "delete": {
+        "operationId": "CourseController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Course"
+        ]
+      },
+      "get": {
+        "operationId": "CourseController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeAllTranslations",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Course"
+        ]
+      }
+    },
+    "/api/courses/search": {
+      "get": {
+        "operationId": "CourseController_search",
+        "parameters": [
+          {
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Course"
+        ]
+      }
+    },
+    "/api/courses/by-slug/{slug}": {
+      "get": {
+        "operationId": "CourseController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeAllTranslations",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Course"
+        ]
+      }
     }
   },
   "info": {
@@ -1155,6 +2756,34 @@
       }
     },
     "schemas": {
+      "CreatePaymentIntentRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateSubscriptionRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateCheckoutSessionRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateConnectedAccountRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateMarketplacePaymentRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {}
+      },
       "UploadFileRequest": {
         "type": "object",
         "properties": {}
@@ -1171,7 +2800,19 @@
         "type": "object",
         "properties": {}
       },
-      "CreateUserRequest": {
+      "CreateAlbumRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateAlbumRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateSongRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateSongRequest": {
         "type": "object",
         "properties": {}
       },
@@ -1187,7 +2828,7 @@
         "type": "object",
         "properties": {}
       },
-      "UpdateUserRequest": {
+      "SocialLoginRequest": {
         "type": "object",
         "properties": {}
       },
@@ -1196,6 +2837,70 @@
         "properties": {}
       },
       "UpdateDanceStyleRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateEventRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateEventRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateCourseModuleRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateCourseModuleRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateLessonRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateLessonRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateLessonAttachmentRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateLessonAttachmentRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateEnrollmentRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateEnrollmentRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateCourseProgressRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateCourseProgressRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateLessonCommentRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateLessonCommentRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateCourseRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateCourseRequest": {
         "type": "object",
         "properties": {}
       }

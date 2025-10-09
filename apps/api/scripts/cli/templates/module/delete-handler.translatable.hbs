@@ -13,8 +13,7 @@ export class Delete{{pascalCase name}}Handler {
         @Inject({{constantCase name}}_REPOSITORY) private readonly repository: I{{pascalCase name}}Repository,
     ) {}
 
-    async executeCommand({ id }: Delete{{pascalCase name}}Command): Promise<void> {
-        await this.repository.findById(id);
+    async execute({ id }: Delete{{pascalCase name}}Command): Promise<void> {
         await this.repository.delete(id);
     }
 }

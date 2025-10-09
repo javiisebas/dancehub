@@ -1,0 +1,99 @@
+{
+    "entity": "Course",
+    "table": "courses",
+    "description": "Sistema de cursos de baile",
+    "fields": [
+        {
+            "name": "level",
+            "type": "varchar(50)",
+            "required": true,
+            "unique": false,
+            "default": "beginner",
+            "isEnum": true,
+            "enumName": "CourseLevel",
+            "validators": {
+                "create": ["IsNotEmpty", "IsEnum:CourseLevel"],
+                "update": ["IsOptional", "IsEnum:CourseLevel"]
+            }
+        },
+        {
+            "name": "duration",
+            "type": "integer",
+            "required": true,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsNotEmpty", "IsInt", "Min:1"],
+                "update": ["IsOptional", "IsInt", "Min:1"]
+            }
+        },
+        {
+            "name": "price",
+            "type": "numeric(10,2)",
+            "required": true,
+            "unique": false,
+            "default": null,
+            "validators": {
+                "create": ["IsNotEmpty", "IsNumber", "Min:0"],
+                "update": ["IsOptional", "IsNumber", "Min:0"]
+            }
+        }
+    ],
+    "enums": [
+        {
+            "name": "CourseLevel",
+            "values": ["beginner", "intermediate", "advanced", "professional"],
+            "description": "Nivel del curso"
+        }
+    ],
+    "foreignKeys": [
+        {
+            "name": "instructorId",
+            "type": "uuid",
+            "refTable": "users",
+            "refColumn": "id",
+            "onDelete": "cascade",
+            "onUpdate": "cascade",
+            "required": true
+        },
+        {
+            "name": "danceStyleId",
+            "type": "uuid",
+            "refTable": "dance_styles",
+            "refColumn": "id",
+            "onDelete": "cascade",
+            "onUpdate": "cascade",
+            "required": true
+        }
+    ],
+    "relations": [
+        {
+            "name": "instructor",
+            "type": "one",
+            "entity": "User",
+            "table": "users",
+            "fields": ["instructorId"],
+            "references": ["id"]
+        },
+        {
+            "name": "danceStyle",
+            "type": "one",
+            "entity": "DanceStyle",
+            "table": "dance_styles",
+            "fields": ["danceStyleId"],
+            "references": ["id"]
+        }
+    ],
+    "indexes": [
+        {
+            "name": "course_level_idx",
+            "fields": ["level"],
+            "unique": false
+        },
+        {
+            "name": "course_instructor_idx",
+            "fields": ["instructorId"],
+            "unique": false
+        }
+    ]
+}

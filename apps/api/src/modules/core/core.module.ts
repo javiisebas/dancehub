@@ -5,6 +5,7 @@ import { EventsModule } from './events/events.module';
 import { HealthModule } from './health/health.module';
 import { AppI18nModule } from './i18n/i18n.module';
 import { AppLoggerModule } from './logger/logger.module';
+import { PaymentModule } from './payment/payment.module';
 import { AppQrModule } from './qr/qr.module';
 import { AppScheduleModule } from './schedule/schedule.module';
 import { StorageModule } from './storage/storage.module';
@@ -20,6 +21,7 @@ const Modules = [
     CacheModule,
     EventsModule,
     HealthModule,
+    PaymentModule,
     StorageModule,
 ];
 

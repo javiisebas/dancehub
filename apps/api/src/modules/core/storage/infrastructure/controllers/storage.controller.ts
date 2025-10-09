@@ -1,6 +1,8 @@
 import { CurrentUser } from '@api/common/decorators/current-user.decorator';
 import { Serialize } from '@api/common/decorators/serialize.decorator';
+import { JwtAuthGuard } from '@api/common/guards/jwt-auth.guard';
 import {
+    BadRequestException,
     Body,
     Controller,
     Delete,
@@ -17,7 +19,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 import {
-    GetPresignedUrlRequest,
     PaginatedStorageRequest,
     PresignedUrlResponse,
     StoragePaginatedResponse,
@@ -74,6 +75,7 @@ export class StorageController {
     }
 
     @Post('upload/image')
+    @UseGuards(JwtAuthGuard)
     @Throttle({ default: { limit: 20, ttl: 60000 } })
     @UseInterceptors(FileInterceptor('file'), StorageUrlInterceptor)
     @Serialize(UploadFileResponse)
@@ -94,6 +96,7 @@ export class StorageController {
     }
 
     @Post('upload/document')
+    @UseGuards(JwtAuthGuard)
     @Throttle({ default: { limit: 10, ttl: 60000 } })
     @UseInterceptors(FileInterceptor('file'), StorageUrlInterceptor)
     @Serialize(UploadFileResponse)
@@ -114,13 +117,14 @@ export class StorageController {
     }
 
     @Post('upload/video')
+    @UseGuards(JwtAuthGuard)
     @Throttle({ default: { limit: 5, ttl: 60000 } })
     @UseInterceptors(FileInterceptor('file'), StorageUrlInterceptor)
     @Serialize(UploadFileResponse)
     async uploadVideo(
         @UploadedFile(
             new FileValidationPipe({
-                maxSizeInBytes: 100 * 1024 * 1024, // 100MB for videos
+                maxSizeInBytes: 1000 * 1024 * 1024, // 100MB for videos
                 allowedMimeTypes: FileTypeValidator.VIDEO_MIME_TYPES,
                 allowedExtensions: FileTypeValidator.VIDEO_EXTENSIONS,
                 required: true,
@@ -130,7 +134,8 @@ export class StorageController {
         @Body() dto: UploadFileRequest,
         @CurrentUser('id') userId?: string,
     ) {
-        return this.storageService.uploadFile(file, userId ?? null, dto);
+        const uploadId = dto.metadata?.uploadId as string | undefined;
+        return this.storageService.uploadFile(file, userId ?? null, dto, uploadId);
     }
 
     @Get()
@@ -151,14 +156,18 @@ export class StorageController {
     }
 
     @Get(':id/presigned-url')
-    @UseGuards(StorageAccessGuard)
+    @UseGuards(JwtAuthGuard, StorageAccessGuard)
     @Serialize(PresignedUrlResponse)
     async getPresignedUrl(
         @Param('id') id: string,
-        @Query() dto: GetPresignedUrlRequest,
+        @Query('expiresIn') expiresIn?: number,
         @CurrentUser('id') userId?: string,
     ) {
-        return this.storageService.getPresignedUrl(id, userId ?? null, dto.expiresIn ?? 3600);
+        const expires = expiresIn ? Number(expiresIn) : 3600;
+        if (expires < 60 || expires > 604800) {
+            throw new BadRequestException('expiresIn must be between 60 and 604800 seconds');
+        }
+        return this.storageService.getPresignedUrl(id, userId ?? null, expires);
     }
 
     @Get(':id/public-url')

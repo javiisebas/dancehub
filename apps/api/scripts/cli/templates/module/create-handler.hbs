@@ -17,12 +17,19 @@ export class Create{{pascalCase name}}Handler {
     ) {}
 
     async execute({ data }: Create{{pascalCase name}}Command) {
-        const {{camelCase name}} = {{pascalCase name}}.create(
-            randomUUID(),
-            {{#each fields}}
-            data.{{camelCase name}},
-            {{/each}}
-        );
+        const {{camelCase name}} = {{pascalCase name}}.create({
+            id: randomUUID(),
+{{#if fields}}
+{{#each fields}}
+            {{camelCase name}}: data.{{camelCase name}},
+{{/each}}
+{{/if}}
+{{#if foreignKeys}}
+{{#each foreignKeys}}
+            {{camelCase name}}: data.{{camelCase name}},
+{{/each}}
+{{/if}}
+        });
 
         return this.repository.save({{camelCase name}});
     }

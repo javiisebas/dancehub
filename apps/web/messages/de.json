@@ -1,0 +1,97 @@
+{
+    "Index": {
+        "title": "Startseite",
+        "loggedIn": "Angemeldet als {username}",
+        "loggedOut": "Du bist abgemeldet.",
+        "login": "Anmelden",
+        "logout": "Abmelden",
+        "secret": "Geheime Seite für angemeldete Benutzer"
+    },
+    "Home": {
+        "title": "Willkommen"
+    },
+    "Login": {
+        "title": "Willkommen",
+        "subtitle": "Bitte melden Sie sich an, um fortzufahren"
+    },
+    "Register": {
+        "title": "Registrieren",
+        "subtitle": "Neues Konto erstellen",
+        "terms": "Durch Klicken auf 'Weiter' stimmen Sie den ",
+        "termsLink": "Nutzungsbedingungen",
+        "privacy": " und der ",
+        "privacyLink": "Datenschutzerklärung",
+        "continue": "Weiter",
+        "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
+        "login": "Anmelden",
+        "successMessage": "Registrierung erfolgreich! Weiterleitung...",
+        "errorMessage": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+        "passwordsMustMatch": "Passwörter müssen übereinstimmen."
+    },
+    "Recover": {
+        "title": "Passwort wiederherstellen",
+        "subtitle": "Geben Sie die E-Mail-Adresse Ihres Kontos ein",
+        "continue": "Weiter",
+        "successMessage": "Wenn die E-Mail registriert ist, erhalten Sie einen Wiederherstellungslink.",
+        "errorMessage": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+        "backToLogin": "Zurück zur Anmeldung",
+        "resendWait": "Neue E-Mail senden in",
+        "checkEmail": "Überprüfen Sie Ihre E-Mail!",
+        "seconds": "Sekunden"
+    },
+    "ResetPassword": {
+        "title": "Passwort zurücksetzen",
+        "subtitle": "Geben Sie Ihr neues Passwort ein",
+        "continue": "Weiter",
+        "successMessage": "Passwort erfolgreich zurückgesetzt! Weiterleitung...",
+        "errorMessage": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+        "backToLogin": "Zurück zur Anmeldung"
+    },
+    "NewPassword": {
+        "title": "Passwort zurücksetzen",
+        "subtitle": "Geben Sie ein neues Passwort für Ihr Konto ein",
+        "confirm": "Bestätigen",
+        "successMessage": "Ihr Passwort wurde erfolgreich aktualisiert! Weiterleitung...",
+        "errorMessage": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+        "missingToken": "Ungültiges oder fehlendes Reset-Token.",
+        "backToLogin": "Zurück zur Anmeldung"
+    },
+    "VerifyEmail": {
+        "title": "E-Mail verifizieren",
+        "loading": "Wir verifizieren Ihr Konto. Bitte warten Sie...",
+        "successMessage": "Ihr Konto wurde erfolgreich verifiziert!",
+        "errorMessage": "Wir konnten Ihr Konto nicht verifizieren. Dieser Link ist möglicherweise abgelaufen oder bereits verwendet worden.",
+        "invalidToken": "Ungültiges oder fehlendes Token.",
+        "goToLogin": "Zur Anmeldung",
+        "toastError": "Bei der Verifizierung Ihrer E-Mail ist ein Fehler aufgetreten."
+    },
+    "Error": {
+        "apiGeneric": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+    },
+    "Forms": {
+        "errors": {
+            "required": "Dieses Feld ist erforderlich",
+            "invalidEmail": "Ungültige E-Mail-Adresse",
+            "minLength": "Muss mindestens {min} Zeichen lang sein",
+            "passwordsMustMatch": "Passwörter müssen übereinstimmen"
+        },
+        "firstName": { "label": "Vorname", "placeholder": "Geben Sie Ihren Vornamen ein" },
+        "lastName": { "label": "Nachname", "placeholder": "Geben Sie Ihren Nachnamen ein" },
+        "email": { "label": "E-Mail-Adresse", "placeholder": "Geben Sie Ihre E-Mail ein" },
+        "password": { "label": "Passwort", "placeholder": "Geben Sie Ihr Passwort ein" },
+        "confirmPassword": {
+            "label": "Passwort bestätigen",
+            "placeholder": "Bestätigen Sie Ihr Passwort"
+        }
+    },
+    "SocialLogin": {
+        "title": "Social Login",
+        "subtitle": "Mit Ihrem Social-Media-Konto anmelden",
+        "google": "Mit Google fortfahren",
+        "or": "oder",
+        "email": "Mit E-Mail fortfahren"
+    },
+    "LocaleSwitcher": {
+        "switchLocale": "Zu {locale, select, de {Deutsch} en {Englisch} other {Unbekannt}} wechseln"
+    }
+}

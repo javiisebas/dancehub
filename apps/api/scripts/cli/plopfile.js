@@ -71,26 +71,46 @@ module.exports = function (plop) {
     });
 
     plop.setHelper('pascalCase', (text) => {
+        // If already PascalCase or contains no separators, just ensure first char is uppercase
+        if (!/[-_\s]/.test(text)) {
+            return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+        // Otherwise, convert from kebab-case, snake_case, or space-separated
         return text
-            .split('-')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .split(/[-_\s]/)
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join('');
     });
 
     plop.setHelper('camelCase', (text) => {
+        // If already camelCase or contains no separators, just ensure first char is lowercase
+        if (!/[-_\s]/.test(text)) {
+            return text.charAt(0).toLowerCase() + text.slice(1);
+        }
+        // Otherwise, convert from kebab-case, snake_case, or space-separated
         const pascal = text
-            .split('-')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .split(/[-_\s]/)
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join('');
         return pascal.charAt(0).toLowerCase() + pascal.slice(1);
     });
 
     plop.setHelper('kebabCase', (text) => {
-        return text.toLowerCase().replace(/\s+/g, '-');
+        return text
+            .replace(/([a-z])([A-Z])/g, '$1-$2')
+            .replace(/[\s_]+/g, '-')
+            .toLowerCase();
+    });
+
+    plop.setHelper('eq', (a, b) => {
+        return a === b;
     });
 
     plop.setHelper('snakeCase', (text) => {
-        return text.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+        return text
+            .replace(/([a-z])([A-Z])/g, '$1_$2')
+            .replace(/[\s-]+/g, '_')
+            .toLowerCase();
     });
 
     plop.setHelper('constantCase', (text) => {
@@ -107,10 +127,44 @@ module.exports = function (plop) {
         return text + 's';
     });
 
+    plop.setHelper('singularize', (text) => {
+        if (text.endsWith('ies')) {
+            return text.slice(0, -3) + 'y';
+        }
+        if (text.endsWith('ses') || text.endsWith('xes') || text.endsWith('zes')) {
+            return text.slice(0, -2);
+        }
+        if (text.endsWith('s') && !text.endsWith('ss')) {
+            return text.slice(0, -1);
+        }
+        return text;
+    });
+
     plop.setHelper('eq', (a, b) => a === b);
     plop.setHelper('ne', (a, b) => a !== b);
     plop.setHelper('or', (...args) => {
         return Array.prototype.slice.call(args, 0, -1).some(Boolean);
+    });
+    plop.setHelper('uniqueDrizzleTypes', (fields) => {
+        if (!fields || !Array.isArray(fields)) return [];
+        const types = new Set();
+        fields.forEach((field) => {
+            if (
+                field.drizzleType &&
+                field.drizzleType !== 'uuid' &&
+                field.drizzleType !== 'timestamp'
+            ) {
+                types.add(field.drizzleType);
+            }
+        });
+        return Array.from(types);
+    });
+    plop.setHelper('enumFileName', (enumName) => {
+        const name = enumName.replace(/Enum$/i, '');
+        return name
+            .replace(/([a-z])([A-Z])/g, '$1-$2')
+            .replace(/[\s_]+/g, '-')
+            .toLowerCase();
     });
     plop.setHelper('and', (...args) => {
         return Array.prototype.slice.call(args, 0, -1).every(Boolean);
@@ -144,7 +198,7 @@ module.exports = function (plop) {
 
             let schemaData = null;
 
-            if (data.schemaFile && data.schemaFile.trim() !== '') {
+            if (data.schemaFile && data.schemaFile.trim() !== '' && data.schemaFile !== 'none') {
                 try {
                     let schemaDefinition;
 
@@ -157,13 +211,7 @@ module.exports = function (plop) {
                         schemaDefinition = readSchemaFile(schemaPath);
                     }
 
-                    schemaData = prepareTemplateData(
-                        isTranslatable && schemaDefinition.entity
-                            ? schemaDefinition.entity
-                            : schemaDefinition,
-                        data.name,
-                        isTranslatable,
-                    );
+                    schemaData = prepareTemplateData(schemaDefinition, data.name, isTranslatable);
 
                     if (schemaData.enums && schemaData.enums.length > 0) {
                         console.log('🎨 Generating enums...');
@@ -173,6 +221,14 @@ module.exports = function (plop) {
                                 `../../packages/shared/src/enums/${plop.getHelper('kebabCase')(enumData.name)}.enum.ts`,
                             );
                             generateEnumFile(enumData, enumPath);
+
+                            // Add enum export to index.ts
+                            actions.push({
+                                type: 'modify',
+                                path: '../../packages/shared/src/enums/index.ts',
+                                pattern: /(export \* from '\.\/currency\.enum';)/,
+                                template: `$1\nexport * from './${plop.getHelper('kebabCase')(enumData.name)}.enum';`,
+                            });
                         });
                     }
 
@@ -200,6 +256,7 @@ module.exports = function (plop) {
                     type: 'add',
                     path: `${modulePath}/{{kebabCase name}}.module.ts`,
                     templateFile: 'templates/module/module.hbs',
+                    force: true,
                 },
                 {
                     type: 'add',
@@ -215,6 +272,7 @@ module.exports = function (plop) {
                     templateFile: isTranslatable
                         ? 'templates/module/repository.interface.translatable.hbs'
                         : 'templates/module/repository.interface.hbs',
+                    data: schemaData || {},
                 },
                 {
                     type: 'add',
@@ -445,24 +503,19 @@ module.exports = function (plop) {
                 template: "$1export * from './{{kebabCase name}}';\n",
             });
 
-            actions.push(function (answers) {
-                return {
-                    type: 'prettier',
-                    pattern: `src/modules/${plop.getHelper('kebabCase')(answers.name)}/**/*.ts`,
-                };
-            });
+            // actions.push(function (answers) {
+            //     return {
+            //         type: 'prettier',
+            //         pattern: `src/modules/${plop.getHelper('kebabCase')(answers.name)}/**/*.ts`,
+            //     };
+            // });
 
-            actions.push({
-                type: 'prettier',
-                pattern: 'src/app.module.ts',
-            });
-
-            actions.push(function (answers) {
-                return {
-                    type: 'prettier',
-                    pattern: `../../packages/shared/src/dtos/${plop.getHelper('kebabCase')(answers.name)}/**/*.ts`,
-                };
-            });
+            // actions.push(function (answers) {
+            //     return {
+            //         type: 'prettier',
+            //         pattern: `../../packages/shared/src/dtos/${plop.getHelper('kebabCase')(answers.name)}/**/*.ts`,
+            //     };
+            // });
 
             return actions;
         },
@@ -501,7 +554,7 @@ module.exports = function (plop) {
 
             let schemaData = null;
 
-            if (data.schemaFile && data.schemaFile.trim() !== '') {
+            if (data.schemaFile && data.schemaFile.trim() !== '' && data.schemaFile !== 'none') {
                 try {
                     let schemaDefinition;
 
@@ -514,13 +567,7 @@ module.exports = function (plop) {
                         schemaDefinition = readSchemaFile(schemaPath);
                     }
 
-                    schemaData = prepareTemplateData(
-                        isTranslatable && schemaDefinition.entity
-                            ? schemaDefinition.entity
-                            : schemaDefinition,
-                        data.name,
-                        isTranslatable,
-                    );
+                    schemaData = prepareTemplateData(schemaDefinition, data.name, isTranslatable);
 
                     if (schemaData.enums && schemaData.enums.length > 0) {
                         console.log('🎨 Generating enums...');
@@ -530,6 +577,14 @@ module.exports = function (plop) {
                                 `../../packages/shared/src/enums/${plop.getHelper('kebabCase')(enumData.name)}.enum.ts`,
                             );
                             generateEnumFile(enumData, enumPath);
+
+                            // Add enum export to index.ts
+                            actions.push({
+                                type: 'modify',
+                                path: '../../packages/shared/src/enums/index.ts',
+                                pattern: /(export \* from '\.\/currency\.enum';)/,
+                                template: `$1\nexport * from './${plop.getHelper('kebabCase')(enumData.name)}.enum';`,
+                            });
                         });
                     }
 
@@ -567,6 +622,7 @@ module.exports = function (plop) {
                     templateFile: isTranslatable
                         ? 'templates/entity/repository.interface.translatable.hbs'
                         : 'templates/entity/repository.interface.hbs',
+                    data: schemaData || {},
                 },
                 {
                     type: 'add',
@@ -574,6 +630,7 @@ module.exports = function (plop) {
                     templateFile: isTranslatable
                         ? 'templates/entity/repository.translatable.hbs'
                         : 'templates/entity/repository.hbs',
+                    data: { ...(schemaData || {}), fields: schemaData?.fields },
                 },
                 {
                     type: 'add',
@@ -815,19 +872,19 @@ module.exports = function (plop) {
                 template: "$1export * from './{{kebabCase name}}';\n",
             });
 
-            actions.push(function (answers) {
-                return {
-                    type: 'prettier',
-                    pattern: `src/modules/${plop.getHelper('kebabCase')(answers.module)}/**/*.ts`,
-                };
-            });
+            // actions.push(function (answers) {
+            //     return {
+            //         type: 'prettier',
+            //         pattern: `src/modules/${plop.getHelper('kebabCase')(answers.module)}/**/*.ts`,
+            //     };
+            // });
 
-            actions.push(function (answers) {
-                return {
-                    type: 'prettier',
-                    pattern: `../../packages/shared/src/dtos/${plop.getHelper('kebabCase')(answers.name)}/**/*.ts`,
-                };
-            });
+            // actions.push(function (answers) {
+            //     return {
+            //         type: 'prettier',
+            //         pattern: `../../packages/shared/src/dtos/${plop.getHelper('kebabCase')(answers.name)}/**/*.ts`,
+            //     };
+            // });
 
             return actions;
         },
@@ -955,21 +1012,6 @@ module.exports = function (plop) {
     exports: [],
 })
 export class {{pascalCase name}}Module {}`,
-            });
-
-            actions.push({
-                type: 'modify',
-                path: 'src/app.module.ts',
-                pattern: /(imports: \[[\s\S]*?)(])/,
-                template: '$1, {{pascalCase name}}Module$2',
-            });
-
-            actions.push({
-                type: 'modify',
-                path: 'src/app.module.ts',
-                pattern: /(import { Module } from '@nestjs\/common';)/,
-                template:
-                    "$1\nimport { {{pascalCase name}}Module } from './modules/{{kebabCase name}}/{{kebabCase name}}.module';",
             });
 
             return actions;

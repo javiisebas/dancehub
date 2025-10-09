@@ -1,0 +1,100 @@
+{
+    "Index": {
+        "title": "Home",
+        "loggedIn": "Logged in as {username}",
+        "loggedOut": "You are logged out.",
+        "login": "Login",
+        "logout": "Logout",
+        "secret": "Secret page for logged in users"
+    },
+    "Home": {
+        "title": "Welcome"
+    },
+    "Login": {
+        "title": "Welcome",
+        "subtitle": "Please log in to continue"
+    },
+    "Register": {
+        "title": "Sign Up",
+        "subtitle": "Create a new account",
+        "terms": "By clicking 'Continue' you agree to the ",
+        "termsLink": "Terms of Use",
+        "privacy": " and the ",
+        "privacyLink": "Privacy Policy",
+        "continue": "Continue",
+        "alreadyHaveAccount": "Already have an account?",
+        "login": "Log In",
+        "successMessage": "Registration successful! Redirecting...",
+        "errorMessage": "Something went wrong. Please try again.",
+        "passwordsMustMatch": "Passwords must match."
+    },
+    "Recover": {
+        "title": "Recover Password",
+        "subtitle": "Enter the email associated with your account",
+        "continue": "Continue",
+        "successMessage": "If the email is registered, you will receive a recovery link.",
+        "errorMessage": "Something went wrong. Please try again.",
+        "backToLogin": "Back to Log in",
+        "resendWait": "Resend new email in",
+        "checkEmail": "Check your email!",
+        "seconds": "seconds"
+    },
+    "ResetPassword": {
+        "title": "Reset Password",
+        "subtitle": "Enter your new password",
+        "continue": "Continue",
+        "successMessage": "Password reset successful! Redirecting...",
+        "errorMessage": "Something went wrong. Please try again.",
+        "backToLogin": "Back to Log in"
+    },
+    "NewPassword": {
+        "title": "Reset Your Password",
+        "subtitle": "Enter a new password for your account",
+        "confirm": "Confirm",
+        "successMessage": "Your password has been updated successfully! Redirecting...",
+        "errorMessage": "Something went wrong. Please try again.",
+        "missingToken": "Invalid or missing reset token.",
+        "backToLogin": "Back to Log in"
+    },
+
+    "VerifyEmail": {
+        "title": "Verify Your Email",
+        "loading": "We are verifying your account. Please wait...",
+        "successMessage": "Your account has been successfully verified!",
+        "errorMessage": "We couldn't verify your account. This link may have expired or been used.",
+        "invalidToken": "Invalid or missing token.",
+        "goToLogin": "Go to Login",
+        "toastError": "An error occurred while verifying your email."
+    },
+
+    "Error": {
+        "apiGeneric": "An error occurred. Please try again later."
+    },
+
+    "Forms": {
+        "errors": {
+            "required": "This field is required",
+            "invalidEmail": "Invalid email address",
+            "minLength": "Must be at least {min} characters long",
+            "passwordsMustMatch": "Passwords must match"
+        },
+
+        "firstName": { "label": "First Name", "placeholder": "Enter your first name" },
+        "lastName": { "label": "Last Name", "placeholder": "Enter your last name" },
+        "email": { "label": "Email Address", "placeholder": "Enter your email" },
+        "password": { "label": "Password", "placeholder": "Enter your password" },
+        "confirmPassword": { "label": "Confirm Password", "placeholder": "Confirm your password" }
+    },
+
+    "SocialLogin": {
+        "title": "Social Login",
+        "subtitle": "Login with your social media account",
+        "google": "Continue with Google",
+        "or": "or",
+        "email": "Continue with Email"
+    },
+
+    "LocaleSwitcher": {
+        "switchLocale": "Switch to {locale, select, de {German} en {English} other {Unknown}}"
+    }
+}

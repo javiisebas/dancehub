@@ -218,9 +218,14 @@ export abstract class BaseRepository<
 
     async save(entity: TEntity): Promise<TEntity> {
         const schema = this.toSchema(entity);
+        const now = new Date();
+        const dataToSave = {
+            ...schema,
+            updatedAt: now,
+        };
         const result = await this.db
             .insert(this.table)
-            .values(schema as never)
+            .values(dataToSave as never)
             .returning();
         return this.toDomain(result[0] as TTable['$inferSelect']);
     }
@@ -236,9 +241,14 @@ export abstract class BaseRepository<
 
     async update(id: string | number, data: unknown): Promise<TEntity> {
         const idColumn = this.getIdColumn();
+        const now = new Date();
+        const dataToUpdate = {
+            ...(data as Record<string, unknown>),
+            updatedAt: now,
+        };
         const result = await this.db
             .update(this.table)
-            .set(data as never)
+            .set(dataToUpdate as never)
             .where(eq(idColumn, id))
             .returning();
 

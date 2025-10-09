@@ -1,5 +1,5 @@
 import { BaseEntity } from '@api/common/abstract/domain';
-import { ProvidersEnum, UserStatusEnum } from '@repo/shared';
+import { ProvidersEnum, UserRoleEnum, UserStatusEnum } from '@repo/shared';
 
 export class User extends BaseEntity {
     constructor(
@@ -9,6 +9,7 @@ export class User extends BaseEntity {
         private _password: string | null,
         public refreshToken: string | null,
         public status: UserStatusEnum,
+        public role: UserRoleEnum,
         public provider: ProvidersEnum,
         public providerId: string | null,
         public firstName: string | null,
@@ -71,6 +72,22 @@ export class User extends BaseEntity {
         return this.createdAt > oneDayAgo;
     }
 
+    isArtist(): boolean {
+        return this.role === UserRoleEnum.ARTIST;
+    }
+
+    isClient(): boolean {
+        return this.role === UserRoleEnum.CLIENT;
+    }
+
+    isAdmin(): boolean {
+        return this.role === UserRoleEnum.ADMIN;
+    }
+
+    updateRole(role: UserRoleEnum): void {
+        this.role = role;
+    }
+
     static create(
         id: string,
         email: string,
@@ -83,6 +100,7 @@ export class User extends BaseEntity {
         displayName?: string,
         image?: string,
         status: UserStatusEnum = UserStatusEnum.PENDING,
+        role: UserRoleEnum = UserRoleEnum.CLIENT,
     ): User {
         const now = new Date();
         return new User(
@@ -92,6 +110,7 @@ export class User extends BaseEntity {
             hashedPassword ?? null,
             null,
             status,
+            role,
             provider,
             providerId ?? null,
             firstName ?? null,

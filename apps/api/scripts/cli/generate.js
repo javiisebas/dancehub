@@ -128,7 +128,8 @@ const options = {};
 
 for (let i = 1; i < args.length; i++) {
     if (args[i].startsWith('--')) {
-        const key = args[i].substring(2);
+        let key = args[i].substring(2);
+        key = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
         if (key === 'translatable') {
             options[key] = true;
         } else if (i + 1 < args.length && !args[i + 1].startsWith('--')) {
@@ -142,15 +143,15 @@ const plopArgs = [generator];
 
 if (generator === 'module') {
     plopArgs.push(options.name || '');
-    plopArgs.push(options.translatable ? 'true' : 'false');
-    plopArgs.push(options.schema || options.schemaFile || options.fields || '');
+    plopArgs.push(options.translatable ? 'y' : 'n');
+    plopArgs.push(options.schema || options.schemaFile || options.fields || 'none');
 } else if (generator === 'module-container') {
     plopArgs.push(options.name || '');
 } else if (generator === 'entity') {
     plopArgs.push(options.module || '');
     plopArgs.push(options.name || '');
-    plopArgs.push(options.translatable ? 'true' : 'false');
-    plopArgs.push(options.schema || options.schemaFile || options.fields || '');
+    plopArgs.push(options.translatable ? 'y' : 'n');
+    plopArgs.push(options.schema || options.schemaFile || options.fields || 'none');
 } else if (generator === 'handler') {
     plopArgs.push(options.module || '');
     plopArgs.push(options.type || '');

@@ -91,8 +91,8 @@ export class AuthTokenService {
         type: 'accessToken' | 'refreshToken';
     }): Promise<T> {
         const secret = {
-            refreshToken: this.configService.get('auth.jwtSecret'),
-            accessToken: this.configService.get('auth.jwtRefreshSecret'),
+            refreshToken: this.configService.get('auth.jwtRefreshSecret'),
+            accessToken: this.configService.get('auth.jwtSecret'),
         }[type];
 
         try {

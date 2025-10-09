@@ -1,15 +1,34 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsBoolean, IsDate, MinLength, MaxLength, Min,
-Max, IsInt } from 'class-validator'; export class Create{{pascalCase name}}Request {
+import { Type } from 'class-transformer'; import { IsNotEmpty, IsString, IsOptional, IsNumber,
+IsBoolean, IsDate, IsEnum, IsInt, MinLength, MaxLength, Min, Max, } from 'class-validator';
+{{#if fields}}
+    {{#each fields}}
+        {{#if isEnum}}
+            import {
+            {{enumName}}
+            } from '../../../enums/{{enumFileName enumName}}.enum';
+        {{/if}}
+    {{/each}}
+{{/if}}
+
+export class Create{{pascalCase name}}Request {
 {{#if fields}}
     {{#each fields}}
         {{#each this.validators}}
             {{{this}}}
         {{/each}}
+        {{#if (eq this.tsType 'Date')}}
+            @Type(() => Date)
+        {{/if}}
         {{camelCase this.name}}{{#unless this.required}}?{{/unless}}:
         {{this.tsType}};
 
     {{/each}}
-{{else}}
-    // TODO: Add your fields here // Example: // @IsString() // @IsNotEmpty() // fieldName: string;
+{{/if}}
+{{#if foreignKeys}}
+    {{#each foreignKeys}}
+        @IsString() @IsNotEmpty()
+        {{camelCase this.name}}: string;
+
+    {{/each}}
 {{/if}}
 }

@@ -1,12 +1,49 @@
-import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'; export const
-{{camelCase name}}s = pgTable('{{snakeCase (pluralize name)}}', { id:
-uuid('id').defaultRandom().primaryKey(),
-{{#each fields}}
-    {{camelCase name}}: varchar('{{snakeCase name}}', { length: 256 }){{#if
-        required
-    }}.notNull(){{/if}},
+import {
+    pgTable,
+    timestamp,
+    uuid,
+{{#if indexes}}
+    index,
+    uniqueIndex,
+{{/if}}
+{{#each (uniqueDrizzleTypes fields)}}
+    {{this}},
 {{/each}}
-createdAt: timestamp('created_at').defaultNow().notNull(), updatedAt:
-timestamp('updated_at').defaultNow().notNull(), }); export type
-{{pascalCase name}}Schema = typeof
-{{camelCase name}}s.$inferSelect;
+} from 'drizzle-orm/pg-core';
+{{#if relations}}
+import { relations } from 'drizzle-orm';
+{{/if}}
+{{#each foreignKeys}}
+import { {{camelCase refTable}} } from '../../../{{kebabCase (singularize refTable)}}/infrastructure/schemas/{{kebabCase (singularize refTable)}}.schema';
+{{/each}}
+
+export const {{camelCase (pluralize name)}} = pgTable('{{snakeCase (pluralize name)}}', {
+    id: uuid('id').primaryKey().defaultRandom(),
+{{#each fields}}
+    {{camelCase name}}: {{{drizzleDefinition}}},
+{{/each}}
+{{#each foreignKeys}}
+    {{camelCase name}}: uuid('{{snakeCase name}}'){{#if required}}
+        .notNull(){{/if}}
+        .references(() => {{camelCase refTable}}.id, { onDelete: '{{onDelete}}' }),
+{{/each}}
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}{{#if indexes}}, (table) => ({
+{{#each indexes}}
+    {{camelCase name}}Idx: {{#if unique}}uniqueIndex{{else}}index{{/if}}('{{name}}').on({{#each fields}}table.{{camelCase this}}{{#unless @last}}, {{/unless}}{{/each}}),
+{{/each}}
+}){{/if}});
+
+export type {{pascalCase name}}Schema = typeof {{camelCase (pluralize name)}}.$inferSelect;
+{{#if relations}}
+
+export const {{camelCase (pluralize name)}}Relations = relations({{camelCase (pluralize name)}}, ({ one, many }) => ({
+{{#each relations}}
+    {{name}}: {{#if (eq type 'one')}}one({{camelCase table}}, {
+        fields: [{{#each fields}}{{camelCase (pluralize @root.name)}}.{{camelCase this}}{{#unless @last}}, {{/unless}}{{/each}}],
+        references: [{{#each references}}{{camelCase ../table}}.{{camelCase this}}{{#unless @last}}, {{/unless}}{{/each}}],
+    }){{else}}many({{camelCase table}}){{/if}},
+{{/each}}
+}));
+{{/if}}
